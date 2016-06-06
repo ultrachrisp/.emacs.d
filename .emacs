@@ -63,8 +63,6 @@
                                               "https://melpa.org/packages/")))
 
 ;; Python mode
-;;(package-initialize)
-;;(elpy-enable)
 ;(require 'python-settings)
 
 ;---------------------------------------------------------------------
