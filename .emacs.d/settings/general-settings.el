@@ -76,5 +76,30 @@
 ;; time duration (avoid showing days)
 (setq org-time-clocksum-format
       '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+	  
+;; Setup for go
+(setenv "GOPATH" "/Users/Chrisp/Development/gocode")
+
+(setq exec-path (cons "/usr/local/opt/go/libexec" exec-path))
+(add-to-list 'exec-path "/Users/Chrisp/Development/gocode/bin")
+
+(defun my-go-mode-hook ()
+  ; Use goimports instead of go-fmt
+  (setq gofmt-command "goimports")
+  ; Call Gofmt before saving
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  ; Customize compile command to run go build
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "go generate && go build -v && go test -v && go vet"))
+  ; Go guru
+  ;(load-file "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
+  (load-file "$GOPATH/src/golang.org/x/tools/cmd/guru/go-guru.el")
+  ; Godef jump key binding
+  (local-set-key (kbd "M-.") 'godef-jump))
+(add-hook 'go-mode-hook 'my-go-mode-hook)
+
+(custom-set-variables
+ '(guru-command "/usr/local/opt/go/libexec/bin/guru"))
 
 (provide 'general-settings)

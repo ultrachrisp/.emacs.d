@@ -61,6 +61,20 @@
 (add-to-list 'package-archives `("melpa" . ,(if (< emacs-major-version 24)
                                                 "http://melpa.org/packages/"
                                               "https://melpa.org/packages/")))
+											  
+;; Go auto-complete
+(defun auto-complete-for-go ()
+  (auto-complete-mode 1))
+(add-hook 'go-mode-hook 'auto-complete-for-go)
+
+(with-eval-after-load 'go-mode
+   (require 'go-autocomplete))
+
+;; sets paths   
+(package-initialize)
+
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 ;; Python mode
 ;;(package-initialize)
