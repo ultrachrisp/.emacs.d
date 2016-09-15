@@ -71,6 +71,7 @@
 
 (require 'epa-file)
 (epa-file-enable)
+;(setq epg-gpg-program "gpg2")
 
 ;; format string used when creating CLOCKSUM lines and when generating a
 ;; time duration (avoid showing days)
