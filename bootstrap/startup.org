@@ -761,8 +761,10 @@
 ** Web
 
    #+begin_src emacs-lisp
-     (use-package css-mode
-       :config    (setq css-indent-offset ces-tab-size))
+     (use-package scss-mode
+       :ensure    scss-mode
+       :config    (setq sass-indent-offset ces-tab-size)
+       :mode      (("\\.\\(scss\\|sass\\|css\\)$" . scss-mode)))
 
      (use-package emmet-mode
        :ensure    emmet-mode
