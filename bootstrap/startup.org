@@ -772,7 +772,7 @@
 
      (use-package web-mode
        :ensure    web-mode
-       :init      (add-hook 'html-mode-hook 'emmet-mode)
+       :init      (add-hook 'web-mode-hook 'emmet-mode)
        :config    (setq web-mode-style-padding  ces-tab-size
                        	web-mode-script-padding ces-tab-size)
        :mode      ("\\.\\(html\\|htm\\)$" . web-mode))
@@ -798,9 +798,8 @@
 
      (use-package company-tern
        :ensure    company-tern
-       :init
-           (with-eval-after-load 'company
-           (add-to-list 'company-backends 'company-tern))
+       :init      (with-eval-after-load 'company
+                  (add-to-list 'company-backends 'company-tern))
        :config    (add-hook 'js3-mode-hook 'tern-mode))
 
    #+end_src
@@ -814,13 +813,12 @@
        :mode      ("\\.\\(markdown\\|mdown\\|md\\)$" . markdown-mode))
    #+end_src
 
-
 ** Ensime
 
-  #+begin_src ensime
+  #+begin_src emacs-lisp
     (use-package ensime
       :ensure    ensime
-      :pin melpa-stable
+      :pin melpa-stable)
   #+end_src
 
 ** YAML
@@ -832,6 +830,43 @@
       :defer     t
       :mode      ("\\.yml$" . yaml-mode))
   #+end_src
+
+** Go
+
+ #+begin_src emacs-lisp
+     (setenv "GOPATH" "/Users/Chrisp/Development/gocode")
+
+     (setq exec-path (cons "/usr/local/opt/go/libexec" exec-path))
+     (add-to-list 'exec-path "/Users/Chrisp/Development/gocode/bin")
+
+     (use-package flymake
+       :ensure flymake)
+
+     (use-package flymake-go
+       :ensure flymake-go)
+
+     (use-package company-go
+       :ensure company-go
+       :init
+       (with-eval-after-load 'company
+       (add-to-list 'company-backends 'company-go)))
+
+
+     (use-package go-mode
+       :ensure go-mode
+       :init
+         (progn
+         (setq gofmt-command "goimports")
+         (add-hook 'before-save-hook 'gofmt-before-save)
+         (bind-key [remap find-tag] #'godef-jump))
+       :config
+         (add-hook 'go-mode-hook 'flymake-go))
+
+     (use-package go-eldoc
+       :ensure go-eldoc
+       :init
+         (add-hook 'go-mode-hook 'go-eldoc-setup))
+#+end_src
 
 ** Security
 
