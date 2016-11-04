@@ -588,6 +588,14 @@
                                                   (ps-landscape-mode t)
                                                   (org-agenda-add-entry-text-maxlines 5)
                                                   (htmlize-output-type 'css)))))
+
+(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+
+(setq org-columns-default-format '"%40ITEM(Task) %17Effort(Estimated Effort){:} %CLOCKSUM")
+
+;#+PROPERTY: Effort_ALL 0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00
+;#+COLUMNS: %40ITEM(Task) %17Effort(Estimated Effort){:} %CLOCKSUM
+
   #+end_src
 
 * Programming and related
@@ -830,7 +838,7 @@
       :defer     t
       :mode      ("\\.yml$" . yaml-mode))
   #+end_src
-
+  
 ** Go
 
  #+begin_src emacs-lisp
@@ -839,33 +847,32 @@
      (setq exec-path (cons "/usr/local/opt/go/libexec" exec-path))
      (add-to-list 'exec-path "/Users/Chrisp/Development/gocode/bin")
 
+     (use-package go-eldoc
+       :ensure    go-eldoc
+       :init      (add-hook 'go-mode-hook 'go-eldoc-setup))
+
      (use-package flymake
-       :ensure flymake)
+       :ensure    flymake)
 
      (use-package flymake-go
-       :ensure flymake-go)
+       :ensure    flymake-go)
 
-     (use-package company-go
-       :ensure company-go
-       :init
-       (with-eval-after-load 'company
-       (add-to-list 'company-backends 'company-go)))
+;     (use-package company-go
+;       :ensure    company-go
+;       :config    (with-eval-after-load 'company
+;                  (add-to-list 'company-backends 'company-go)))
 
 
      (use-package go-mode
-       :ensure go-mode
-       :init
-         (progn
-         (setq gofmt-command "goimports")
-         (add-hook 'before-save-hook 'gofmt-before-save)
-         (bind-key [remap find-tag] #'godef-jump))
-       :config
-         (add-hook 'go-mode-hook 'flymake-go))
-
-     (use-package go-eldoc
-       :ensure go-eldoc
-       :init
-         (add-hook 'go-mode-hook 'go-eldoc-setup))
+       :ensure    go-mode
+       :init      (progn
+                  (setq gofmt-command "goimports")
+                  (add-hook 'go-mode-hook 'go-eldoc-setup)
+                  (add-hook 'before-save-hook 'gofmt-before-save)
+                  (bind-key [remap find-tag] #'godef-jump)
+                  (load-file "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el"))
+       :config    (with-eval-after-load 'go-mode
+                  (add-hook 'go-mode-hook 'flymake-go)))
 #+end_src
 
 ** Security
