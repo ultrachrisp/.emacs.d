@@ -1,5 +1,4 @@
-#+TITLE:       Chrisp Emacs Org startup file.
-#+EMAIL:       ultrachrisp AT gmail DOT com
+#+TITLE:       Chrisp's Emacs Setup Org file.
 #+STARTUP:     odd hidestars fold
 #+LANGUAGE:    en
 #+OPTIONS:     skip:nil toc:nil
@@ -52,11 +51,8 @@
 
      ;; packages
      (require 'package)
-
      (setq package-archives '(("melpa" . "http://melpa.milkbox.net/packages/")
-		              ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
-
-
+ 	                         ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
      (package-initialize)
 
      (unless package-archive-contents
@@ -72,7 +68,7 @@
      ;; global variables defcustoms
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      (defgroup chrisp-emacs-setup nil
-       "Chrisp Emacs setup group."
+       "Chrisp Emacs Setup group."
        :group 'customize
        :prefix "ces-")
 
@@ -80,7 +76,8 @@
      ;; environment variables
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      (defcustom ces-env-variables
-       '(("JAVA_HOME" . "/usr/lib/jvm/java-7-oracle")
+       '(("JAVA_HOME" . "/usr/libexec/java_home")
+         ("GOPATH"    . "/Users/Chrisp/Development/gocode")
          ("EDITOR"    . "emacsclient")
          ("LC_ALL"    . "C")
          ("LANG"      . "en"))
@@ -272,6 +269,7 @@
   Setup some emacs defaults.
 
   #+begin_src emacs-lisp
+
     ;; Rebind some keys.
     (let ((key-bindings '(("C-s" . isearch-forward-regexp)
                           ("C-r" . isearch-backward-regexp))))
@@ -294,6 +292,7 @@
   Setup backups.
 
   #+begin_src emacs-lisp
+
     (setq backup-directory-alist         `(("." . ,ces-backup-dir))
           delete-old-versions            t
           kept-new-versions              6
@@ -301,6 +300,7 @@
           version-control                t
           auto-save-list-file-prefix     ces-auto-save-folder
           tramp-auto-save-directory      ces-auto-save-folder)
+
   #+end_src
 
 * Aliases
@@ -308,13 +308,16 @@
   Define some basic aliases for commonly used commands.
 
   #+begin_src emacs-lisp
+
     (defalias 'yes-or-no-p 'y-or-n-p)
     (defalias 'serc        'ces/start-ces)
+
   #+end_src
   
 * Utility functions
 
   #+begin_src emacs-lisp
+
     (defun ces/burry-other-buffer ()
       "Close other buffer window."
       (interactive)
@@ -375,11 +378,13 @@
       "Recompile emacsd files."
       (interactive)
       (byte-recompile-directory user-emacs-directory 0 nil))
+
   #+end_src
 
 * Encoding settings
 
   #+begin_src emacs-lisp
+
     (set-language-environment   'utf-8)
     (set-keyboard-coding-system 'utf-8)
     (setq locale-coding-system  'utf-8)
@@ -390,11 +395,13 @@
       (set-selection-coding-system 'utf-8))
 
     (prefer-coding-system 'utf-8)
+
   #+end_src
 
 * Eshell configuration
   
   #+begin_src emacs-lisp
+
     (setq eshell-directory-name ces-eshell-dir)
     
     ;; Set environment variables
@@ -456,11 +463,13 @@
              (path-levels-list (cl-loop for i from path-level downto 1 collect "../"))
              (path-string (apply #'concat path-levels-list)))
         (cd path-string)))
+
   #+end_src
 
 * Indentation settings
 
   #+begin_src emacs-lisp
+
     (setq-default indent-tabs-mode nil)
 
     (defun ces/indentation-apply-style ()
@@ -494,6 +503,7 @@
 
     (bind-key "C-c i" 'ces/indent-region-or-buffer)
     (bind-key "RET"   'newline-and-indent)
+
   #+end_src
 
 * Org mode settings
@@ -501,6 +511,7 @@
   [[http://orgmode.org][org-mode]] configuration.
 
   #+begin_src emacs-lisp
+
     (use-package org
       :ensure htmlize
       :init (progn
@@ -523,7 +534,6 @@
                        (file+headline org-ces-notes-file "Tasks")
                        "* TODO %^{Task}
     SCHEDULED: %^t"
-
                        :immediate-finish t)
 
                       ("f" "Orientation" entry (file org-ces-notes-file)
@@ -538,31 +548,25 @@
                        "* HELP %? :@help:
     SCHEDULED: %^t"  :clock-in t :clock-resume t)
 
-
                       ("i" "Phone call" entry (file org-ces-notes-file)
                        "* PHONE %? :@phone:
     SCHEDULED: %^t"   :clock-in t :clock-resume t)
-
 
                       ("j" "Mail browsing" entry (file org-ces-notes-file)
                        "* EMAIL Browsing :@email:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
 
-
                       ("k" "Mail reply" entry (file org-ces-notes-file)
                        "* EMAIL Reply %? :@email:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
-
 
                       ("k" "Team Meetings" entry (file org-ces-notes-file)
                        "* TEAM MEETING :@meeting:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
 
-
                       ("k" "Other meetings" entry (file org-ces-notes-file)
                        "* MEETING %? :@meeting:
     SCHEDULED: %^t"   :clock-in t :clock-resume t)
-
 
                       ("l" "Break" entry (file org-ces-notes-file)
                        "* BREAK :@break:
@@ -589,9 +593,11 @@
                                                   (org-agenda-add-entry-text-maxlines 5)
                                                   (htmlize-output-type 'css)))))
 
-(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+              ;; time estimates
+              (setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
 
-(setq org-columns-default-format '"%40ITEM(Task) %17Effort(Estimated Effort){:} %CLOCKSUM")
+              ;; agenda display
+              (setq org-columns-default-format '"%40ITEM(Task) %17Effort(Estimated Effort){:} %CLOCKSUM")
 
 ;#+PROPERTY: Effort_ALL 0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00
 ;#+COLUMNS: %40ITEM(Task) %17Effort(Estimated Effort){:} %CLOCKSUM
@@ -604,9 +610,11 @@
    Sadly, we may still have to write or edit code running on MS Windows.
 
    #+begin_src emacs-lisp
+
      (use-package batch-mode
        :ensure    batch-mode
        :mode      ("\\.\\(bat\\)$" . batch-mode))
+
    #+end_src
 
 ** Version control
@@ -619,6 +627,7 @@
   - [[https://github.com/mhayashi1120/yagist.el][yagist.el]]: Yet another Emacs paste mode, this one for Gist.
 
   #+begin_src emacs-lisp
+
     (use-package vc-svn
       :ensure    dsvn
       :init      (progn
@@ -635,10 +644,10 @@
 				       default-directory)))
 
       :bind     (("C-x gs" . magit-status)
-		 ("C-x gc" . magit-clone-url))
+		         ("C-x gc" . magit-clone-url))
       :config   (defadvice magit-status (after magit-status-advice (dir) activate)
-		  (when (window-parent)
-		    (delete-other-windows))))
+		        (when (window-parent)
+		           (delete-other-windows))))
 
     (use-package git-timemachine
       :ensure    git-timemachine
@@ -703,11 +712,12 @@
    - [[https://github.com/ShingoFukuyama/helm-swoop][helm-swoop]]
     
    #+begin_src emacs-lisp
+
      (use-package helm
        :ensure    helm
 
        :config    (setq helm-ff-transformer-show-only-basename nil
-                        helm-adaptative-history-file             ces-helm-adaptative-history-file
+                        helm-adaptative-history-file           ces-helm-adaptative-history-file
                         helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
                         helm-yank-symbol-first                 t
                         helm-buffers-fuzzy-matching            t
@@ -753,46 +763,50 @@
               ("C-x C-b" . helm-buffers-list))
 
        :diminish helm-mode)
+
    #+end_src
 
 ** XML mode
 
    #+begin_src emacs-lisp
+
      (use-package nxml-mode
        :init      (setq nxml-slash-auto-complete-flag t
                         nxml-child-indent             ces-tab-size
                         nxml-outline-child-indent     ces-tab-size)
        :defer     t
        :mode      ("\\.\\(pom\\|xsd\\|xsl\\|xslt\\|gsp\\)$" . nxml-mode))
+
    #+end_src
 
 ** Web
 
    #+begin_src emacs-lisp
+
      (use-package scss-mode
-       :ensure    scss-mode
+       :ensure    t
        :config    (setq sass-indent-offset ces-tab-size)
        :mode      (("\\.\\(scss\\|sass\\|css\\)$" . scss-mode)))
 
      (use-package emmet-mode
-       :ensure    emmet-mode
+       :ensure    t
        :defer     t)
 
      (use-package web-mode
-       :ensure    web-mode
+       :ensure    t
        :init      (add-hook 'web-mode-hook 'emmet-mode)
        :config    (setq web-mode-style-padding  ces-tab-size
                        	web-mode-script-padding ces-tab-size)
        :mode      ("\\.\\(html\\|htm\\)$" . web-mode))
 
      (use-package json-mode
-       :ensure    json-mode
+       :ensure    t
        :config    (bind-keys :map json-mode-map
                              ("C-c i" . json-mode-beautify))
        :mode      ("\\.\\(json\\)$" . json-mode))
 
      (use-package js3-mode
-       :ensure    js3-mode
+       :ensure    t
        :init      (setq js3-indent-level          ces-tab-size
                        	js3-mode-dev-mode-p       t
                        	js3-auto-indent-p         t
@@ -801,11 +815,11 @@
        :mode      ("\\.\\(js\\|tern-project\\)$" . js3-mode))
 
      (use-package tern
-       :ensure    tern
+       :ensure    t
        :config    (setq tern-command (list (expand-file-name ces-tern-executable))))
 
      (use-package company-tern
-       :ensure    company-tern
+       :ensure    t
        :init      (with-eval-after-load 'company
                   (add-to-list 'company-backends 'company-tern))
        :config    (add-hook 'js3-mode-hook 'tern-mode))
@@ -815,41 +829,52 @@
 ** Markdown keybindings
 
    #+begin_src emacs-lisp
+
      (use-package markdown-mode
-       :ensure    markdown-mode
+       :ensure    t
        :defer     t
        :mode      ("\\.\\(markdown\\|mdown\\|md\\)$" . markdown-mode))
+
    #+end_src
 
 ** Ensime
 
+   Ensime for Scala development.
+
   #+begin_src emacs-lisp
+
     (use-package ensime
-      :ensure    ensime
+      :ensure    t
+      :defer     t
       :pin melpa-stable)
+
   #+end_src
 
 ** YAML
+
   YAML markup.
 
   #+begin_src emacs-lisp
+
     (use-package yaml-mode
-      :ensure    yaml-mode
+      :ensure    t
       :defer     t
       :mode      ("\\.yml$" . yaml-mode))
+
   #+end_src
   
 ** Go
 
  #+begin_src emacs-lisp
-     (setenv "GOPATH" "/Users/Chrisp/Development/gocode")
+
+;     (setenv "GOPATH" "/Users/Chrisp/Development/gocode")
 
      (setq exec-path (cons "/usr/local/opt/go/libexec" exec-path))
      (add-to-list 'exec-path "/Users/Chrisp/Development/gocode/bin")
 
-     (use-package go-eldoc
-       :ensure    go-eldoc
-       :init      (add-hook 'go-mode-hook 'go-eldoc-setup))
+;     (use-package go-eldoc
+;       :ensure    go-eldoc
+;       :init      (add-hook 'go-mode-hook 'go-eldoc-setup))
 
      (use-package flymake
        :ensure    flymake)
@@ -873,19 +898,23 @@
                   (load-file "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el"))
        :config    (with-eval-after-load 'go-mode
                   (add-hook 'go-mode-hook 'flymake-go)))
+
 #+end_src
 
 ** Security
 
   #+begin_src epa-file
+
     (use-package epa-file
-      :ensure    epa-file
-      :defer     t
+      :ensure    t
+      :defer     t)
+
   #+end_src
 
 * Yasnippets configuration
 
   #+begin_src emacs-lisp
+
     (use-package yasnippet
       :ensure    yasnippet
       :init      (setq yas-verbosity 1)
@@ -905,17 +934,21 @@
                    (yas-reload-all)
                    (define-key yas-minor-mode-map (kbd "C-c <tab>") 'yas/insert-snippet))
       :diminish  yas-minor-mode)
+
   #+end_src
 
 * Spellchecking configuration
 
   #+begin_src emacs-lisp
+
     (setq ispell-program-name ces-spelling-aspell-path)
+
   #+end_src
 
 * Various utilities
 
   #+begin_src emacs-lisp
+
     (defun setup-aliases (aliases)
       (interactive)
       (dolist (lst aliases)
@@ -1212,6 +1245,7 @@
 ** Misc
 
    #+begin_src emacs-lisp
+
      (setq visible-bell             t
            display-time-24hr-format t
            use-dialog-box           nil
@@ -1241,6 +1275,7 @@
 ** Themes
 
    #+begin_src emacs-lisp
+
      (defun ces/load-theme (theme-symbol)
        (when (and (boundp theme-symbol)
                   (symbol-value theme-symbol))
@@ -1249,10 +1284,13 @@
      (if window-system
          (ces/load-theme 'ces-ui-theme)
        (ces/load-theme 'ces-ui-theme-console))
+
    #+end_src
 
 ** Fonts
+
    #+begin_src emacs-lisp
+
      (defun ces/fontify-frame (frame)
        (set-frame-parameter frame 'font ces-ui-font))
 
@@ -1276,4 +1314,5 @@
       (load ces-user-file 'noerror))
 
     (message "chrisp-emacs-setup done loading.")
+
   #+end_src
