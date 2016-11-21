@@ -1,6 +1,8 @@
-#+TITLE: README
+#+TITLE: Read me
 
-This is a remake of [[https://github.com/rimerosolutions/emacs-rimero-setup][emacs-rimero-setup]] & [[https://github.com/yveszoundi/emacs.d][yveszoundi]] for easier reuse in a non obstrusive way.
+This is a remake of [[https://github.com/rimerosolutions/emacs-rimero-setup][emacs-rimero-setup]] & [[https://github.com/yveszoundi/emacs.d][yveszoundi]] for easier reuse in a non obtrusive way.
+
+I am relying on emacs a lot more these days, and this setup allowed me to bring more order to what was a fairly chaotic setup structure.
 
 The setup is loaded via an =org= file, see the [[https://github.com/yveszoundi/emacs.d/blob/master/bootstrap/startup.org][startup.org]] file in the =bootstrap= folder.
 
@@ -14,7 +16,7 @@ Replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project.
 
 The above-mentioned sample =init.el= is provide as an example only, for integration, see the next section.
 
-* Integration with your own customizations
+* Integration with your own customization's
 
 Below is a simple =.emacs.d/init.el= startup file.
 
@@ -26,7 +28,7 @@ Again replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project
    ;; If you edit it by hand, you could mess it up, so be careful.
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
-   '(ers-env-variables
+   '(ces-env-variables
      (quote
       (("JAVA_HOME" . "/opt/java6")
        ("EDITOR"    . "emacsclient")
@@ -50,3 +52,5 @@ Again replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project
   ;; my own stuff
   (setq myvar "something_cool")
 #+end_src
+
+#  LocalWords:  emacs
