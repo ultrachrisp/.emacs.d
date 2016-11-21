@@ -77,7 +77,7 @@
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      (defcustom ces-env-variables
        '(("JAVA_HOME" . "/usr/libexec/java_home")
-         ("GOPATH"    . "/Users/Chrisp/Development/gocode")
+         ("GOPATH"    . "/usr/libexec/gocode")
          ("EDITOR"    . "emacsclient")
          ("LC_ALL"    . "C")
          ("LANG"      . "en"))
@@ -783,10 +783,10 @@
 
    #+begin_src emacs-lisp
 
-     (use-package scss-mode
+     (use-package sass-mode
        :ensure    t
        :config    (setq sass-indent-offset ces-tab-size)
-       :mode      (("\\.\\(scss\\|sass\\|css\\)$" . scss-mode)))
+       :mode      (("\\.\\(scss\\|sass\\|css\\)$" . sass-mode)))
 
      (use-package emmet-mode
        :ensure    t
