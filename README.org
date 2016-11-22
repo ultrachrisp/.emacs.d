@@ -1,4 +1,4 @@
-#+TITLE: Chrisp's Emacs Setup
+#+TITLE: My Emacs Setup
 
 This is a remake of [[https://github.com/rimerosolutions/emacs-rimero-setup][emacs-rimero-setup]] & [[https://github.com/yveszoundi/emacs.d][yveszoundi]] for easier reuse in a non obtrusive way.
 
