@@ -585,7 +585,8 @@
                                     ("@documentation" . ?e)
                                     ("@meeting" . ?f)
                                     ("@email" . ?g)
-                                    ("@break" . ?h)))
+                                    ("@break" . ?h)
+                                    ("@study" . ?i)))
 
               ;; require htmlize.el
               (setq org-agenda-exporter-settings'((ps-number-of-columns 2)
@@ -820,6 +821,7 @@
        :init      (with-eval-after-load 'company
                   (add-to-list 'company-backends 'company-tern))
        :config    (add-hook 'js3-mode-hook 'tern-mode))
+
 
    #+end_src
 
