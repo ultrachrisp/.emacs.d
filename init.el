@@ -15,7 +15,7 @@
  '(ces-env-variables
    (quote
     (("JAVA_HOME" . "/Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home")
-     ("GOPATH"    . "/Users/Chrisp/Development/gocode")
+     ("GOPATH" . "/Users/Chrisp/Development/gocode")
      ("EDITOR" . "emacsclient")
      ("LC_ALL" . "C")
      ("LANG" . "en"))))
