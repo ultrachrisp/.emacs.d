@@ -31,7 +31,7 @@
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (sass-mode popwin smart-mode-line cl-lib-highlight smartparens multiple-cursors yasnippet yaml-mode yagist wrap-region web-mode use-package undo-tree rainbow-delimiters projectile markdown-mode magit json-mode js3-mode htmlize helm git-timemachine expand-region exec-path-from-shell emmet-mode duplicate-thing dsvn drag-stuff dired-details company-tern clojure-mode buffer-stack batch-mode anzu ag ace-window ace-jump-mode))))
+    (go-guru sass-mode popwin smart-mode-line cl-lib-highlight smartparens multiple-cursors yasnippet yaml-mode yagist wrap-region web-mode use-package undo-tree rainbow-delimiters projectile markdown-mode magit json-mode js3-mode htmlize helm git-timemachine expand-region exec-path-from-shell emmet-mode duplicate-thing dsvn drag-stuff dired-details company-tern clojure-mode buffer-stack batch-mode anzu ag ace-window ace-jump-mode))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
