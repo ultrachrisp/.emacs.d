@@ -4,3 +4,4 @@ elpa/
 snippets/
 ensime/
 bootstrap/**/*.el
+init.el

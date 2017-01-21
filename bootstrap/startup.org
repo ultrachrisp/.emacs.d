@@ -82,6 +82,7 @@
      (defcustom ces-env-variables
        '(("JAVA_HOME" . "/usr/libexec/java_home")
          ("GOPATH"    . "/usr/libexec/gocode")
+         ("PATH"      . "/usr/local/bin:")
          ("EDITOR"    . "emacsclient")
          ("LC_ALL"    . "C")
          ("LANG"      . "en"))
