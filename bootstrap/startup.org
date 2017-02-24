@@ -901,8 +901,8 @@
                   (setq gofmt-command "goimports")
                   (add-hook 'go-mode-hook 'go-eldoc-setup)
                   (add-hook 'before-save-hook 'gofmt-before-save)
-                  (bind-key [remap find-tag] #'godef-jump)
-                  (load-file "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el"))
+                  (bind-key [remap find-tag] #'godef-jump))
+
        :config    (with-eval-after-load 'go-mode
                   (add-hook 'go-mode-hook 'flymake-go)))
 
