@@ -605,6 +605,9 @@
               ;; agenda display
               (setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
 
+              ;; format string used when creating CLOCKSUM lines and when generating a time duration (avoid showing days)
+              (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+
   #+end_src
 
 * Programming and related
