@@ -820,6 +820,10 @@
                        	js3-indent-on-enter-key   t)
        :mode      ("\\.\\(js\\|tern-project\\)$" . js3-mode))
 
+     (use-package rjsx-mode
+       :ensure    t
+       :mode      ("\\(components\\|containers\\|actions\\|reducers\\)\\/.*\\.js\\'" . rjsx-mode))
+
      (use-package tern
        :ensure    t
        :config    (setq tern-command (list (expand-file-name ces-tern-executable))))
@@ -828,8 +832,8 @@
        :ensure    t
        :init      (with-eval-after-load 'company
                   (add-to-list 'company-backends 'company-tern))
-       :config    (add-hook 'js3-mode-hook 'tern-mode))
-
+       :config    (add-hook 'rjsx-mode-hook 'tern-mode)
+                  (add-hook 'js3-mode-hook 'tern-mode))
 
    #+end_src
 
