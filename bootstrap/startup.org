@@ -794,10 +794,6 @@
        :config    (setq sass-indent-offset ces-tab-size)
        :mode      (("\\.\\(scss\\|sass\\|css\\)$" . sass-mode)))
 
-     (use-package emmet-mode
-       :ensure    t
-       :defer     t)
-
      (use-package web-mode
        :ensure    t
        :init      (add-hook 'web-mode-hook 'emmet-mode)
@@ -822,18 +818,23 @@
 
      (use-package rjsx-mode
        :ensure    t
+       :init      (add-hook 'rjsx-mode-hook 'emmet-mode)
+                  (add-hook 'rjsx-mode-hook 'tern-mode)
        :mode      ("\\(components\\|containers\\|actions\\|reducers\\)\\/.*\\.js\\'" . rjsx-mode))
 
      (use-package tern
        :ensure    t
        :config    (setq tern-command (list (expand-file-name ces-tern-executable))))
 
+     (use-package emmet-mode
+       :ensure    t
+       :defer     t)
+
      (use-package company-tern
        :ensure    t
        :init      (with-eval-after-load 'company
                   (add-to-list 'company-backends 'company-tern))
-       :config    (add-hook 'rjsx-mode-hook 'tern-mode)
-                  (add-hook 'js3-mode-hook 'tern-mode))
+       :config    (add-hook 'js3-mode-hook 'tern-mode))
 
    #+end_src
 
