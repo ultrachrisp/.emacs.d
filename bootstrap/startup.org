@@ -610,7 +610,7 @@
 
   #+end_src
 
-* Programming and related
+* Programming
 ** Shell scripts
 
    Sadly, we may still have to write or edit code running on MS Windows.
@@ -836,6 +836,11 @@
                   (add-to-list 'company-backends 'company-tern))
        :config    (add-hook 'js3-mode-hook 'tern-mode))
 
+   #+end_src
+
+** Python
+
+   #+begin_src emacs-lisp
    #+end_src
 
 ** Markdown keybindings
