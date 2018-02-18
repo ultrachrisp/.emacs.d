@@ -630,6 +630,7 @@
   - [[http://www.emacswiki.org/emacs/SvnStatusMode#toc5][dsvn]] : dsvn is a subversion mode influenced by pcsv and psvn.
   - [[http://magit.github.io][magit]] : Magit is an emacs mode for interacting with the Git version control system. 
   - [[https://github.com/pidu/git-timemachine][git-timemachine]] : Step through historic versions of git controlled file using everyone's favourite editor.
+  - [[https://github.com/mhayashi1120/yagist.el][yagist.el]]: Yet another Emacs paste mode, this one for Gist.
 
   #+begin_src emacs-lisp
 
@@ -637,13 +638,16 @@
               :ensure    dsvn
               :defer     t
               :init      (progn
-                   (autoload 'svn-status "dsvn" "Run `svn status'." t)
-                   (autoload 'svn-update "dsvn" "Run `svn update'." t)))
+                           (autoload 'svn-status "dsvn" "Run `svn status'." t)
+                           (autoload 'svn-update "dsvn" "Run `svn update'." t)))
 
             (use-package magit
               :ensure    t
               :defer     t
-              :bind      (("C-x g" . magit-status))
+              :bind      ("C-x gs" . magit-status)
+              :config    (defadvice magit-status (around magit-fullscreen activate)
+                           ad-do-it
+                             (delete-other-windows)))
 
             (use-package git-timemachine
               :ensure    t
