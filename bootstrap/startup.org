@@ -59,6 +59,8 @@
                              ))
      (package-initialize)
 
+     (setq epa-pinentry-mode 'loopback)
+
      (unless package-archive-contents
        (package-refresh-contents))
    #+end_src
