@@ -653,6 +653,7 @@
    #+begin_src emacs-lisp
      (use-package projectile
        :ensure    projectile
+       :defer     t
        :config    (projectile-global-mode t)
        :init      (progn
 		    ;; create projectile data folder if non-existent
@@ -677,6 +678,7 @@
    #+begin_src emacs-lisp
      (use-package company
        :ensure    company
+       :defer     t
        :init      (setq company-begin-commands           '()
                         company-show-numbers              t
                         company-selection-wrap-around     t
@@ -702,7 +704,7 @@
 
      (use-package helm
        :ensure    helm
-
+       :defer     t
        :config    (setq helm-ff-transformer-show-only-basename nil
                         helm-adaptative-history-file           ces-helm-adaptative-history-file
                         helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
@@ -772,25 +774,21 @@
 
      (use-package sass-mode
        :ensure    t
+       :defer     t
        :init      (add-hook 'sass-mode-hook (lambda () (setq comment-start "//")))
        :config    (setq sass-indent-offset ces-tab-size)
        :mode      (("\\.\\(scss\\|sass\\|css\\)$" . sass-mode)))
 
-     (use-package web-mode
-       :ensure    t
-       :init      (add-hook 'web-mode-hook 'emmet-mode)
-       :config    (setq web-mode-style-padding  ces-tab-size
-                       	web-mode-script-padding ces-tab-size)
-       :mode      ("\\.\\(html\\|htm\\)$" . web-mode))
-
      (use-package json-mode
        :ensure    t
+       :defer     t
        :config    (bind-keys :map json-mode-map
                              ("C-c i" . json-mode-beautify))
        :mode      ("\\.\\(json\\)$" . json-mode))
 
      (use-package js3-mode
        :ensure    t
+       :defer     t
        :init      (setq js3-indent-level          ces-tab-size
                        	js3-mode-dev-mode-p       t
                        	js3-auto-indent-p         t
@@ -800,23 +798,34 @@
 
      (use-package rjsx-mode
        :ensure    t
+       :defer     t
        :init      (add-hook 'rjsx-mode-hook 'emmet-mode)
                   (add-hook 'rjsx-mode-hook 'tern-mode)
        :mode      ("\\(components\\|containers\\|actions\\|reducers\\)\\/.*\\.js\\'" . rjsx-mode))
 
      (use-package tern
        :ensure    t
+       :defer     t
        :config    (setq tern-command (list (expand-file-name ces-tern-executable))))
+
+     (use-package company-tern
+       :ensure    t
+       :defer     t
+       :init      (with-eval-after-load 'company
+                  (add-to-list 'company-backends 'company-tern))
+       :config    (add-hook 'js3-mode-hook 'tern-mode))
+
+     (use-package web-mode
+       :ensure    t
+       :defer     t
+       :init      (add-hook 'web-mode-hook 'emmet-mode)
+       :config    (setq web-mode-style-padding  ces-tab-size
+                       	web-mode-script-padding ces-tab-size)
+       :mode      ("\\.\\(html\\|htm\\)$" . web-mode))
 
      (use-package emmet-mode
        :ensure    t
        :defer     t)
-
-     (use-package company-tern
-       :ensure    t
-       :init      (with-eval-after-load 'company
-                  (add-to-list 'company-backends 'company-tern))
-       :config    (add-hook 'js3-mode-hook 'tern-mode))
 
    #+end_src
 
@@ -840,17 +849,6 @@
       (add-hook 'python-mode-hook #'elpy-mode)
    #+end_src
 
-** Markdown keybindings
-
-   #+begin_src emacs-lisp
-
-     (use-package markdown-mode
-       :ensure    t
-       :defer     t
-       :mode      ("\\.\\(markdown\\|mdown\\|md\\)$" . markdown-mode))
-
-   #+end_src
-
 ** Ensime
 
    Ensime for Scala development.
@@ -858,6 +856,7 @@
   #+begin_src emacs-lisp
 
     (use-package ensime
+      :ensure    t
       :defer     t
       :pin melpa-stable)
 
@@ -890,10 +889,12 @@
 ;       :init      (add-hook 'go-mode-hook 'go-eldoc-setup))
 
      (use-package flymake
-       :ensure    flymake)
+       :ensure    t
+       :defer     t)
 
      (use-package flymake-go
-       :ensure    flymake-go)
+       :ensure    t
+       :defer     t)
 
 ;     (use-package company-go
 ;       :ensure    company-go
@@ -902,7 +903,8 @@
 
 
      (use-package go-mode
-       :ensure    go-mode
+       :ensure    t
+       :defer     t
        :init      (progn
                   (setq gofmt-command "goimports")
                   (add-hook 'go-mode-hook 'go-eldoc-setup)
@@ -921,32 +923,6 @@
     (use-package epa-file
       :ensure    t
       :defer     t)
-
-  #+end_src
-
-* Yasnippets configuration
-
-  #+begin_src emacs-lisp
-
-    ;; (use-package yasnippet
-    ;;   :ensure    yasnippet
-    ;;   :init      (setq yas-verbosity 1)
-    ;;   :config    (progn
-    ;;                (yas-global-mode 1)
-    ;;                (let* ((yas-elpa-snippets-folder (car (file-expand-wildcards
-    ;;                                                       (concat user-emacs-directory "elpa/yasnippet-*/snippets"))))
-    ;;                       (yas-folder-candidates  `(,yas-elpa-snippets-folder
-    ;;                                                 ,(concat user-emacs-directory "snippets")
-    ;;                                                 ,(concat ces-emacs-dir "snippets"))))
-
-    ;;                  (cl-loop for p in yas-folder-candidates
-    ;;                           unless (file-exists-p p)
-    ;;                           do (cl-delete p yas-folder-candidates))
-
-    ;;                  (setq yas-snippet-dirs yas-folder-candidates))
-    ;;                (yas-reload-all)
-    ;;                (define-key yas-minor-mode-map (kbd "C-c <tab>") 'yas/insert-snippet))
-    ;;   :diminish  yas-minor-mode)
 
   #+end_src
 
