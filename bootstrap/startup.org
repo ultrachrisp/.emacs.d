@@ -613,18 +613,6 @@
   #+end_src
 
 * Programming
-** Shell scripts
-
-   Sadly, we may still have to write or edit code running on MS Windows.
-
-   #+begin_src emacs-lisp
-
-     (use-package batch-mode
-       :ensure    batch-mode
-       :mode      ("\\.\\(bat\\)$" . batch-mode))
-
-   #+end_src
-
 ** Version control
   
   Nowadays it's either SVN(or similar) for legacy systems and Git for anything else.
@@ -870,7 +858,6 @@
   #+begin_src emacs-lisp
 
     (use-package ensime
-      :ensure    t
       :defer     t
       :pin melpa-stable)
 
@@ -1108,12 +1095,6 @@
                   ("C-c gl" . ace-jump-line-mode))
       :diminish  ace-jump-mode)
 
-    (use-package buffer-stack
-      :ensure    buffer-stack
-      :bind      (("C-c [" . buffer-stack-down)
-                  ("C-c ]" . buffer-stack-up))
-      :config    (buffer-stack-track))
-
     (use-package uniquify
       :config    (setq uniquify-separator           "/"
                        uniquify-buffer-name-style   'forward
@@ -1168,11 +1149,6 @@
                            ("@"   .  copy-file-name-to-clipboard )
                            ("M-P" .  ces/dired-go-to-first-item )
                            ("M-N" .  ces/dired-go-to-last-item ))))
-
-    (use-package dired-details
-      :ensure    dired-details
-      :init      (setq-default dired-details-hidden-string "--- ")
-      :config    (dired-details-install))
 
     (use-package drag-stuff
       :ensure    drag-stuff
