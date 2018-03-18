@@ -769,65 +769,78 @@
    #+end_src
 
 ** Web
+***** Styling
 
-   #+begin_src emacs-lisp
+      #+begin_src emacs-lisp
 
-     (use-package sass-mode
-       :ensure    t
-       :defer     t
-       :init      (add-hook 'sass-mode-hook (lambda () (setq comment-start "//")))
-       :config    (setq sass-indent-offset ces-tab-size)
-       :mode      (("\\.\\(scss\\|sass\\|css\\)$" . sass-mode)))
+        (use-package sass-mode
+          :ensure    t
+          :defer     t
+          :init      (add-hook 'sass-mode-hook (lambda () (setq comment-start "//")))
+          :config    (setq sass-indent-offset ces-tab-size)
+          :mode      (("\\.\\(scss\\|sass\\|css\\)$" . sass-mode)))
 
-     (use-package json-mode
-       :ensure    t
-       :defer     t
-       :config    (bind-keys :map json-mode-map
-                             ("C-c i" . json-mode-beautify))
-       :mode      ("\\.\\(json\\)$" . json-mode))
+      #+end_src
 
-     (use-package js3-mode
-       :ensure    t
-       :defer     t
-       :init      (setq js3-indent-level          ces-tab-size
-                       	js3-mode-dev-mode-p       t
-                       	js3-auto-indent-p         t
-                       	js3-enter-indents-newline t
-                       	js3-indent-on-enter-key   t)
-       :mode      ("\\.\\(js\\|tern-project\\)$" . js3-mode))
+***** Scripting
 
-     (use-package rjsx-mode
-       :ensure    t
-       :defer     t
-       :init      (add-hook 'rjsx-mode-hook 'emmet-mode)
-                  (add-hook 'rjsx-mode-hook 'tern-mode)
-       :mode      ("\\(components\\|containers\\|actions\\|reducers\\)\\/.*\\.js\\'" . rjsx-mode))
+      #+begin_src emacs-lisp
 
-     (use-package tern
-       :ensure    t
-       :defer     t
-       :config    (setq tern-command (list (expand-file-name ces-tern-executable))))
+        (use-package js2-mode
+          :ensure    t
+          :defer     t
+          :init      (setq js2-indent-level          ces-tab-size
+                       	   js2-mode-dev-mode-p       t
+                       	   js2-auto-indent-p         t
+                       	   js2-enter-indents-newline t
+                       	   js2-indent-on-enter-key   t)
+          :mode      ("\\.\\(js\\|tern-project\\)$" . js2-mode))
 
-     (use-package company-tern
-       :ensure    t
-       :defer     t
-       :init      (with-eval-after-load 'company
-                  (add-to-list 'company-backends 'company-tern))
-       :config    (add-hook 'js3-mode-hook 'tern-mode))
+        (use-package tern
+          :ensure    t
+          :defer     t
+          :config    (setq tern-command (list (expand-file-name ces-tern-executable))))
 
-     (use-package web-mode
-       :ensure    t
-       :defer     t
-       :init      (add-hook 'web-mode-hook 'emmet-mode)
-       :config    (setq web-mode-style-padding  ces-tab-size
-                       	web-mode-script-padding ces-tab-size)
-       :mode      ("\\.\\(html\\|htm\\)$" . web-mode))
+        (use-package company-tern
+          :ensure    t
+          :defer     t
+          :init      (with-eval-after-load 'company
+                     (add-to-list 'company-backends 'company-tern))
+          :config    (add-hook 'js2-mode-hook 'tern-mode))
 
-     (use-package emmet-mode
-       :ensure    t
-       :defer     t)
+        (use-package rjsx-mode
+          :ensure    t
+          :defer     t
+          :init      (add-hook 'rjsx-mode-hook 'emmet-mode)
+                     (add-hook 'rjsx-mode-hook 'tern-mode)
+          :mode      ("\\(components\\|containers\\|actions\\|reducers\\)\\/.*\\.js\\'" . rjsx-mode))
 
-   #+end_src
+        (use-package json-mode
+          :ensure    t
+          :defer     t
+          :config    (bind-keys :map json-mode-map
+                                ("C-c i" . json-mode-beautify))
+          :mode      ("\\.\\(json\\)$" . json-mode))
+
+      #+end_src
+
+***** Markup
+
+      #+begin_src emacs-lisp
+
+        (use-package web-mode
+          :ensure    t
+          :defer     t
+          :init      (add-hook 'web-mode-hook 'emmet-mode)
+          :config    (setq web-mode-style-padding  ces-tab-size
+                       	   web-mode-script-padding ces-tab-size)
+          :mode      ("\\.\\(html\\|htm\\)$" . web-mode))
+
+        (use-package emmet-mode
+          :ensure    t
+          :defer     t)
+
+      #+end_src
 
 ** Python
 
