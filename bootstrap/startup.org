@@ -645,6 +645,17 @@
               :bind      ("C-x gt" . git-timemachine))
 
   #+end_src
+** Arduino
+#+begin_src emacs-lisp
+
+(use-package arduino
+  :ensure    projectile
+  :defer     t
+  :mode      (("\\.\\(pde\\|ino\\)$" . arduino-mode)))
+
+;; Configure arduino OS X dirs.
+(setq ede-arduino-appdir "/Applications/Arduino.app/Contents/Java")
+#+end_src
 
 ** Project management
 
@@ -669,6 +680,85 @@
 			    projectile-enable-caching      t)))
        :diminish   projectile-mode)
    #+end_src
+
+** CEDET
+
+   Trying out [[http://cedet.sourceforge.net/][CEDET]] for development
+
+https://github.com/dholm/dotemacs/blob/master/.emacs.d/lisp/utilities/cedet.el
+
+#+begin_src emacs-lisp
+(defun user--cedet-hook ()
+  "Hook for modes with CEDET support."
+  ;; Enable EDE.
+  (ede-minor-mode t)
+
+  ;; Enable semantic.
+  (semantic-mode t))
+
+(defun user--semantic-mode-hook ()
+  "Semantic mode hook."
+  (when (semantic-active-p)
+    ;; Scan source code automatically during idle time.
+    (semantic-idle-scheduler-mode t)
+    ;; Show breadcrumbs during idle time.
+    (semantic-idle-breadcrumbs-mode t)
+    ;; Show summary of tag at point during idle time.
+    (semantic-idle-summary-mode t)
+    
+    ;; Highlight the first line of the current tag.
+    (semantic-highlight-func-mode t)
+    ;; Breadcrumbs should be sticky.
+    (semantic-stickyfunc-mode t)
+    
+    ;; Use semantic as a source for auto complete.
+    (add-ac-sources 'ac-source-semantic)
+    
+    (user/tags-try-enable)
+    
+    ;;; (Bindings) ;;;
+    (user/bind-key-local :nav :jump-spec-impl 'semantic-analyze-proto-impl-toggle)))
+
+(defun user--ede-minor-mode-hook ()
+  "EDE minor mode hook."
+  (cond
+   ((user/auto-complete-p)
+    (with-feature 'auto-complete-c-headers
+                  (setq
+                   ;; Configure include path for auto completion.
+                   achead:get-include-directories-function
+                   'ede-object-system-include-path)))
+   ((user/company-mode-p)
+    (with-feature 'auto-complete-c-headers
+                  (setq
+                   ;; Configure include path for auto completion.
+                   company-c-headers-path-system
+                   'ede-object-system-include-path)))))
+
+(use-package semantic
+  :ensure nil
+  :defer
+  :init
+  (add-hook 'semantic-mode-hook 'user--semantic-mode-hook)
+  :config
+  (when *user-cedet-ectags-enabled*
+    ;; Enable [ec]tags support.
+    (with-feature 'semantic/ectags/util
+                  (when (and (fboundp 'cedet-ectag-version-check)
+                             (cedet-ectag-version-check t))
+                    (semantic-load-enable-primary-ectags-support)))))
+
+(use-package semantic/idle
+  :ensure nil
+  :defer
+  :config
+  (validate-setq
+   ;; Nice looking breadcrumbs.
+   semantic-idle-breadcrumbs-format-tag-function 'semantic-format-tag-summarize
+   semantic-idle-breadcrumbs-separator " ⊃ "
+   semantic-idle-breadcrumbs-header-line-prefix " ≝ "))
+
+#+end_src
 
 ** Completion, matching and suggestions
 *** Auto-completion settings

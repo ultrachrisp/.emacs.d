@@ -3,5 +3,7 @@ data/
 elpa/
 snippets/
 ensime/
+semanticdb/
 bootstrap/**/*.el
 init.el
+ede-projects.el
