@@ -948,23 +948,24 @@ https://github.com/dholm/dotemacs/blob/master/.emacs.d/lisp/utilities/cedet.el
    #+end_src
 ** Python
 
-   #+begin_src emacs-lisp
-      (use-package elpy
-         :ensure t
-         :defer t
-         :config
-        (progn
-           ;; Use Flycheck instead of Flymake
-           (when (require 'flycheck nil t)
-             (remove-hook 'elpy-modules 'elpy-module-flymake)
-             (remove-hook 'elpy-modules 'elpy-module-yasnippet)
-             (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
-             (add-hook 'elpy-mode-hook 'flycheck-mode))
-        (elpy-enable)
-        ;; jedi is great
-        (setq elpy-rpc-backend "jedi")))
-      (add-hook 'python-mode-hook #'elpy-mode)
-   #+end_src
+#+begin_src emacs-lisp
+(use-package elpy
+  :ensure t
+  :defer t
+  :mode      ("\\.\\(py\\)$" . python-mode)
+  :config
+  (progn
+    ;; Use Flycheck instead of Flymake
+    (when (require 'flycheck nil t)
+      (remove-hook 'elpy-modules 'elpy-module-flymake)
+      (remove-hook 'elpy-modules 'elpy-module-yasnippet)
+      (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
+      (add-hook 'elpy-mode-hook 'flycheck-mode))
+    (elpy-enable)
+    ;; jedi is great
+    (setq elpy-rpc-backend "jedi")))
+(add-hook 'python-mode-hook #'elpy-mode)
+#+end_src
 
 ** Ensime
 
