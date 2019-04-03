@@ -1348,12 +1348,6 @@ https://github.com/dholm/dotemacs/blob/master/.emacs.d/lisp/utilities/cedet.el
        :init      (setq sml/theme 'respectful)
        :config    (sml/setup))
 
-     (use-package popwin
-       :ensure    popwin
-       :config    (progn
-                    (setq display-buffer-function 'popwin:display-buffer)
-                    (popwin-mode t)))
-
      (defun turn-on-linum-hl-mode-hook ()
        (interactive)
        (hl-line-mode 1)

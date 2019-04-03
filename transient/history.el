@@ -6,6 +6,7 @@
  (magit-fetch nil)
  (magit-notes nil)
  (magit-patch-apply nil)
+ (magit-pull nil)
  (magit-push nil)
  (magit-revert
   ("--edit"))
