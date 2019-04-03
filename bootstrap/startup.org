@@ -633,11 +633,7 @@
 
             (use-package magit
               :ensure    t
-              :defer     t
-              :bind      ("C-x gs" . magit-status)
-              :config    (defadvice magit-status (around magit-fullscreen activate)
-                           ad-do-it
-                             (delete-other-windows)))
+              :defer     t)
 
             (use-package git-timemachine
               :ensure    t
