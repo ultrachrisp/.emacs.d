@@ -51,11 +51,10 @@
 
      ;; packages
      (require 'package)
-     (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+     (setq package-archives '(("elpy" . "http://jorgenschaefer.github.io/packages/")
                               ("melpa" . "https://melpa.org/packages/")
+                              ("gnu" . "http://elpa.gnu.org/packages/")
                               ("melpa-stable" . "https://stable.melpa.org/packages/")
-                             ;; ("melpa" . "http://melpa.milkbox.net/packages/")
- 	                         ;; ("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
                              ))
      (package-initialize)
 
@@ -761,21 +760,34 @@ https://github.com/dholm/dotemacs/blob/master/.emacs.d/lisp/utilities/cedet.el
     
    Use [[http://company-mode.github.io][company-mode]] for text completion.
 
-   #+begin_src emacs-lisp
-     (use-package company
-       :ensure    t
-       :defer     t
-       :init      (add-hook 'after-init-hook 'global-company-mode)
-       :config    (setq company-begin-commands           '()
-                        company-show-numbers              t 
-                        company-selection-wrap-around     t
-                        company-tooltip-align-annotations t
-                        company-dabbrev-downcase          nil
-                        company-dabbrev-ignore-case       nil)
+#+begin_src emacs-lisp
+(use-package company
+  :ensure    t
+  :config (add-hook 'after-init-hook 'global-company-mode)
 
-       :bind      ("C-h TAB" . company-complete)
-       :diminish  company-mode)
-   #+end_src
+  ;; Trigger completion immediately.
+  (setq company-idle-delay 0)
+
+  ; Show suggestions after entering one character.
+  (setq company-minimum-prefix-length 1)
+
+  ;; Number the candidates (use M-1, M-2 etc to select completions).
+  (setq company-show-numbers t)
+
+  ;; Use the tab-and-go frontend.
+  ;; Allows TAB to select and complete at the same time.
+  (company-tng-configure-default)
+  (setq company-frontends
+        '(company-tng-frontend
+          company-pseudo-tooltip-frontend
+          company-echo-metadata-frontend)))
+#+end_src
+
+*** Tabnine
+    
+#+begin_src emacs-lisp
+(use-package company-tabnine :ensure t)
+#+end_src
 
 *** Helm settings
 
