@@ -892,18 +892,33 @@ https://github.com/dholm/dotemacs/blob/master/.emacs.d/lisp/utilities/cedet.el
         :ensure    t
         :defer     t
         :init      (setq js2-indent-level          ces-tab-size
-                       	 js2-mode-dev-mode-p       t
-                       	 js2-auto-indent-p         t
-                       	 js2-enter-indents-newline t
-                       	 js2-indent-on-enter-key   t)
+                         js2-mode-dev-mode-p       t
+                         js2-auto-indent-p         t
+                         js2-enter-indents-newline t
+                         js2-indent-on-enter-key   t)
         :mode      ("\\.\\(js\\|tern-project\\)$" . js2-mode))
+
+      (use-package typescript-mode
+        :mode (("\\.ts\\'" . typescript-mode)
+               ("\\.tsx\\'" . typescript-mode)))
+
+      (defun setup-tide-mode ()
+        (interactive)
+        (defun tide-imenu-index () nil)
+        (tide-setup)
+        (flycheck-mode +1)
+        (setq flycheck-check-syntax-automatically '(save-mode-enabled))
+        (tide-hl-identifier-mode +1)
+        (eldoc-mode +1)
+        (emmet-mode +1)
+        (company-mode +1))
 
       (use-package tide
         :ensure t
-        :after (typescript-mode company flycheck)
-        :hook ((typescript-mode . tide-setup)
-               (typescript-mode . tide-hl-indentifier-mode)
-               (before-save . tide-format-beforesave)))
+        :config
+          (setq company-tooltip-align-annotations t)
+          (add-hook 'before-save-hook 'tide-format-before-save)
+          (add-hook 'typescript-mode-hook #'setup-tide-mode))
 
       (use-package tern
         :ensure    t
@@ -921,7 +936,8 @@ https://github.com/dholm/dotemacs/blob/master/.emacs.d/lisp/utilities/cedet.el
         :ensure    t
         :defer     t
         :init      (add-hook 'rjsx-mode-hook 'emmet-mode)
-                   (add-hook 'rjsx-mode-hook 'tern-mode)
+                   ;; (add-hook 'rjsx-mode-hook 'tern-mode)
+                   ;; (add-hook 'rjsx-mode-hook 'tide-mode)
         :mode      ("\\(components\\|containers\\|actions\\|reducers\\)\\/.*\\.js\\'" . rjsx-mode))
 
       (use-package json-mode
