@@ -534,34 +534,27 @@
                     '(("d" "Tasks" entry
                        (file+headline org-ces-notes-file "Tasks")
                        "* TODO %?
-    SCHEDULED: %^t"          :clock-in t :clock-resume t)
+    SCHEDULED: %^t"  :clock-in t :clock-resume t)
 
                       ("e" "Quick task" entry
                        (file+headline org-ces-notes-file "Tasks")
                        "* TODO %^{Task}
-    SCHEDULED: %^t"
-                       :immediate-finish t)
-
+    SCHEDULED: %^t"  :immediate-finish t)
                       ("f" "Orientation" entry (file org-ces-notes-file)
                        "* ORIENTATION %? :@orientation:
     SCHEDULED: %^t"  :clock-in t :clock-resume t)
-
                       ("g" "Coding" entry (file org-ces-notes-file)
                        "* CODING%? :@coding:
     SCHEDULED: %^t"  :clock-in t :clock-resume t)
-
                       ("h" "Help" entry (file org-ces-notes-file)
                        "* HELP %? :@help:
     SCHEDULED: %^t"  :clock-in t :clock-resume t)
-
                       ("i" "Phone call" entry (file org-ces-notes-file)
                        "* PHONE %? :@phone:
     SCHEDULED: %^t"   :clock-in t :clock-resume t)
-
                       ("j" "Mail browsing" entry (file org-ces-notes-file)
                        "* EMAIL Browsing :@email:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
-
                       ("k" "Mail reply" entry (file org-ces-notes-file)
                        "* EMAIL Reply %? :@email:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
@@ -592,7 +585,10 @@
                                     ("@meeting" . ?f)
                                     ("@email" . ?g)
                                     ("@break" . ?h)
-                                    ("@study" . ?i)))
+                                    ("@study" . ?i)
+                                    ("@slack" . ?j)
+                                    ("@chat" . ?k)
+                                    ))
 
               ;; require htmlize.el
               (setq org-agenda-exporter-settings'((ps-number-of-columns 2)
