@@ -2,6 +2,8 @@
  (magit-cherry-pick
   ("--ff"))
  (magit-commit nil)
+ (magit-diff
+  (("--" "client/src/hooks/useConversations.js")))
  (magit-dispatch nil)
  (magit-fetch nil)
  (magit-log
