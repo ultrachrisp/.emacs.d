@@ -13,6 +13,8 @@
  (magit-patch-apply nil)
  (magit-pull nil)
  (magit-push nil)
+ (magit-rebase nil)
  (magit-revert
   ("--edit"))
+ (magit-stash nil)
  (magit-submodule nil))
