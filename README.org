@@ -30,7 +30,8 @@ Again replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ '(custom-safe-themes
+   '("c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" default)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -38,7 +39,6 @@ Again replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
 
 ;; Just for testing, for the typical setup see the README file, use the full path to startup.org..
 (org-babel-load-file (expand-file-name

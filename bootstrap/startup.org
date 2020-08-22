@@ -68,9 +68,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq pop-up-windows nil)
 (setq inhibit-startup-screen t)
-(setq custom-safe-themes
-      (quote
-       ("c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" default)))
 #+end_src
 
 ** Global variables
@@ -133,7 +130,7 @@
        (cond ((eq system-type 'windows-nt) "Consolas-10")
              ((eq system-type 'darwin)     "Menlo-15")
              ((eq system-type 'gnu/linux)  "DejaVu Sans Mono-15")
-             (t                            "Monos-15"))
+             (t                            "Mono-15"))
        "Font to use."
        :type 'string
        :group 'chrisp-emacs-setup)
@@ -242,7 +239,9 @@
        :type 'symbol
        :group 'chrisp-emacs-setup)
 
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; JS
+     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      (defcustom ces-tern-executable (or (executable-find "tern")
                                         "tern")
        "Tern executable for Javascript completion."
@@ -250,10 +249,10 @@
        :group 'chrisp-emacs-setup)
 
      ;; Git
-     (defcustom ces-yagist-token ""
-       "Yagist Github token for gists."
-       :type 'string
-       :group 'chrisp-emacs-setup)
+     ;; (defcustom ces-yagist-token ""
+     ;;   "Yagist Github token for gists."
+     ;;   :type 'string
+     ;;   :group 'chrisp-emacs-setup)
 
    #+end_src
 
