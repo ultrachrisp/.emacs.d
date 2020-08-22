@@ -631,6 +631,7 @@
 
             (use-package magit
               :ensure    t
+              :config (setq magit-bury-buffer-function 'magit-mode-quit-window)
               :defer     t)
 
             (use-package git-timemachine

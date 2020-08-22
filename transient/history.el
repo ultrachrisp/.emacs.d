@@ -14,6 +14,7 @@
  (magit-pull nil)
  (magit-push nil)
  (magit-rebase nil)
+ (magit-reset nil)
  (magit-revert
   ("--edit"))
  (magit-stash nil)
