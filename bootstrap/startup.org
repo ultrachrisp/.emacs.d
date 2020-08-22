@@ -631,7 +631,9 @@
 
             (use-package magit
               :ensure    t
-              :config (setq magit-bury-buffer-function 'magit-mode-quit-window)
+              :config (add-to-list 'display-buffer-alist
+                 '(".*COMMIT_EDITMSG". ((display-buffer-pop-up-window) .
+                                        ((inhibit-same-window . t)))))
               :defer     t)
 
             (use-package git-timemachine
