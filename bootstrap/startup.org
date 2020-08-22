@@ -24,52 +24,54 @@
 
    Setup global functions and constants.
 
-   #+begin_src emacs-lisp
-          (defconst ces-bootstrap-dir (file-name-directory load-file-name)
-            "Chrisp Emacs Setup bootstrap folder.")
+#+begin_src emacs-lisp
+(defconst ces-bootstrap-dir (file-name-directory load-file-name)
+  "Chrisp Emacs Setup bootstrap folder.")
 
-          (defconst ces-emacs-dir (file-name-directory (directory-file-name ces-bootstrap-dir))
-            "Chrisp Emacs Setup root folder.")
+(defconst ces-emacs-dir (file-name-directory (directory-file-name ces-bootstrap-dir))
+  "Chrisp Emacs Setup root folder.")
 
-          (defconst ces-user-filename "ces-user.el"
-            "Chrisp Emacs Setup user file.")
+(defconst ces-user-filename "ces-user.el"
+  "Chrisp Emacs Setup user file.")
 
-          (defun ces/mkdir-p (dir-path)
-            (unless (file-exists-p dir-path)
-              (make-directory dir-path t)))
+(defun ces/mkdir-p (dir-path)
+  (unless (file-exists-p dir-path)
+    (make-directory dir-path t)))
 
-          (defun ces/emacs-sub-dir (path-elements)
-            (let ((ces-emacs-sub-folder ces-emacs-dir))
-              (cl-loop for p in path-elements
-                       do (setq ces-emacs-sub-folder (file-name-as-directory (concat ces-emacs-sub-folder p))))
-              ces-emacs-sub-folder))
+(defun ces/emacs-sub-dir (path-elements)
+  (let ((ces-emacs-sub-folder ces-emacs-dir))
+    (cl-loop for p in path-elements
+             do (setq ces-emacs-sub-folder (file-name-as-directory (concat ces-emacs-sub-folder p))))
+    ces-emacs-sub-folder))
 
-          (defvar ces-user-file (concat user-emacs-directory ces-user-filename))
+(defvar ces-user-file (concat user-emacs-directory ces-user-filename))
 
-          (mapc #'(lambda(p) (add-to-list 'load-path p))
-                `( ,(ces/emacs-sub-dir '("vendor"))))
+(mapc #'(lambda(p) (add-to-list 'load-path p))
+      `( ,(ces/emacs-sub-dir '("vendor"))))
 
-          ;; packages
-          (require 'package)
-          (setq package-archives '(("elpy" . "http://jorgenschaefer.github.io/packages/")
-                                   ("melpa" . "https://melpa.org/packages/")
-                                   ("gnu" . "http://elpa.gnu.org/packages/")
-                                   ("melpa-stable" . "https://stable.melpa.org/packages/")
-                                  ))
-          (package-initialize)
+;; packages
+(require 'package)
+(setq package-archives '(("elpy" . "http://jorgenschaefer.github.io/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ))
+(package-initialize)
 
-          (setq epa-pinentry-mode 'loopback)
+(setq epa-pinentry-mode 'loopback)
 
-          (unless package-archive-contents
-            (package-refresh-contents))
+(unless package-archive-contents
+  (package-refresh-contents))
 
-
-            ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-            ;; Some general settings
-            ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-            (setq pop-up-windows nil)
-            (setq inhibit-startup-screen t)
-   #+end_src
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Some general settings
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq pop-up-windows nil)
+(setq inhibit-startup-screen t)
+(setq custom-safe-themes
+      (quote
+       ("c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" default)))
+#+end_src
 
 ** Global variables
 
