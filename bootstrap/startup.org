@@ -25,43 +25,50 @@
    Setup global functions and constants.
 
    #+begin_src emacs-lisp
-     (defconst ces-bootstrap-dir (file-name-directory load-file-name)
-       "Chrisp Emacs Setup bootstrap folder.")
+          (defconst ces-bootstrap-dir (file-name-directory load-file-name)
+            "Chrisp Emacs Setup bootstrap folder.")
 
-     (defconst ces-emacs-dir (file-name-directory (directory-file-name ces-bootstrap-dir))
-       "Chrisp Emacs Setup root folder.")
+          (defconst ces-emacs-dir (file-name-directory (directory-file-name ces-bootstrap-dir))
+            "Chrisp Emacs Setup root folder.")
 
-     (defconst ces-user-filename "ces-user.el"
-       "Chrisp Emacs Setup user file.")
+          (defconst ces-user-filename "ces-user.el"
+            "Chrisp Emacs Setup user file.")
 
-     (defun ces/mkdir-p (dir-path)
-       (unless (file-exists-p dir-path)
-         (make-directory dir-path t)))
+          (defun ces/mkdir-p (dir-path)
+            (unless (file-exists-p dir-path)
+              (make-directory dir-path t)))
 
-     (defun ces/emacs-sub-dir (path-elements)
-       (let ((ces-emacs-sub-folder ces-emacs-dir))
-         (cl-loop for p in path-elements
-                  do (setq ces-emacs-sub-folder (file-name-as-directory (concat ces-emacs-sub-folder p))))
-         ces-emacs-sub-folder))
+          (defun ces/emacs-sub-dir (path-elements)
+            (let ((ces-emacs-sub-folder ces-emacs-dir))
+              (cl-loop for p in path-elements
+                       do (setq ces-emacs-sub-folder (file-name-as-directory (concat ces-emacs-sub-folder p))))
+              ces-emacs-sub-folder))
 
-     (defvar ces-user-file (concat user-emacs-directory ces-user-filename))
+          (defvar ces-user-file (concat user-emacs-directory ces-user-filename))
 
-     (mapc #'(lambda(p) (add-to-list 'load-path p))
-           `( ,(ces/emacs-sub-dir '("vendor"))))
+          (mapc #'(lambda(p) (add-to-list 'load-path p))
+                `( ,(ces/emacs-sub-dir '("vendor"))))
 
-     ;; packages
-     (require 'package)
-     (setq package-archives '(("elpy" . "http://jorgenschaefer.github.io/packages/")
-                              ("melpa" . "https://melpa.org/packages/")
-                              ("gnu" . "http://elpa.gnu.org/packages/")
-                              ("melpa-stable" . "https://stable.melpa.org/packages/")
-                             ))
-     (package-initialize)
+          ;; packages
+          (require 'package)
+          (setq package-archives '(("elpy" . "http://jorgenschaefer.github.io/packages/")
+                                   ("melpa" . "https://melpa.org/packages/")
+                                   ("gnu" . "http://elpa.gnu.org/packages/")
+                                   ("melpa-stable" . "https://stable.melpa.org/packages/")
+                                  ))
+          (package-initialize)
 
-     (setq epa-pinentry-mode 'loopback)
+          (setq epa-pinentry-mode 'loopback)
 
-     (unless package-archive-contents
-       (package-refresh-contents))
+          (unless package-archive-contents
+            (package-refresh-contents))
+
+
+            ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+            ;; Some general settings
+            ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+            (setq pop-up-windows nil)
+            (setq inhibit-startup-screen t)
    #+end_src
 
 ** Global variables
@@ -112,7 +119,7 @@
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      ;; indentation
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     (defcustom ces-tab-size 4
+     (defcustom ces-tab-size 2
        "Number of spaces for tabs."
        :type 'integer
        :group 'chrisp-emacs-setup)
@@ -122,19 +129,19 @@
      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      (defcustom ces-ui-font
        (cond ((eq system-type 'windows-nt) "Consolas-10")
-             ((eq system-type 'darwin)     "Menlo-12:bold")
-             ((eq system-type 'gnu/linux)  "DejaVu Sans Mono-12:bold")
-             (t                            "Monospace-12:bold"))
+             ((eq system-type 'darwin)     "Menlo-15")
+             ((eq system-type 'gnu/linux)  "DejaVu Sans Mono-15")
+             (t                            "Monos-15"))
        "Font to use."
        :type 'string
        :group 'chrisp-emacs-setup)
 
-     (defcustom ces-ui-theme nil
+     (defcustom ces-ui-theme 'wombat
        "GUI Theme to use."
        :type 'symbol
        :group 'chrisp-emacs-setup)
 
-     (defcustom ces-ui-theme-console nil
+     (defcustom ces-ui-theme-console 'wombat
        "Console theme to use."
        :type 'symbol
        :group 'chrisp-emacs-setup)
@@ -535,7 +542,6 @@
                        (file+headline org-ces-notes-file "Tasks")
                        "* TODO %?
     SCHEDULED: %^t"  :clock-in t :clock-resume t)
-
                       ("e" "Quick task" entry
                        (file+headline org-ces-notes-file "Tasks")
                        "* TODO %^{Task}
@@ -558,15 +564,12 @@
                       ("k" "Mail reply" entry (file org-ces-notes-file)
                        "* EMAIL Reply %? :@email:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
-
                       ("k" "Team Meetings" entry (file org-ces-notes-file)
                        "* TEAM MEETING :@meeting:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)
-
                       ("k" "Other meetings" entry (file org-ces-notes-file)
                        "* MEETING %? :@meeting:
     SCHEDULED: %^t"   :clock-in t :clock-resume t)
-
                       ("l" "Break" entry (file org-ces-notes-file)
                        "* BREAK :@break:
     SCHEDULED: %^t"    :clock-in t :clock-resume t)))
