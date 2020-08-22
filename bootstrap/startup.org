@@ -631,9 +631,6 @@
 
             (use-package magit
               :ensure    t
-              :config (add-to-list 'display-buffer-alist
-                 '(".*COMMIT_EDITMSG". ((display-buffer-pop-up-window) .
-                                        ((inhibit-same-window . t)))))
               :defer     t)
 
             (use-package git-timemachine
