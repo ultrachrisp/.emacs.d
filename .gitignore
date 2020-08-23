@@ -3,5 +3,6 @@ data/
 snippets/
 transient/
 straight/
+auto-save-list/
 
 chrisp-init.el

@@ -138,20 +138,59 @@ Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-versi
     (doom-themes-org-config))
 #+END_SRC
 
-* Ewal theme
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package doom-ewal-themes
-  ;;   :straight (doom-ewal-themes
-  ;;              :host github
-  ;;              :repo "jdormit/doom-ewal-themes"
-  ;;              :files ("themes" :defaults))) ;
-#+END_SRC
-
 * Customization File
 I don't want anything to write to my init.el, so save customizations in a separate file:
 #+BEGIN_SRC emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file t)
+#+END_SRC
+
+* Autocompletion
+There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :config
+    (setq company-idle-delay 0.3))
+  ;;   (add-hook 'after-init-hook #'global-company-mode))
+
+  ;; (general-def "C-M-i" #'company-complete)
+  ;; (general-def "M-<tab>" #'company-complete)
+#+END_SRC
+
+* Which-key
+`which-key` makes keybindings discoverable.
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :config
+    (which-key-mode))
+#+END_SRC
+
+This function defines a prefix group for `which-key` so that it doesn't display `prefix`.
+#+BEGIN_SRC emacs-lisp
+  ;; (defun jdormit/define-prefix (binding name)
+  ;;   (which-key-add-key-based-replacements
+  ;;     (concat leader " " binding)
+  ;;     name)
+  ;;   (which-key-add-key-based-replacements
+  ;;     (concat "," " " binding)
+  ;;     name))
+#+END_SRC
+
+* Magit
+Magit is objectively the best Git interface.
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :commands (magit-status
+               magit-blame
+               magit-find-file
+               magit-name-local-branch))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  ;; (jdormit/define-prefix "g" "git")
+  ;; (leader-def-key "gs" #'magit-status)
+  ;; (leader-def-key "gg" #'magit-file-dispatch)
+  ;; (leader-def-key "gf" #'magit-find-file)
 #+END_SRC
 
 * Init File
@@ -168,4 +207,33 @@ And another one to edit it:
   (defun find-init-file ()
     (interactive)
     (find-file "~/.emacs.d/init.org"))
+#+END_SRC
+
+* Line Numbers
+Toggle line numbers:
+#+BEGIN_SRC emacs-lisp
+  (setq display-line-numbers-type 'visual)
+  ;; (leader-def-key "tn" 'display-line-numbers-mode)
+#+END_SRC
+
+Toggle line numbering mode (normal or relative):
+#+BEGIN_SRC emacs-lisp
+  (defun toggle-line-number-mode ()
+    (interactive)
+    (when display-line-numbers
+      (if (eq display-line-numbers 'visual)
+          (progn
+            (setq display-line-numbers t)
+            (setq display-line-numbers-type t))
+        (progn
+          (setq display-line-numbers 'visual)
+          (setq display-line-numbers-type 'visual)))))
+
+  ;; (leader-def-key "tr" #'toggle-line-number-mode)
+#+END_SRC
+
+Display line numbers by default in code and org-mode buffers:
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
