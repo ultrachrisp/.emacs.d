@@ -1,0 +1,171 @@
+-*- eval: (add-hook 'after-save-hook 'org-babel-tangle 0 t) -*-
+#+PROPERTY: header-args :results silent
+#+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/chrisp-init.el
+
+This is a literate init file holding my Emacs configuration. It is
+initially loaded by a [[file:init.el][bootstrap file]] that lives at ~/.emacs.d/init.el;
+after the initial bootstrapping it writes itself to ~/.emacs.el. Since
+~/.emacs.el takes priority over ~/.emacs.d/init.el, after the initial
+bootstrapping process the tangled ~/.emacs.el file will get loaded
+without needing to load the bootstrap file first.
+
+* Prelude
+Enables lexical binding for everything in init.el:
+#+BEGIN_SRC emacs-lisp
+  ;;;  -*- lexical-binding: t; -*-
+#+END_SRC
+
+** Garbage collection
+Some GC tweaks [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly]["borrowed" from Doom emacs]].
+
+Turn off GC during init and restore it afterwards:
+#+BEGIN_SRC emacs-lisp
+  (setq gc-cons-threshold most-positive-fixnum
+	gc-cons-percentage 0.6)
+
+  (add-hook 'emacs-startup-hook
+      (lambda ()
+	(setq gc-cons-threshold 100000000
+	      gc-cons-percentage 0.1)))
+#+END_SRC
+
+Also suppress GC for 1 second after the minibuffer is active to avoid stuttering autocompletion and other GC hangups:
+#+BEGIN_SRC emacs-lisp
+  (defun defer-garbage-collection ()
+    (setq gc-cons-threshold most-positive-fixnum))
+
+  (defun restore-garbage-collection ()
+    (run-at-time
+     1 nil (lambda () (setq gc-cons-threshold 100000000))))
+
+  (add-hook 'minibuffer-setup-hook #'defer-garbage-collection)
+  (add-hook 'minibuffer-exit-hook #'restore-garbage-collection)
+#+END_SRC
+
+** Unset file-handler-alist during initialization
+Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly][Doom Emacs]].
+#+BEGIN_SRC emacs-lisp
+  (defvar file-name-handler-alist-backup file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+  (add-hook 'emacs-startup-hook
+	    (lambda ()
+	      (setq file-name-handler-alist file-name-handler-alist-backup)))
+#+END_SRC
+
+** Variables
+#+BEGIN_SRC emacs-lisp
+  (setq vc-follow-symlinks t
+        frame-resize-pixelwise t
+        tab-always-indent 'complete
+        enable-recursive-minibuffers t
+        read-process-output-max (* 1024 1024)
+        bookmark-save-flag 1)
+  (setq-default indent-tabs-mode nil)
+#+END_SRC
+
+* Default directory
+#+BEGIN_SRC emacs-lisp
+  (cd "~")
+#+END_SRC
+
+* Packages
+Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package installation:
+#+BEGIN_SRC emacs-lisp
+  (defvar bootstrap-version)
+  (unless (boundp 'bootstrapping-init)
+   (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage)))
+#+END_SRC
+
+`use-package` is a macro that simplifies installing and loading packages.
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'use-package)
+  (setq straight-use-package-by-default t)
+#+END_SRC
+
+** Utility functions
+#+BEGIN_SRC emacs-lisp
+  (defun find-library-readme (library)
+    (interactive (list (read-library-name)))
+    (let* ((dir (file-name-directory (file-truename (find-library-name library))))
+           (doc (car (directory-files dir t "\\(readme\\|README\\)\\..*"))))
+      (if (not doc)
+          (error "No README found")
+        (find-file doc)
+        (when (eq major-mode 'markdown-mode)
+          (markdown-view-mode)))))
+#+END_SRC
+
+* Benchmarking
+`benchmark-init` does what it says on the box. This sets it up to benchmark my init time and then disable benchmarking after init completes.
+#+BEGIN_SRC emacs-lisp
+  (use-package benchmark-init
+    :config
+    (add-hook 'after-init-hook 'benchmark-init/deactivate))
+#+END_SRC
+
+* Load org mode
+Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-version-of-my-package-was-loaded][avoid a version clash]].
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+    :straight org-plus-contrib
+    :commands (org-element-map)
+    :mode (("\\.org\\'" . org-mode)))
+
+  ;; Annoying that this is necessary...
+  (require 'org)
+  (require 'org-refile)
+  (require 'org-protocol)
+#+END_SRC
+
+* Doom themes
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-themes
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-one t)
+    (doom-themes-org-config))
+#+END_SRC
+
+* Ewal theme
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package doom-ewal-themes
+  ;;   :straight (doom-ewal-themes
+  ;;              :host github
+  ;;              :repo "jdormit/doom-ewal-themes"
+  ;;              :files ("themes" :defaults))) ;
+#+END_SRC
+
+* Customization File
+I don't want anything to write to my init.el, so save customizations in a separate file:
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file t)
+#+END_SRC
+
+* Init File
+A function to reload my init file. It reloads the major mode after the init file is loaded to rebind keymappings.
+#+BEGIN_SRC emacs-lisp
+  (defun reload-init-file ()
+    (interactive)
+    (load-file "~/.emacs.d/chrisp-init.el")
+    (funcall major-mode))
+#+END_SRC
+
+And another one to edit it:
+#+BEGIN_SRC emacs-lisp
+  (defun find-init-file ()
+    (interactive)
+    (find-file "~/.emacs.d/init.org"))
+#+END_SRC
