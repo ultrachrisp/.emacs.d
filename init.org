@@ -274,6 +274,80 @@ Notes, agenda, calendar, blogging, journaling, etc.
   (setq org-confirm-babel-evaluate nil)
 #+END_SRC
 
+** Capture templates
+ #+BEGIN_SRC emacs-lisp
+   (setq org-capture-templates
+         '(("d" "Tasks" entry
+            (file+headline org-ces-notes-file "Tasks")
+            "* TODO %? SCHEDULED: %^t"  :clock-in t :clock-resume t)
+           ("e" "Quick task" entry
+            (file+headline org-ces-notes-file "Tasks")
+            "* TODO %^{Task}
+   SCHEDULED: %^t"  :immediatete-finish t)
+           ("f" "Orientation" entry (file org-ces-notes-file)
+            "* ORIENTATION %? :@orientation:
+   SCHEDULED: %^t"  :clock-in t :clock-resume t)
+           ("g" "Coding" entry (file org-ces-notes-file)
+            "* CODING%? :@coding:
+   SCHEDULED: %^t"  :clock-in t :clock-resume t)
+           ("h" "Help" entry (file org-ces-notes-file)
+            "* HELP %? :@help:
+   SCHEDULED: %^t"  :clock-in t :clock-resume t)
+           ("i" "Phone call" entry (file org-ces-notes-file)
+            "* PHONE %? :@phone:
+   SCHEDULED: %^t"   :clock-in t :clock-resume t)
+           ("j" "Mail browsing" entry (file org-ces-notes-file)
+            "* EMAIL Browsing :@email:
+   SCHEDULED: %^t"    :clock-in t :clock-resume t)
+           ("k" "Mail reply" entry (file org-ces-notes-file)
+            "* EMAIL Reply %? :@email:
+   SCHEDULED: %^t"    :clock-in t :clock-resume t)
+           ("k" "Team Meetings" entry (file org-ces-notes-file)
+            "* TEAM MEETING :@meeting:
+   SCHEDULED: %^t"    :clock-in t :clock-resume t)
+           ("k" "Other meetings" entry (file org-ces-notes-file)
+            "* MEETING %? :@meeting:
+   SCHEDULED: %^t"   :clock-in t :clock-resume t)
+           ("l" "Break" entry (file org-ces-notes-file)
+            "* BREAK :@break:
+   SCHEDULED: %^t"    :clock-in t :clock-resume t)))
+#+END_SRC
+
+** Todo states
+#+BEGIN_SRC emacs-lisp
+  (setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                            (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                            (sequence "|" "CANCELED(c)")))
+#+END_SRC
+
+** Tags
+#+BEGIN_SRC emacs-lisp
+  (setq org-tag-alist '(("@orientation" . ?a)
+                        ("@coding" . ?b)
+                        ("@help" . ?c)
+                        ("@phone" . ?d)
+                        ("@documentation" . ?e)
+                        ("@meeting" . ?f)
+                        ("@email" . ?g)
+                        ("@break" . ?h)
+                        ("@study" . ?i)
+                        ("@slack" . ?j)
+                        ("@chat" . ?k)
+                        ))
+#+END_SRC
+** Agenda display
+#+BEGIN_SRC emacs-lisp
+(setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+#+END_SRC
+** Time estimates
+#+BEGIN_SRC emacs-lisp
+(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+#+END_SRC   
+** TIme format
+#+BEGIN_SRC emacs-lisp
+(setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+#+END_SRC   
+
 * Projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
