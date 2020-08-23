@@ -4,5 +4,7 @@ snippets/
 transient/
 straight/
 auto-save-list/
+backups/
+projectile-bookmarks.eld
 
 chrisp-init.el

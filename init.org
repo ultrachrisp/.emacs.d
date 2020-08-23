@@ -237,3 +237,132 @@ Display line numbers by default in code and org-mode buffers:
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
   (add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
+
+* Winum
+This package includes functions to switch windows by number.
+#+BEGIN_SRC emacs-lisp
+  (use-package winum
+    :init (setq winum-mode-line-position 1
+                winum-numbering-scope 'global)
+    :config (winum-mode))
+#+END_SRC
+
+* Backups and Autosaves
+Store backups and autosaves in a centralized place. This should really be the default...
+#+BEGIN_SRC emacs-lisp
+  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves" t)))
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+#+END_SRC
+* jq
+The JSON multitool.
+#+BEGIN_SRC emacs-lisp
+  (use-package jq-mode
+    :commands (jq-mode jq-interactively))
+#+END_SRC
+* Org Mode
+Notes, agenda, calendar, blogging, journaling, etc.
+
+** org-babel
+   Get rid of the confirmation prompt:
+#+BEGIN_SRC emacs-lisp
+  (setq org-confirm-babel-evaluate nil)
+#+END_SRC
+
+* Projectile
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :commands (projectile-find-file
+               projectile-grep
+               projectile-switch-project
+               projectile-project-root)
+  ;;   :init
+  ;;   (defhydra hydra-projectile (:color teal :hint nil) "
+  ;;   PROJECTILE: %(projectile-project-root)
+
+  ;;      Find File Search/Tags Buffers Cache
+  ;; ------------------------------------------------------------------------------------------
+  ;; _s-f_: file _a_: ag _i_: Ibuffer _c_: cache clear _ff_: file dwim
+  ;;  _g_: update gtags _b_: switch to buffer _x_: remove known project
+  ;;  _fd_: file curr dir _o_: multi-occur _s-k_: Kill all buffers _X_:
+  ;;  cleanup non-existing _r_: recent file ^^^^_z_: cache current _d_:
+  ;;  dir
+
+  ;; "
+  ;;     ("a" projectile-ag)
+  ;;     ("b" projectile-switch-to-buffer)
+  ;;     ("c" projectile-invalidate-cache)
+  ;;     ("d" projectile-find-dir)
+  ;;     ("s-f" projectile-find-file)
+  ;;     ("ff" projectile-find-file-dwim)
+  ;;     ("fd" projectile-find-file-in-directory)
+  ;;     ("g" ggtags-update-tags)
+  ;;     ("s-g" ggtags-update-tags)
+  ;;     ("i" projectile-ibuffer)
+  ;;     ("K" projectile-kill-buffers)
+  ;;     ("s-k" projectile-kill-buffers)
+  ;;     ("m" projectile-multi-occur)
+  ;;     ("o" projectile-multi-occur)
+  ;;     ("s-p" projectile-switch-project "switch project")
+  ;;     ("p" projectile-switch-project)
+  ;;     ("s" projectile-switch-project)
+  ;;     ("r" projectile-recentf)
+  ;;     ("x" projectile-remove-known-project)
+  ;;     ("X" projectile-cleanup-known-projects)
+  ;;     ("z" projectile-cache-current-file)
+  ;;     ("`" hydra-projectile-other-window/body "other window")
+  ;;     ("q" nil "cancel" :color blue))
+    :config
+    (projectile-mode))
+    ;; (jdormit/define-prefix "p" "projectile")
+    ;; (leader-def-key "p" projectile-command-map))
+
+  (defmacro with-projectile-root (&rest body)
+    `(with-temp-buffer
+       (when (projectile-project-root)
+         (cd (projectile-project-root)))
+       ,@body))
+      #+END_SRC
+* Helm
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :config    (setq helm-ff-transformer-show-only-basename nil
+                     helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
+                     helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
+                     helm-yank-symbol-first                 t
+                     helm-buffers-fuzzy-matching            t
+                     helm-ff-auto-update-initial-value      t
+                     helm-input-idle-delay                  0.1
+                     helm-idle-delay                        0.1)
+    :init      (progn
+                 (require 'helm-config)
+                 (helm-mode t)
+                 (use-package helm-projectile
+                   :bind      ("C-c h" . helm-projectile))
+                 )
+    :bind (("C-x r l" . helm-bookmarks)
+           ("C-x C-m" . helm-M-x)
+           ("C-h i"   . helm-google-suggest)
+           ("M-y"     . helm-show-kill-ring)
+           ("C-h a"   . helm-apropos)
+           ("C-x C-f" . helm-find-files)
+           ("C-x p" .   helm-top)
+           ("C-x C-b" . helm-buffers-list))
+    )
+#+END_SRC
+* UI
+  Get rid of the janky buttons:
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+#+END_SRC
+
+And the menu bar:
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)
+#+END_SRC
+
+And the ugly scroll bars:
+#+BEGIN_SRC emacs-lisp
+  (set-scroll-bar-mode nil)
+#+END_SRC
+
