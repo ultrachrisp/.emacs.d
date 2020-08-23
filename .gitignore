@@ -1,10 +1,6 @@
 .DS_Store
 data/
-elpa/
 snippets/
-ensime/
-semanticdb/
-bootstrap/**/*.el
 transient/
-init.el
-ede-projects.el
+
+chrisp-init.el
