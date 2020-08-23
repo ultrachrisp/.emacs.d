@@ -2,5 +2,6 @@
 data/
 snippets/
 transient/
+straight/
 
 chrisp-init.el
