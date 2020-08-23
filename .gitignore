@@ -5,6 +5,8 @@ transient/
 straight/
 auto-save-list/
 backups/
+elpa/
+eshell/
 projectile-bookmarks.eld
 
 chrisp-init.el
