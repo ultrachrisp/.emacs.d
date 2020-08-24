@@ -1,49 +1,11 @@
 #+TITLE: My Emacs Setup
 
-This is a remake of [[https://github.com/rimerosolutions/emacs-rimero-setup][emacs-rimero-setup]] & [[https://github.com/yveszoundi/emacs.d][yveszoundi]] for easier reuse in a non obtrusive way.
+This is a remake of [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/commit/8266a2c24a1077ff740e570dba25df7150559b1e/emacs/init.org][Jeremy Dormitzer]]'s Emacs setup. 
 
-I am relying on emacs a lot more these days, and this setup allowed me to bring more order to what was a fairly chaotic setup structure.
+This is fairly heavy rework of my previous setup, which was based off of [[https://github.com/yveszoundi/emacs.d][yveszoundi]]'s approach, but there are a fair amount of similarities.
 
-The setup is loaded via an =org= file, see the [[https://github.com/yveszoundi/emacs.d/blob/master/bootstrap/startup.org][startup.org]] file in the =bootstrap= folder.
+Some of the biggest new features are:
+- Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
+- Use of [[https://github.com/raxod502/straight.el][straight.el]] for package management.
 
-* Just testing the setup
-
-Replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project.
-
-#+begin_src emacs-lisp
-  emacs -q -l ~/GIT-CHECKOUT-FOLDER/init.el
-#+end_src
-
-The above-mentioned sample =init.el= is provide as an example only, for integration, see the next section.
-
-* Integration with your own customization's
-
-Below is a simple =.emacs.d/init.el= startup file.
-
-Again replace *GIT-CHECKOUT-FOLDER* with the folder where you cloned the project.
-
-#+begin_src emacs-lisp
-;; This a sample emacs init file ~/.emacs or ~/.emacs.d/init.el
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" default)))
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-;; Just for testing, for the typical setup see the README file, use the full path to startup.org..
-(org-babel-load-file (expand-file-name
-                      (concat
-                       (file-name-as-directory
-                        (concat (file-name-as-directory (file-name-directory load-file-name)) "bootstrap"))
-                       "startup.org")))
-#+end_src
+Additionally, it has a cleaner management of the init.org file, which allows for a quick application of updates. 
