@@ -1,12 +1,13 @@
 .DS_Store
-data/
-snippets/
-transient/
-straight/
+
 auto-save-list/
+autosaves/
 backups/
 elpa/
 eshell/
-projectile-bookmarks.eld
+straight/
+transient/
 
+custom.el
 chrisp-init.el
+projectile-bookmarks.eld

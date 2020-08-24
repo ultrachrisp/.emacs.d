@@ -1,4 +1,3 @@
--*- eval: (add-hook 'after-save-hook 'org-babel-tangle 0 t) -*-
 #+PROPERTY: header-args :results silent
 #+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/chrisp-init.el
 
@@ -136,6 +135,7 @@ Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-versi
           doom-themes-enable-italic t)
     ;; (load-theme 'doom-dark+ t)
     (load-theme 'doom-city-lights t)
+    ;; (load-theme 'doom-acario-dark t)
     (doom-themes-org-config))
 #+END_SRC
 
@@ -245,7 +245,7 @@ Quick way to move between windows
 Store backups and autosaves in a centralized place. This should really be the default...
 #+BEGIN_SRC emacs-lisp
   (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
-  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves" t)))
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
   (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
 
