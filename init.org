@@ -134,7 +134,7 @@ Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-versi
 
     (setq doom-themes-enable-bold t 
           doom-themes-enable-italic t)
-    (load-theme 'doom-one t)
+    (load-theme 'doom-dark+ t)
     (doom-themes-org-config))
 #+END_SRC
 
@@ -623,4 +623,12 @@ This package looks up word definitions online.
                 ("C-c sl" . ispell-line)))
 
   (setq ispell-program-name "/usr/local/bin/aspell")
+#+END_SRC
+
+* Encryption
+#+BEGIN_SRC emacs-lisp
+  (require 'epa-file)
+  (epa-file-enable)
+  (setq epa-file-select-keys nil)
+  (setf epa-pinentry-mode 'loopback)
 #+END_SRC
