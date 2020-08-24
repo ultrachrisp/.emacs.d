@@ -145,6 +145,17 @@ I don't want anything to write to my init.el, so save customizations in a separa
   (load custom-file t)
 #+END_SRC
 
+* Path
+`exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user's shell config. This won't work on Windows.
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
+#+END_SRC
+
 * Autocompletion
 There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
 #+BEGIN_SRC emacs-lisp
