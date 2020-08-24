@@ -21,12 +21,12 @@ Some GC tweaks [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.or
 Turn off GC during init and restore it afterwards:
 #+BEGIN_SRC emacs-lisp
   (setq gc-cons-threshold most-positive-fixnum
-	gc-cons-percentage 0.6)
+        gc-cons-percentage 0.6)
 
   (add-hook 'emacs-startup-hook
-      (lambda ()
-	(setq gc-cons-threshold 100000000
-	      gc-cons-percentage 0.1)))
+            (lambda ()
+              (setq gc-cons-threshold 100000000
+                    gc-cons-percentage 0.1)))
 #+END_SRC
 
 Also suppress GC for 1 second after the minibuffer is active to avoid stuttering autocompletion and other GC hangups:
@@ -48,8 +48,8 @@ Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/
   (defvar file-name-handler-alist-backup file-name-handler-alist)
   (setq file-name-handler-alist nil)
   (add-hook 'emacs-startup-hook
-	    (lambda ()
-	      (setq file-name-handler-alist file-name-handler-alist-backup)))
+            (lambda ()
+              (setq file-name-handler-alist file-name-handler-alist-backup)))
 #+END_SRC
 
 ** Variables
@@ -73,17 +73,17 @@ Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package 
 #+BEGIN_SRC emacs-lisp
   (defvar bootstrap-version)
   (unless (boundp 'bootstrapping-init)
-   (let ((bootstrap-file
-	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-	(bootstrap-version 5))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-	  (url-retrieve-synchronously
-	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	   'silent 'inhibit-cookies)
-	(goto-char (point-max))
-	(eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage)))
+    (let ((bootstrap-file
+           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+          (bootstrap-version 5))
+      (unless (file-exists-p bootstrap-file)
+        (with-current-buffer
+            (url-retrieve-synchronously
+             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+             'silent 'inhibit-cookies)
+          (goto-char (point-max))
+          (eval-print-last-sexp)))
+      (load bootstrap-file nil 'nomessage)))
 #+END_SRC
 
 `use-package` is a macro that simplifies installing and loading packages.
@@ -131,9 +131,9 @@ Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-versi
 #+BEGIN_SRC emacs-lisp
   (use-package doom-themes
     :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+    (setq doom-themes-enable-bold t 
+          doom-themes-enable-italic t)
     (load-theme 'doom-one t)
     (doom-themes-org-config))
 #+END_SRC
@@ -150,7 +150,7 @@ There seems to be [[https://github.com/company-mode/company-mode/issues/68][some
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :config
-    (setq company-idle-delay 0.3)
+    (setq company-idle-delay 0.1)
     (setq company-minimum-prefix-length 1)
     (setq company-show-numbers t)
     (add-hook 'after-init-hook 'global-company-mode))
@@ -158,8 +158,8 @@ There seems to be [[https://github.com/company-mode/company-mode/issues/68][some
   (use-package company-tabnine)
   (use-package company-lsp)
 
-      ;; (general-def "C-M-i" #'company-complete)
-      ;; (general-def "M-<tab>" 'company-complete))
+  ;; (general-def "C-M-i" #'company-complete)
+  ;; (general-def "M-<tab>" 'company-complete))
 #+END_SRC
 
 * Which-key
@@ -170,17 +170,6 @@ There seems to be [[https://github.com/company-mode/company-mode/issues/68][some
     (which-key-mode))
 #+END_SRC
 
-This function defines a prefix group for `which-key` so that it doesn't display `prefix`.
-#+BEGIN_SRC emacs-lisp
-  ;; (defun jdormit/define-prefix (binding name)
-  ;;   (which-key-add-key-based-replacements
-  ;;     (concat leader " " binding)
-  ;;     name)
-  ;;   (which-key-add-key-based-replacements
-  ;;     (concat "," " " binding)
-  ;;     name))
-#+END_SRC
-
 * Magit
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
@@ -189,13 +178,6 @@ Magit is objectively the best Git interface.
                magit-blame
                magit-find-file
                magit-name-local-branch))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  ;; (jdormit/define-prefix "g" "git")
-  ;; (leader-def-key "gs" #'magit-status)
-  ;; (leader-def-key "gg" #'magit-file-dispatch)
-  ;; (leader-def-key "gf" #'magit-find-file)
 #+END_SRC
 
 * Init File
@@ -217,8 +199,7 @@ And another one to edit it:
 * Line Numbers
 Toggle line numbers:
 #+BEGIN_SRC emacs-lisp
-  (setq display-line-numbers-type 'visual)
-  ;; (leader-def-key "tn" 'display-line-numbers-mode)
+  (setq display-line-numbers-type t)
 #+END_SRC
 
 Toggle line numbering mode (normal or relative):
@@ -233,8 +214,6 @@ Toggle line numbering mode (normal or relative):
         (progn
           (setq display-line-numbers 'visual)
           (setq display-line-numbers-type 'visual)))))
-
-  ;; (leader-def-key "tr" #'toggle-line-number-mode)
 #+END_SRC
 
 Display line numbers by default in code and org-mode buffers:
@@ -243,13 +222,11 @@ Display line numbers by default in code and org-mode buffers:
   (add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
 
-* Winum
-This package includes functions to switch windows by number.
+* Ace-window
+Quick way to move between windows
 #+BEGIN_SRC emacs-lisp
-  (use-package winum
-    :init (setq winum-mode-line-position 1
-                winum-numbering-scope 'global)
-    :config (winum-mode))
+(use-package ace-window
+  :bind      ("C-x o" . ace-window))
 #+END_SRC
 
 * Backups and Autosaves
@@ -259,12 +236,14 @@ Store backups and autosaves in a centralized place. This should really be the de
   (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves" t)))
   (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
+
 * jq
 The JSON multitool.
 #+BEGIN_SRC emacs-lisp
   (use-package jq-mode
     :commands (jq-mode jq-interactively))
 #+END_SRC
+
 * Org Mode
 Notes, agenda, calendar, blogging, journaling, etc.
 
@@ -335,17 +314,20 @@ Notes, agenda, calendar, blogging, journaling, etc.
                         ("@chat" . ?k)
                         ))
 #+END_SRC
+
 ** Agenda display
 #+BEGIN_SRC emacs-lisp
-(setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+  (setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
 #+END_SRC
+
 ** Time estimates
 #+BEGIN_SRC emacs-lisp
-(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
-#+END_SRC   
-** TIme format
+  (setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+#+END_SRC
+
+** Time format
 #+BEGIN_SRC emacs-lisp
-(setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+  (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 #+END_SRC   
 
 * Projectile
@@ -393,15 +375,14 @@ Notes, agenda, calendar, blogging, journaling, etc.
   ;;     ("q" nil "cancel" :color blue))
     :config
     (projectile-mode))
-    ;; (jdormit/define-prefix "p" "projectile")
-    ;; (leader-def-key "p" projectile-command-map))
 
   (defmacro with-projectile-root (&rest body)
     `(with-temp-buffer
        (when (projectile-project-root)
          (cd (projectile-project-root)))
        ,@body))
-      #+END_SRC
+#+END_SRC
+
 * Helm
 #+BEGIN_SRC emacs-lisp
   (use-package helm
@@ -417,8 +398,8 @@ Notes, agenda, calendar, blogging, journaling, etc.
                  (require 'helm-config)
                  (helm-mode t)
                  (use-package helm-projectile
-                   :bind      ("C-c h" . helm-projectile))
-                 )
+                   :bind      ("C-c h" . helm-projectile)))
+
     :bind (("C-x r l" . helm-bookmarks)
            ("C-x C-m" . helm-M-x)
            ("C-h i"   . helm-google-suggest)
@@ -426,9 +407,9 @@ Notes, agenda, calendar, blogging, journaling, etc.
            ("C-h a"   . helm-apropos)
            ("C-x C-f" . helm-find-files)
            ("C-x p" .   helm-top)
-           ("C-x C-b" . helm-buffers-list))
-    )
+           ("C-x C-b" . helm-buffers-list)))
 #+END_SRC
+
 * UI
   Get rid of the janky buttons:
 #+BEGIN_SRC emacs-lisp
@@ -443,6 +424,26 @@ And the menu bar:
 And the ugly scroll bars:
 #+BEGIN_SRC emacs-lisp
   (set-scroll-bar-mode nil)
+#+END_SRC
+
+And startup screen
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-screen t)
+#+END_SRC
+
+Setting the font
+#+BEGIN_SRC emacs-lisp
+  (setq default-frame-alist '((font . "Monaco-15")))
+#+END_SRC
+
+* aggressive-indent-mode
+Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after every change:
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+    :hook ((clojure-mode . aggressive-indent-mode)
+           (emacs-lisp-mode . aggressive-indent-mode)
+           (lisp-mode . aggressive-indent-mode)
+           (scheme-mode . aggressive-indent-mode)))
 #+END_SRC
 
 * JavaScript
@@ -476,14 +477,14 @@ Use nvm to manage node versions:
 
 A command to format JS via prettier:
 #+BEGIN_SRC emacs-lisp
-  (defun prettier ()
-    (interactive)
-    (let ((start (if (use-region-p) (region-beginning) (point-min)))
-          (end (if (use-region-p) (region-end) (point-max)))
-          (parser (cond
-                   ((eq major-mode 'graphql-mode) "graphql")
-                   (t "babel"))))
-      (shell-command-on-region start end (concat "prettier --parser " parser) nil t)))
+  ;; (defun prettier ()
+  ;;   (interactive)
+  ;;   (let ((start (if (use-region-p) (region-beginning) (point-min)))
+  ;;         (end (if (use-region-p) (region-end) (point-max)))
+  ;;         (parser (cond
+  ;;                  ((eq major-mode 'graphql-mode) "graphql")
+  ;;                  (t "babel"))))
+  ;;     (shell-command-on-region start end (concat "prettier --parser " parser) nil t)))
 #+END_SRC
 
 * Typescript
@@ -495,6 +496,7 @@ A command to format JS via prettier:
     (with-eval-after-load 'lsp
       (add-hook 'typescript-mode-hook 'lsp-deferred)))
 #+END_SRC
+
 * LSP Mode
 Emacs support for the Language Server Protocol
 
@@ -560,7 +562,7 @@ Emacs support for the Language Server Protocol
   (use-package helm-lsp :commands helm-lsp-workspace-symbol)
   ;; if you are ivy user
   ;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-  ;; (use-package lsp-company :commands lsp-company-workspace-symbol)
+
 
     (with-eval-after-load 'lsp-clients
       (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename major-mode)
@@ -569,9 +571,11 @@ Emacs support for the Language Server Protocol
         (or (member major-mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
             (and (eq major-mode 'web-mode)
                  (or (string-suffix-p ".tsx" filename t)
+                     (string-suffix-p ".ts" filename t)
                      (string-suffix-p ".jsx" filename t)
                      (string-suffix-p ".js" filename t))))))
 #+END_SRC
+
 * Go
 Basic support:
 #+BEGIN_SRC emacs-lisp
@@ -594,4 +598,18 @@ This package looks up word definitions online.
     ;; (normal "gl" #'define-word-at-point)
     ;; (normal "gL" #'define-word)
     )
+#+END_SRC
+
+* Spelling
+#+BEGIN_SRC emacs-lisp
+  (use-package ispell
+    :init      (defun ispell-line()
+                 (interactive)
+                 (ispell-region (line-beginning-position) (line-end-position)))
+    :bind      (("C-c sr" . ispell-region)
+                ("C-c sb" . ispell-buffer)
+                ("C-c sw" . ispell-word)
+                ("C-c sl" . ispell-line)))
+
+  (setq ispell-program-name "/usr/local/bin/aspell")
 #+END_SRC
