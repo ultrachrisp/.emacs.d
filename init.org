@@ -448,6 +448,28 @@ Setting the font
   (setq default-frame-alist '((font . "Monaco-15")))
 #+END_SRC
 
+* Flycheck
+Syntax checking etc.:
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    ;; :init
+    ;; (defhydra hydra-flycheck
+    ;;   (:pre (flycheck-list-errors)
+    ;;         :post (quit-windows-on "*Flycheck errors*")
+    ;;         :hint nil)
+    ;;   "Errors"
+    ;;   ("f" flycheck-error-list-set-filter "Filter")
+    ;;   ("j" flycheck-next-error "Next")
+    ;;   ("k" flycheck-previous-error "Previous")
+    ;;   ("gg" flycheck-first-error "First")
+    ;;   ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
+    ;;   ("q" nil))
+    :config
+    (setq-default flycheck-disabled-checkers '(emacs-lisp emacs-lisp-checkdoc))
+    (global-flycheck-mode))
+    ;; :general
+    ;; ((normal motion visual) flycheck-mode-map "ze" 'hydra-flycheck/body))
+#+END_SRC
 * aggressive-indent-mode
 Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after every change:
 #+BEGIN_SRC emacs-lisp
@@ -465,19 +487,31 @@ Some formatting stuff:
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-    (use-package web-mode
-      :mode (("\\.html\\'" . web-mode)
-             ("\\.js\\'" . web-mode)
-             ("\\.jsx\\'" . web-mode))
-      :config
-      (add-hook 'web-mode-hook
-                (lambda ()
-                  (when (equal web-mode-content-type "javascript")
-                    (web-mode-set-content-type "jsx"))
-                  (when (or (equal web-mode-content-type "javascript")
-                            (equal web-mode-content-type "jsx"))
-                    (lsp-deferred)))
-                ))
+  (use-package web-mode
+    :mode (("\\.html\\'" . web-mode)
+           ("\\.js\\'" . web-mode)
+           ("\\.jsx\\'" . web-mode))
+    :custom
+    (web-mode-markup-indent-offset 2)
+    (web-mode-css-indent-offset 2)
+    (web-mode-code-indent-offset 2)
+    :config
+    (add-hook 'web-mode-hook  'emmet-mode)
+    (add-hook 'web-mode-before-auto-complete-hooks
+                  '(lambda ()
+                     (let ((web-mode-cur-language
+                            (web-mode-language-at-pos)))
+                       (if (string= web-mode-cur-language "css")
+                           (setq emmet-use-css-transform t)
+                         (setq emmet-use-css-transform nil)))))
+    (add-hook 'web-mode-hook
+              (lambda ()
+                (when (equal web-mode-content-type "javascript")
+                  (web-mode-set-content-type "jsx"))
+                (when (or (equal web-mode-content-type "javascript")
+                          (equal web-mode-content-type "jsx"))
+                  (lsp-deferred)))
+              ))
 #+END_SRC
 
 Use nvm to manage node versions:
@@ -499,12 +533,31 @@ A command to format JS via prettier:
   ;;     (shell-command-on-region start end (concat "prettier --parser " parser) nil t)))
 #+END_SRC
 
+* Emmet
+#+BEGIN_SRC emacs-lisp
+  (use-package emmet-mode)
+#+END_SRC
+
+* edit-indirect
+#+BEGIN_SRC emacs-lisp
+  (use-package edit-indirect)
+#+END_SRC
+
 * Typescript
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode
     :mode (("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
     :config
+    (setq-default typescript-indent-level 2)
+    (add-hook 'typescript-mode-hook  'emmet-mode)
+    (add-hook 'typescript-mode-before-auto-complete-hooks
+              '(lambda ()
+                 (let ((web-mode-cur-language
+                        (web-mode-language-at-pos)))
+                   (if (string= web-mode-cur-language "css")
+                       (setq emmet-use-css-transform t)
+                     (setq emmet-use-css-transform nil)))))
     (with-eval-after-load 'lsp
       (add-hook 'typescript-mode-hook 'lsp-deferred)))
 #+END_SRC
