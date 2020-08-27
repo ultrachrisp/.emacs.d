@@ -214,18 +214,26 @@ Toggle line numbers:
   (setq display-line-numbers-type t)
 #+END_SRC
 
-Toggle line numbering mode (normal or relative):
+Make a tab size variable:
 #+BEGIN_SRC emacs-lisp
-  (defun toggle-line-number-mode ()
-    (interactive)
-    (when display-line-numbers
-      (if (eq display-line-numbers 'visual)
+  (defcustom ces-tab-size 2
+    "Number of spaces for tabs."
+    :type 'integer
+    :group 'chrisp-emacs-setup)
+#+END_SRC
+
+  Toggle line numbering mode (normal or relative):
+  ,#+BEGIN_SRC emacs-lisp
+    (defun toggle-line-number-mode ()
+      (interactive)
+      (when display-line-numbers
+        (if (eq display-line-numbers 'visual)
+            (progn
+              (setq display-line-numbers t)
+              (setq display-line-numbers-type t))
           (progn
-            (setq display-line-numbers t)
-            (setq display-line-numbers-type t))
-        (progn
-          (setq display-line-numbers 'visual)
-          (setq display-line-numbers-type 'visual)))))
+            (setq display-line-numbers 'visual)
+            (setq display-line-numbers-type 'visual)))))
 #+END_SRC
 
 Display line numbers by default in code and org-mode buffers:
@@ -247,13 +255,6 @@ Store backups and autosaves in a centralized place. This should really be the de
   (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
   (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
   (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-#+END_SRC
-
-* jq
-The JSON multitool.
-#+BEGIN_SRC emacs-lisp
-  (use-package jq-mode
-    :commands (jq-mode jq-interactively))
 #+END_SRC
 
 * Org Mode
@@ -483,7 +484,7 @@ Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after eve
 * JavaScript
 Some formatting stuff:
 #+BEGIN_SRC emacs-lisp
-  (setq js-indent-level 2)
+  (setq -indent-level ces-tab-size)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -492,55 +493,17 @@ Some formatting stuff:
            ("\\.js\\'" . web-mode)
            ("\\.jsx\\'" . web-mode))
     :custom
-    (web-mode-markup-indent-offset 2)
-    (web-mode-css-indent-offset 2)
-    (web-mode-code-indent-offset 2)
+    (web-mode-markup-indent-offset ces-tab-size)
+    (web-mode-css-indent-offset ces-tab-size)
+    (web-mode-code-indent-offset ces-tab-size)
     :config
     (add-hook 'web-mode-hook  'emmet-mode)
-    (add-hook 'web-mode-before-auto-complete-hooks
-                  '(lambda ()
-                     (let ((web-mode-cur-language
-                            (web-mode-language-at-pos)))
-                       (if (string= web-mode-cur-language "css")
-                           (setq emmet-use-css-transform t)
-                         (setq emmet-use-css-transform nil)))))
-    (add-hook 'web-mode-hook
-              (lambda ()
-                (when (equal web-mode-content-type "javascript")
-                  (web-mode-set-content-type "jsx"))
-                (when (or (equal web-mode-content-type "javascript")
-                          (equal web-mode-content-type "jsx"))
-                  (lsp-deferred)))
-              ))
-#+END_SRC
-
-Use nvm to manage node versions:
-#+BEGIN_SRC emacs-lisp
-  (use-package nvm
-    :straight ((nvm :host github :repo "rejeep/nvm.el"))
-    :commands (nvm-use nvm-use-for nvm-use-for-buffer))
-#+END_SRC
-
-A command to format JS via prettier:
-#+BEGIN_SRC emacs-lisp
-  ;; (defun prettier ()
-  ;;   (interactive)
-  ;;   (let ((start (if (use-region-p) (region-beginning) (point-min)))
-  ;;         (end (if (use-region-p) (region-end) (point-max)))
-  ;;         (parser (cond
-  ;;                  ((eq major-mode 'graphql-mode) "graphql")
-  ;;                  (t "babel"))))
-  ;;     (shell-command-on-region start end (concat "prettier --parser " parser) nil t)))
+    (add-hook 'web-mode-hook 'lsp-deferred))
 #+END_SRC
 
 * Emmet
 #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode)
-#+END_SRC
-
-* edit-indirect
-#+BEGIN_SRC emacs-lisp
-  (use-package edit-indirect)
 #+END_SRC
 
 * Typescript
@@ -549,17 +512,35 @@ A command to format JS via prettier:
     :mode (("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
     :config
-    (setq-default typescript-indent-level 2)
+    (setq-default typescript-indent-level ces-tab-size)
     (add-hook 'typescript-mode-hook  'emmet-mode)
-    (add-hook 'typescript-mode-before-auto-complete-hooks
-              '(lambda ()
-                 (let ((web-mode-cur-language
-                        (web-mode-language-at-pos)))
-                   (if (string= web-mode-cur-language "css")
-                       (setq emmet-use-css-transform t)
-                     (setq emmet-use-css-transform nil)))))
-    (with-eval-after-load 'lsp
-      (add-hook 'typescript-mode-hook 'lsp-deferred)))
+    (add-hook 'typescript-mode-hook 'lsp-deferred))
+#+END_SRC
+
+* CSS/ SCSS/ SASS
+Basic support:  
+#+BEGIN_SRC emacs-lisp
+  (use-package css-mode
+    :mode (("\\.css\\'" . css-mode)
+           ("\\.scss\\'" . css-mode)
+           ("\\.sass\\'" . css-mode)))
+#+END_SRC
+
+LSP support - requires [[https://github.com/vscode-langservers/vscode-css-languageserver][vscode-css-languageserver]].
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'css-mode-hook 'lsp-deferred)
+#+END_SRC
+
+* JSON
+Basic support:  
+#+BEGIN_SRC emacs-lisp
+  (use-package json-mode
+    :mode (("\\.json\\'" . json-mode)))
+#+END_SRC
+
+LSP support - requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'json-mode-hook 'lsp-deferred)
 #+END_SRC
 
 * LSP Mode
