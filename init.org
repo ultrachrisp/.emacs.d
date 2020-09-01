@@ -162,7 +162,7 @@ There seems to be [[https://github.com/company-mode/company-mode/issues/68][some
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :config
-    (setq company-idle-delay 0.1)
+    (setq company-idle-delay 0.3)
     (setq company-minimum-prefix-length 1)
     (setq company-show-numbers t)
     (add-hook 'after-init-hook 'global-company-mode))
