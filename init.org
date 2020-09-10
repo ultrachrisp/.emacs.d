@@ -127,18 +127,6 @@ Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-versi
   (require 'org-protocol)
 #+END_SRC
 
-* Doom themes
-#+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
-    :config
-
-    (setq doom-themes-enable-bold t 
-          doom-themes-enable-italic t)
-    ;; (load-theme 'doom-dark+ t)
-    (load-theme 'doom-city-lights t)
-    (doom-themes-org-config))
-#+END_SRC
-
 * Customization File
 I don't want anything to write to my init.el, so save customizations in a separate file:
 #+BEGIN_SRC emacs-lisp
@@ -157,23 +145,6 @@ I don't want anything to write to my init.el, so save customizations in a separa
     (exec-path-from-shell-initialize))
 #+END_SRC
 
-* Autocompletion
-There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :config
-    (setq company-idle-delay 0.3)
-    (setq company-minimum-prefix-length 1)
-    (setq company-show-numbers t)
-    (add-hook 'after-init-hook 'global-company-mode))
-
-  ;; (use-package company-tabnine)
-  (use-package company-lsp)
-
-  ;; (general-def "C-M-i" #'company-complete)
-  ;; (general-def "M-<tab>" 'company-complete))
-#+END_SRC
-
 * Which-key
 `which-key` makes keybindings discoverable.
 #+BEGIN_SRC emacs-lisp
@@ -182,14 +153,12 @@ There seems to be [[https://github.com/company-mode/company-mode/issues/68][some
     (which-key-mode))
 #+END_SRC
 
-* Magit
-Magit is objectively the best Git interface.
+* Backups and Autosaves
+Store backups and autosaves in a centralized place. This should really be the default...
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :commands (magit-status
-               magit-blame
-               magit-find-file
-               magit-name-local-branch))
+  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
 
 * Init File
@@ -207,6 +176,7 @@ And another one to edit it:
     (interactive)
     (find-file "~/.emacs.d/init.org"))
 #+END_SRC
+
 
 * Line Numbers
 Toggle line numbers:
@@ -249,22 +219,54 @@ Quick way to move between windows
   :bind      ("C-x o" . ace-window))
 #+END_SRC
 
-* Olivetti Mode
-Olivetti is a minor mode for a nice writing environment.
+* Doom themes
 #+BEGIN_SRC emacs-lisp
-  (use-package olivetti
+  (use-package doom-themes
     :config
-    (setq-default olivetti-body-width 100)
-    (setq olivetti-body-width 100)
-    :commands olivetti-mode)
+
+    (setq doom-themes-enable-bold t 
+          doom-themes-enable-italic t)
+    ;; (load-theme 'doom-dark+ t)
+    (load-theme 'doom-city-lights t)
+    (doom-themes-org-config))
 #+END_SRC
 
-* Backups and Autosaves
-Store backups and autosaves in a centralized place. This should really be the default...
+* UI
+  Get rid of the janky buttons:
 #+BEGIN_SRC emacs-lisp
-  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
-  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  (tool-bar-mode -1)
+#+END_SRC
+
+And the menu bar:
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)
+#+END_SRC
+
+And the ugly scroll bars:
+#+BEGIN_SRC emacs-lisp
+  (set-scroll-bar-mode nil)
+#+END_SRC
+
+And startup screen
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-screen t)
+#+END_SRC
+
+Setting the font
+#+BEGIN_SRC emacs-lisp
+  (setq default-frame-alist '((font . "Monaco-15")))
+#+END_SRC
+
+
+* Magit
+Magit is objectively the best Git interface.
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :bind ("C-x g" . magit-status)
+    :commands (magit-status
+               magit-blame
+               magit-find-file
+               magit-name-local-branch))
 #+END_SRC
 
 * Org Mode
@@ -433,30 +435,21 @@ Notes, agenda, calendar, blogging, journaling, etc.
            ("C-x C-b" . helm-buffers-list)))
 #+END_SRC
 
-* UI
-  Get rid of the janky buttons:
+* Autocompletion
+There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode -1)
-#+END_SRC
+  (use-package company
+    :config
+    (setq company-idle-delay 0.3)
+    (setq company-minimum-prefix-length 1)
+    (setq company-show-numbers t)
+    (add-hook 'after-init-hook 'global-company-mode))
 
-And the menu bar:
-#+BEGIN_SRC emacs-lisp
-  (menu-bar-mode -1)
-#+END_SRC
+  ;; (use-package company-tabnine)
+  (use-package company-lsp)
 
-And the ugly scroll bars:
-#+BEGIN_SRC emacs-lisp
-  (set-scroll-bar-mode nil)
-#+END_SRC
-
-And startup screen
-#+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-screen t)
-#+END_SRC
-
-Setting the font
-#+BEGIN_SRC emacs-lisp
-  (setq default-frame-alist '((font . "Monaco-15")))
+  ;; (general-def "C-M-i" #'company-complete)
+  ;; (general-def "M-<tab>" 'company-complete))
 #+END_SRC
 
 * Flycheck
@@ -490,6 +483,7 @@ Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after eve
            (lisp-mode . aggressive-indent-mode)
            (scheme-mode . aggressive-indent-mode)))
 #+END_SRC
+
 
 * JavaScript
 Some formatting stuff:
@@ -668,6 +662,23 @@ This package looks up word definitions online.
                 ("C-c sl" . ispell-line)))
 
   (setq ispell-program-name "/usr/local/bin/aspell")
+#+END_SRC
+
+* Writegood
+  I have used the [[http://www.hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
+#+BEGIN_SRC emacs-lisp
+  (use-package writegood-mode
+    :bind ("C-c g" . writegood-mode))
+#+END_SRC
+
+* Olivetti Mode
+Olivetti is a minor mode for a nice writing environment.
+#+BEGIN_SRC emacs-lisp
+  (use-package olivetti
+    :config
+    (setq-default olivetti-body-width 100)
+    (setq olivetti-body-width 100)
+    :commands olivetti-mode)
 #+END_SRC
 
 * Encryption
