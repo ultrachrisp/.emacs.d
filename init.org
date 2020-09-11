@@ -667,8 +667,7 @@ This package looks up word definitions online.
 * Writegood
   I have used the [[http://www.hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
 #+BEGIN_SRC emacs-lisp
-  (use-package writegood-mode
-    :bind ("C-c g" . writegood-mode))
+  (use-package writegood-mode)
 #+END_SRC
 
 * Olivetti Mode
