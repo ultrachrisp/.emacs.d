@@ -539,6 +539,7 @@ LSP support - requires [[https://github.com/vscode-langservers/vscode-css-langua
 Basic support:  
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
+    :custom (js-indent-level ces-tab-size)
     :mode (("\\.json\\'" . json-mode)))
 #+END_SRC
 
