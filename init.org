@@ -628,15 +628,14 @@ Emacs support for the Language Server Protocol
 #+END_SRC
 
 * Go
-Basic support:
-#+BEGIN_SRC emacs-lisp
-  (use-package go-mode
-    :mode (("\\.go\\'" . go-mode)))
-#+END_SRC
-
 LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'go-mode-hook 'lsp-deferred)
+  (use-package go-mode
+    :mode (("\\.go\\'" . go-mode))
+    :hook ((go-mode . lsp-deferred)
+           (before-save . lsp-format-buffer)
+           (before-save . lsp-organize-imports))
+    )
 #+END_SRC
 
 
