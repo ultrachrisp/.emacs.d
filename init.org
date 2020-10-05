@@ -186,10 +186,9 @@ Toggle line numbers:
 
 Make a tab size variable:
 #+BEGIN_SRC emacs-lisp
-  (defconst ces-tab-size 2)
-  (setq indent-tabs-mode nil)
-  (setq tab-width ces-tab-size)
-  (setq indent-line-function 'ces-tab-size)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 2)
+  (setq indent-line-function 'insert-tab)
 #+END_SRC
 
   Toggle line numbering mode (normal or relative):
@@ -488,18 +487,10 @@ Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after eve
 * JavaScript
 Some formatting stuff:
 #+BEGIN_SRC emacs-lisp
-  (setq indent-tabs-mode nil
-        js-indent-level ces-tab-size)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :mode (("\\.html\\'" . web-mode)
            ("\\.js\\'" . web-mode)
            ("\\.jsx\\'" . web-mode))
-    :custom (web-mode-markup-indent-offset ces-tab-size)
-    (web-mode-css-indent-offset ces-tab-size)
-    (web-mode-code-indent-offset ces-tab-size)
     :hook ((web-mode . emmet-mode)
             (web-mode . lsp-deferred)))
 #+END_SRC
@@ -514,7 +505,6 @@ Some formatting stuff:
   (use-package typescript-mode
     :mode (("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
-    :config (setq-default typescript-indent-level ces-tab-size)
     :hook ((typescript-mode . emmet-mode)
             (typescript-mode . lsp-deferred)))
 #+END_SRC
@@ -533,7 +523,6 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-css-language
 LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
-    :custom (js-indent-level ces-tab-size)
     :mode (("\\.json\\'" . json-mode))
     :hook (json-mode . lsp-deferred))
 #+END_SRC
