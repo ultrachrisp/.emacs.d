@@ -186,14 +186,14 @@ Toggle line numbers:
 
 Make a tab size variable:
 #+BEGIN_SRC emacs-lisp
-  (defcustom ces-tab-size 2
-    "Number of spaces for tabs."
-    :type 'integer
-    :group 'chrisp-emacs-setup)
+  (defconst ces-tab-size 2)
+  (setq indent-tabs-mode nil)
+  (setq tab-width ces-tab-size)
+  (setq indent-line-function 'ces-tab-size)
 #+END_SRC
 
   Toggle line numbering mode (normal or relative):
-  ,#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
     (defun toggle-line-number-mode ()
       (interactive)
       (when display-line-numbers
@@ -255,6 +255,12 @@ And startup screen
 Setting the font
 #+BEGIN_SRC emacs-lisp
   (setq default-frame-alist '((font . "Monaco-15")))
+#+END_SRC
+
+
+Setting the font
+#+BEGIN_SRC emacs-lisp
+
 #+END_SRC
 
 
@@ -488,7 +494,8 @@ Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after eve
 * JavaScript
 Some formatting stuff:
 #+BEGIN_SRC emacs-lisp
-  (setq -indent-level ces-tab-size)
+  (setq indent-tabs-mode nil
+        js-indent-level ces-tab-size)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -496,13 +503,11 @@ Some formatting stuff:
     :mode (("\\.html\\'" . web-mode)
            ("\\.js\\'" . web-mode)
            ("\\.jsx\\'" . web-mode))
-    :custom
-    (web-mode-markup-indent-offset ces-tab-size)
+    :custom (web-mode-markup-indent-offset ces-tab-size)
     (web-mode-css-indent-offset ces-tab-size)
     (web-mode-code-indent-offset ces-tab-size)
-    :config
-    (add-hook 'web-mode-hook  'emmet-mode)
-    (add-hook 'web-mode-hook 'lsp-deferred))
+    :hook ((web-mode . emmet-mode)
+            (web-mode . lsp-deferred)))
 #+END_SRC
 
 * Emmet
@@ -515,116 +520,108 @@ Some formatting stuff:
   (use-package typescript-mode
     :mode (("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
-    :config
-    (setq-default typescript-indent-level ces-tab-size)
-    (add-hook 'typescript-mode-hook  'emmet-mode)
-    (add-hook 'typescript-mode-hook 'lsp-deferred))
+    :config (setq-default typescript-indent-level ces-tab-size)
+    :hook ((typescript-mode . emmet-mode)
+            (typescript-mode . lsp-deferred)))
 #+END_SRC
 
 * CSS/ SCSS/ SASS
-Basic support:  
+LSP support requires [[https://github.com/vscode-langservers/vscode-css-languageserver][vscode-css-languageserver]].
 #+BEGIN_SRC emacs-lisp
   (use-package css-mode
     :mode (("\\.css\\'" . css-mode)
            ("\\.scss\\'" . css-mode)
-           ("\\.sass\\'" . css-mode)))
-#+END_SRC
-
-LSP support - requires [[https://github.com/vscode-langservers/vscode-css-languageserver][vscode-css-languageserver]].
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'css-mode-hook 'lsp-deferred)
+           ("\\.sass\\'" . css-mode))
+    :hook (css-mode-hook . lsp-deferred))
 #+END_SRC
 
 * JSON
-Basic support:  
+LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
     :custom (js-indent-level ces-tab-size)
-    :mode (("\\.json\\'" . json-mode)))
-#+END_SRC
-
-LSP support - requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'json-mode-hook 'lsp-deferred)
+    :mode (("\\.json\\'" . json-mode))
+    :hook (json-mode . lsp-deferred))
 #+END_SRC
 
 * LSP Mode
 Emacs support for the Language Server Protocol
 
 #+BEGIN_SRC emacs-lisp
-    (use-package lsp-mode
-      ;; :defer t
-    ;;   :init
-    ;;   (defhydra hydra-lsp (:exit t :hint nil)
-    ;;     "
-    ;;  Buffer^^               Server^^                   Symbol
-    ;; -------------------------------------------------------------------------------------
-    ;;  [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
-    ;;  [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
-    ;;  [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature"
-    ;;     ("d" lsp-find-declaration)
-    ;;     ("D" lsp-ui-peek-find-definitions)
-    ;;     ("R" lsp-ui-peek-find-references)
-    ;;     ("i" lsp-ui-peek-find-implementation)
-    ;;     ("t" lsp-find-type-definition)
-    ;;     ("s" lsp-signature-help)
-    ;;     ("o" lsp-describe-thing-at-point)
-    ;;     ("r" lsp-rename)
+      (use-package lsp-mode
+        ;; :defer t
+      ;;   :init
+      ;;   (defhydra hydra-lsp (:exit t :hint nil)
+      ;;     "
+      ;;  Buffer^^               Server^^                   Symbol
+      ;; -------------------------------------------------------------------------------------
+      ;;  [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
+      ;;  [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
+      ;;  [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature"
+      ;;     ("d" lsp-find-declaration)
+      ;;     ("D" lsp-ui-peek-find-definitions)
+      ;;     ("R" lsp-ui-peek-find-references)
+      ;;     ("i" lsp-ui-peek-find-implementation)
+      ;;     ("t" lsp-find-type-definition)
+      ;;     ("s" lsp-signature-help)
+      ;;     ("o" lsp-describe-thing-at-point)
+      ;;     ("r" lsp-rename)
 
-    ;;     ("f" lsp-format-buffer)
-    ;;     ("m" lsp-ui-imenu)
-    ;;     ("x" lsp-execute-code-action)
+      ;;     ("f" lsp-format-buffer)
+      ;;     ("m" lsp-ui-imenu)
+      ;;     ("x" lsp-execute-code-action)
 
-    ;;     ("M-s" lsp-describe-session)
-    ;;     ("M-r" lsp-restart-workspace)
-    ;;     ("S" lsp-shutdown-workspace))
-      ;; :general
-      ;; (lsp-mode-map "C-c h" 'hydra-lsp/body)
-      ;; ((normal visual motion) lsp-mode-map "K" #'lsp-describe-thing-at-point)
-      :hook
-      (lsp-mode . lsp-enable-which-key-integration)
-      ;; ((lsp-mode . (lambda ()
-      ;;                (let ((lsp-keymap-prefix "gl"))
-      ;;                  (lsp-enable-which-key-integration)))))
-      ;; :config
-      ;; (setq lsp-prefer-flymake nil)
-      ;; (general-def '(normal visual motion) "gl" lsp-command-map)
-      :commands lsp-mode lsp)
-      ;; :custom
-      ;; (lsp-enable-snippet nil)
-      ;; (lsp-eldoc-render-all nil))
+      ;;     ("M-s" lsp-describe-session)
+      ;;     ("M-r" lsp-restart-workspace)
+      ;;     ("S" lsp-shutdown-workspace))
+        ;; :general
+        ;; (lsp-mode-map "C-c h" 'hydra-lsp/body)
+        ;; ((normal visual motion) lsp-mode-map "K" #'lsp-describe-thing-at-point)
+        :hook
+        (lsp-mode . lsp-enable-which-key-integration)
+        ;; ((lsp-mode . (lambda ()
+        ;;                (let ((lsp-keymap-prefix "gl"))
+        ;;                  (lsp-enable-which-key-integration)))))
+        ;; :config
+        ;; (setq lsp-prefer-flymake nil)
+        ;; (general-def '(normal visual motion) "gl" lsp-command-map)
+        :commands lsp-mode lsp)
+        ;; :custom
+        ;; (lsp-enable-snippet nil)
+        ;; (lsp-eldoc-render-all nil))
 
-  (use-package lsp-ui
-    :after (lsp-mode)
-    :custom
-    (lsp-ui-sideline-enable t)
-    (lsp-ui-sideline-show-symbol t)
-    (lsp-ui-sideline-show-hover t)
-    (lsp-ui-sideline-show-code-actions t)
-    (lsp-ui-sideline-update-mode 'point)
-    (lsp-ui-doc-alignment 'window)
-    (lsp-ui-doc-header t)
-    (lsp-ui-doc-position 'top)
-    (lsp-ui-doc-background '((t (:inherit region))))
-    (lsp-ui-doc-header '((t (:inherit lsp-face-highlight-write))))
-    (lsp-ui-sideline-current-symbol '((t (:inherit font-lock-constant-face
-                                                   :weight ultra-bold)))))
+    (use-package lsp-ui
+      :after (lsp-mode)
+      :custom
+      (lsp-ui-sideline-enable t)
+      (lsp-ui-sideline-show-symbol t)
+      (lsp-ui-sideline-show-hover t)
+      (lsp-ui-sideline-show-code-actions t)
+      (lsp-ui-sideline-update-mode 'point)
+      (lsp-ui-doc-alignment 'window)
+      (lsp-ui-doc-header t)
+      (lsp-ui-doc-position 'top)
+      (lsp-ui-doc-background '((t (:inherit region))))
+      (lsp-ui-doc-header '((t (:inherit lsp-face-highlight-write))))
+      (lsp-ui-sideline-current-symbol '((t (:inherit font-lock-constant-face
+                                                     :weight ultra-bold)))))
 
-  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-  ;; if you are ivy user
-  ;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+    (use-package helm-lsp
+      :commands helm-lsp-workspace-symbol)
+    ;; if you are ivy user
+    ;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 
 
-    (with-eval-after-load 'lsp-clients
-      (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename major-mode)
-        "Checks if the javascript-typescript language server should be enabled
-      based on FILE-NAME and MAJOR-MODE"
-        (or (member major-mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
-            (and (eq major-mode 'web-mode)
-                 (or (string-suffix-p ".tsx" filename t)
-                     (string-suffix-p ".ts" filename t)
-                     (string-suffix-p ".jsx" filename t)
-                     (string-suffix-p ".js" filename t))))))
+      (with-eval-after-load 'lsp-clients
+        (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename major-mode)
+          "Checks if the javascript-typescript language server should be enabled
+        based on FILE-NAME and MAJOR-MODE"
+          (or (member major-mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
+              (and (eq major-mode 'web-mode)
+                   (or (string-suffix-p ".tsx" filename t)
+                       (string-suffix-p ".ts" filename t)
+                       (string-suffix-p ".jsx" filename t)
+                       (string-suffix-p ".js" filename t))))))
 #+END_SRC
 
 * Go
@@ -632,10 +629,10 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
     :mode (("\\.go\\'" . go-mode))
-    :hook ((go-mode . lsp-deferred)
-           (before-save . lsp-format-buffer)
-           (before-save . lsp-organize-imports))
-    )
+    :hook (go-mode . lsp-deferred))
+    ;; :hook ((go-mode . lsp-deferred)
+    ;;        (before-save . lsp-format-buffer)
+    ;;        (before-save . lsp-organize-imports)))
 #+END_SRC
 
 
