@@ -258,12 +258,6 @@ Setting the font
 #+END_SRC
 
 
-Setting the font
-#+BEGIN_SRC emacs-lisp
-
-#+END_SRC
-
-
 * Magit
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
