@@ -251,8 +251,9 @@ Setting the font
 
 Standarize the tab size
 #+BEGIN_SRC emacs-lisp
+  (defconst ces-tab-width 2)
   (setq-default indent-tabs-mode nil)
-  (setq-default tab-width 2)
+  (setq-default tab-width ces-tab-width)
   (setq indent-line-function 'insert-tab)
 #+END_SRC
 
@@ -496,7 +497,7 @@ Some formatting stuff:
             (web-mode . lsp-deferred)))
 #+END_SRC
 
-* Emmet
+* Emment
 #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode)
 #+END_SRC
@@ -506,6 +507,7 @@ Some formatting stuff:
   (use-package typescript-mode
     :mode (("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
+    :custom (typescript-indent-level ces-tab-width)
     :hook ((typescript-mode . emmet-mode)
             (typescript-mode . lsp-deferred)))
 #+END_SRC
