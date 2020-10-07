@@ -251,10 +251,10 @@ Setting the font
 
 Standarize the tab size
 #+BEGIN_SRC emacs-lisp
-  (defconst ces-tab-width 2)
+  ;; (defconst ces-indent-size 2)
+  (setq-default tab-width 2)
   (setq-default indent-tabs-mode nil)
-  (setq-default tab-width ces-tab-width)
-  (setq indent-line-function 'insert-tab)
+  (setq-default indent-line-function 'insert-tab)
 #+END_SRC
 
 
@@ -486,15 +486,20 @@ Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after eve
 #+END_SRC
 
 
-* JavaScript
-Some formatting stuff:
+* HTML/ CSS/ SCSS/ SASS
+LSP support for css requires [[https://github.com/vscode-langservers/vscode-html-languageserver][vscode-html-languageserver]].
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :mode (("\\.html\\'" . web-mode)
-           ("\\.js\\'" . web-mode)
-           ("\\.jsx\\'" . web-mode))
+           ("\\.htm\\'" . web-mode)
+           ("\\.css\\'" . web-mode)
+           ("\\.scss\\'" . web-mode)
+           ("\\.sass\\'" . web-mode))
+    ;; :custom ((web-mode-markup-indent-offset ces-indent-size)
+    ;;          (web-mode-css-indent-offset ces-indent-size)
+    ;;          (web-mode-code-indent-offset ces-indent-size))
     :hook ((web-mode . emmet-mode)
-            (web-mode . lsp-deferred)))
+           (web-mode . lsp-deferred)))
 #+END_SRC
 
 * Emment
@@ -502,24 +507,16 @@ Some formatting stuff:
   (use-package emmet-mode)
 #+END_SRC
 
-* Typescript
+* Typescript / Javascript
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode
-    :mode (("\\.ts\\'" . typescript-mode)
+    :mode (("\\.js\\'" . typescript-mode)
+           ("\\.jsx\\'" . typescript-mode)
+           ("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
-    :custom (typescript-indent-level ces-tab-width)
+    ;; :custom (typescript-indent-level ces-indent-size)
     :hook ((typescript-mode . emmet-mode)
             (typescript-mode . lsp-deferred)))
-#+END_SRC
-
-* CSS/ SCSS/ SASS
-LSP support requires [[https://github.com/vscode-langservers/vscode-css-languageserver][vscode-css-languageserver]].
-#+BEGIN_SRC emacs-lisp
-  (use-package css-mode
-    :mode (("\\.css\\'" . css-mode)
-           ("\\.scss\\'" . css-mode)
-           ("\\.sass\\'" . css-mode))
-    :hook (css-mode-hook . lsp-deferred))
 #+END_SRC
 
 * JSON
@@ -527,6 +524,7 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-json-languag
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
     :mode (("\\.json\\'" . json-mode))
+    ;; :custom (js-indent-level ces-indent-size)
     :hook (json-mode . lsp-deferred))
 #+END_SRC
 
@@ -616,9 +614,8 @@ Emacs support for the Language Server Protocol
 LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
-    :mode (("\\.go\\'" . go-mode))
+    :mode ("\\.go\\'" . go-mode)
     :hook (go-mode . lsp-deferred))
-))
 #+END_SRC
 
 
