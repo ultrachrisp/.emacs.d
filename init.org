@@ -251,8 +251,8 @@ Setting the font
 
 Standarize the tab size
 #+BEGIN_SRC emacs-lisp
-  ;; (defconst ces-indent-size 2)
-  (setq-default tab-width 2)
+  (defconst ces-indent-size 2)
+  (setq-default tab-width ces-indent-size)
   (setq-default indent-tabs-mode nil)
   (setq-default indent-line-function 'insert-tab)
 #+END_SRC
@@ -514,7 +514,7 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
            ("\\.jsx\\'" . typescript-mode)
            ("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
-    ;; :custom (typescript-indent-level ces-indent-size)
+    :custom (typescript-indent-level ces-indent-size)
     :hook ((typescript-mode . emmet-mode)
             (typescript-mode . lsp-deferred)))
 #+END_SRC
@@ -526,6 +526,14 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-json-languag
     :mode (("\\.json\\'" . json-mode))
     ;; :custom (js-indent-level ces-indent-size)
     :hook (json-mode . lsp-deferred))
+#+END_SRC
+
+* PHP
+PHP support requires [[https://github.com/bmewburn/vscode-intelephense][vscode-intelephense]].
+#+BEGIN_SRC emacs-lisp
+  (use-package php-mode
+    :mode (("\\.php\\'" . php-mode))
+    :hook (php-mode . lsp-deferred))
 #+END_SRC
 
 * LSP Mode
