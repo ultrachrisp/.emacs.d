@@ -507,11 +507,6 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
   (use-package emmet-mode)
 #+END_SRC
 
-* rjsx Mode
-#+BEGIN_SRC emacs-lisp
-  (use-package rjsx-mode)
-#+END_SRC
-
 * Typescript / Javascript
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode
