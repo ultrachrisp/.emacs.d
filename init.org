@@ -507,6 +507,11 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
   (use-package emmet-mode)
 #+END_SRC
 
+* rjsx Mode
+#+BEGIN_SRC emacs-lisp
+  (use-package rjsx-mode)
+#+END_SRC
+
 * Typescript / Javascript
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode
@@ -570,9 +575,9 @@ Emacs support for the Language Server Protocol
       ;; (lsp-mode-map "C-c h" 'hydra-lsp/body)
       ;; ((normal visual motion) lsp-mode-map "K" #'lsp-describe-thing-at-point)
       :hook
-      ((lsp-mode . lsp-enable-which-key-integration)
-       (before-save . lsp-format-buffer)
-       (before-save . lsp-organize-imports))
+      (lsp-mode . lsp-enable-which-key-integration)
+       ;; (before-save . lsp-format-buffer))
+       ;; (before-save . lsp-organize-imports))
       ;; ((lsp-mode . (lambda ()
       ;;                (let ((lsp-keymap-prefix "gl"))
       ;;                  (lsp-enable-which-key-integration)))))
