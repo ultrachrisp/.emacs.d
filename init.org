@@ -251,8 +251,8 @@ Setting the font
 
 Standarize the tab size
 #+BEGIN_SRC emacs-lisp
-  (defconst ces-indent-size 2)
-  (setq-default tab-width ces-indent-size)
+  (defconst indent-size 2)
+  (setq-default tab-width indent-size)
   (setq-default indent-tabs-mode nil)
   (setq-default indent-line-function 'insert-tab)
 #+END_SRC
@@ -495,9 +495,9 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
            ("\\.css\\'" . web-mode)
            ("\\.scss\\'" . web-mode)
            ("\\.sass\\'" . web-mode))
-    ;; :custom ((web-mode-markup-indent-offset ces-indent-size)
-    ;;          (web-mode-css-indent-offset ces-indent-size)
-    ;;          (web-mode-code-indent-offset ces-indent-size))
+    ;; :custom ((web-mode-markup-indent-offset indent-size)
+    ;;          (web-mode-css-indent-offset indent-size)
+    ;;          (web-mode-code-indent-offset indent-size))
     :hook ((web-mode . emmet-mode)
            (web-mode . lsp-deferred)))
 #+END_SRC
@@ -514,7 +514,7 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
            ("\\.jsx\\'" . typescript-mode)
            ("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
-    :custom (typescript-indent-level ces-indent-size)
+    :custom (typescript-indent-level indent-size)
     :hook ((typescript-mode . emmet-mode)
             (typescript-mode . lsp-deferred)))
 #+END_SRC
@@ -524,7 +524,7 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-json-languag
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
     :mode (("\\.json\\'" . json-mode))
-    ;; :custom (js-indent-level ces-indent-size)
+    :custom (js-indent-level indent-size)
     :hook (json-mode . lsp-deferred))
 #+END_SRC
 
@@ -626,6 +626,17 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
     :hook (go-mode . lsp-deferred))
 #+END_SRC
 
+* ccls
+n
+  LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
+#+BEGIN_SRC emacs-lisp
+  (use-package ccls
+    :ensure
+    :config
+    '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
+    :hook ((c-mode c++-mode objc-mode) .
+           (lambda () (require 'ccls) (lsp))))
+#+END_SRC
 
 * Dictionary
 This package looks up word definitions online.
