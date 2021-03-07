@@ -213,155 +213,155 @@ Quick way to move between windows
 
 * Doom themes
 #+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
-    :config
+(use-package doom-themes
+  :config
 
-    (setq doom-themes-enable-bold t 
-          doom-themes-enable-italic t)
-    ;; (load-theme 'doom-dark+ t)
-    (load-theme 'doom-city-lights t)
-    (doom-themes-org-config))
+  (setq doom-themes-enable-bold t 
+        doom-themes-enable-italic t)
+  ;; (load-theme 'doom-dark+ t)
+  (load-theme 'doom-city-lights t)
+  (doom-themes-org-config))
 #+END_SRC
 
 * UI
-  Get rid of the janky buttons:
+Get rid of the janky buttons:
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode -1)
+(tool-bar-mode -1)
 #+END_SRC
 
 And the menu bar:
 #+BEGIN_SRC emacs-lisp
-  (menu-bar-mode -1)
+(menu-bar-mode -1)
 #+END_SRC
 
 And the ugly scroll bars:
 #+BEGIN_SRC emacs-lisp
-  (set-scroll-bar-mode nil)
+(set-scroll-bar-mode nil)
 #+END_SRC
 
 And startup screen
 #+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-screen t)
+(setq inhibit-startup-screen t)
 #+END_SRC
 
 Setting the font
 #+BEGIN_SRC emacs-lisp
-  (setq default-frame-alist '((font . "Monaco-15")))
+(setq default-frame-alist '((font . "Monaco-15")))
 #+END_SRC
 
 Standarize the tab size
 #+BEGIN_SRC emacs-lisp
-  (defconst ces-indent-size 2)
-  (setq-default tab-width ces-indent-size)
-  (setq-default indent-tabs-mode nil)
-  (setq-default indent-line-function 'insert-tab)
+(defconst indent-size 2)
+(setq-default tab-width indent-size)
+(setq-default indent-tabs-mode nil)
+(setq-default indent-line-function 'insert-tab)
 #+END_SRC
 
 
 * Magit
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :bind ("C-x g" . magit-status)
-    :commands (magit-status
-               magit-blame
-               magit-find-file
-               magit-name-local-branch))
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :commands (magit-status
+             magit-blame
+             magit-find-file
+             magit-name-local-branch))
 #+END_SRC
 
 * Org Mode
 Notes, agenda, calendar, blogging, journaling, etc.
 
 ** org-babel
-   Get rid of the confirmation prompt:
+Get rid of the confirmation prompt:
 #+BEGIN_SRC emacs-lisp
-  (setq org-confirm-babel-evaluate nil)
+(setq org-confirm-babel-evaluate nil)
 #+END_SRC
 
 ** Capture templates
- #+BEGIN_SRC emacs-lisp
-   (setq org-capture-templates
-         '(("d" "Tasks" entry
-            (file+headline org-ces-notes-file "Tasks")
-            "* TODO %? SCHEDULED: %^t"  :clock-in t :clock-resume t)
-           ("e" "Quick task" entry
-            (file+headline org-ces-notes-file "Tasks")
-            "* TODO %^{Task}
+#+BEGIN_SRC emacs-lisp
+(setq org-capture-templates
+      '(("d" "Tasks" entry
+         (file+headline org-ces-notes-file "Tasks")
+         "* TODO %? SCHEDULED: %^t"  :clock-in t :clock-resume t)
+        ("e" "Quick task" entry
+         (file+headline org-ces-notes-file "Tasks")
+         "* TODO %^{Task}
    SCHEDULED: %^t"  :immediatete-finish t)
-           ("f" "Orientation" entry (file org-ces-notes-file)
-            "* ORIENTATION %? :@orientation:
+        ("f" "Orientation" entry (file org-ces-notes-file)
+         "* ORIENTATION %? :@orientation:
    SCHEDULED: %^t"  :clock-in t :clock-resume t)
-           ("g" "Coding" entry (file org-ces-notes-file)
-            "* CODING%? :@coding:
+        ("g" "Coding" entry (file org-ces-notes-file)
+         "* CODING%? :@coding:
    SCHEDULED: %^t"  :clock-in t :clock-resume t)
-           ("h" "Help" entry (file org-ces-notes-file)
-            "* HELP %? :@help:
+        ("h" "Help" entry (file org-ces-notes-file)
+         "* HELP %? :@help:
    SCHEDULED: %^t"  :clock-in t :clock-resume t)
-           ("i" "Phone call" entry (file org-ces-notes-file)
-            "* PHONE %? :@phone:
+        ("i" "Phone call" entry (file org-ces-notes-file)
+         "* PHONE %? :@phone:
    SCHEDULED: %^t"   :clock-in t :clock-resume t)
-           ("j" "Mail browsing" entry (file org-ces-notes-file)
-            "* EMAIL Browsing :@email:
+        ("j" "Mail browsing" entry (file org-ces-notes-file)
+         "* EMAIL Browsing :@email:
    SCHEDULED: %^t"    :clock-in t :clock-resume t)
-           ("k" "Mail reply" entry (file org-ces-notes-file)
-            "* EMAIL Reply %? :@email:
+        ("k" "Mail reply" entry (file org-ces-notes-file)
+         "* EMAIL Reply %? :@email:
    SCHEDULED: %^t"    :clock-in t :clock-resume t)
-           ("k" "Team Meetings" entry (file org-ces-notes-file)
-            "* TEAM MEETING :@meeting:
+        ("k" "Team Meetings" entry (file org-ces-notes-file)
+         "* TEAM MEETING :@meeting:
    SCHEDULED: %^t"    :clock-in t :clock-resume t)
-           ("k" "Other meetings" entry (file org-ces-notes-file)
-            "* MEETING %? :@meeting:
+        ("k" "Other meetings" entry (file org-ces-notes-file)
+         "* MEETING %? :@meeting:
    SCHEDULED: %^t"   :clock-in t :clock-resume t)
-           ("l" "Break" entry (file org-ces-notes-file)
-            "* BREAK :@break:
+        ("l" "Break" entry (file org-ces-notes-file)
+         "* BREAK :@break:
    SCHEDULED: %^t"    :clock-in t :clock-resume t)))
 #+END_SRC
 
 ** Todo states
 #+BEGIN_SRC emacs-lisp
-  (setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
-                            (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                            (sequence "|" "CANCELED(c)")))
+(setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                          (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                          (sequence "|" "CANCELED(c)")))
 #+END_SRC
 
 ** Tags
 #+BEGIN_SRC emacs-lisp
-  (setq org-tag-alist '(("@orientation" . ?a)
-                        ("@coding" . ?b)
-                        ("@help" . ?c)
-                        ("@phone" . ?d)
-                        ("@documentation" . ?e)
-                        ("@meeting" . ?f)
-                        ("@email" . ?g)
-                        ("@break" . ?h)
-                        ("@study" . ?i)
-                        ("@slack" . ?j)
-                        ("@chat" . ?k)
-                        ))
+(setq org-tag-alist '(("@orientation" . ?a)
+                      ("@coding" . ?b)
+                      ("@help" . ?c)
+                      ("@phone" . ?d)
+                      ("@documentation" . ?e)
+                      ("@meeting" . ?f)
+                      ("@email" . ?g)
+                      ("@break" . ?h)
+                      ("@study" . ?i)
+                      ("@slack" . ?j)
+                      ("@chat" . ?k)
+                      ))
 #+END_SRC
 
 ** Agenda display
 #+BEGIN_SRC emacs-lisp
-  (setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+(setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
 #+END_SRC
 
 ** Time estimates
 #+BEGIN_SRC emacs-lisp
-  (setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
 #+END_SRC
 
 ** Time format
 #+BEGIN_SRC emacs-lisp
-  (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+(setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 #+END_SRC   
 
 * Projectile
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :commands (projectile-find-file
-               projectile-grep
-               projectile-switch-project
-               projectile-project-root)
+(use-package projectile
+  :commands (projectile-find-file
+             projectile-grep
+             projectile-switch-project
+             projectile-project-root)
   ;;   :init
   ;;   (defhydra hydra-projectile (:color teal :hint nil) "
   ;;   PROJECTILE: %(projectile-project-root)
@@ -398,108 +398,108 @@ Notes, agenda, calendar, blogging, journaling, etc.
   ;;     ("z" projectile-cache-current-file)
   ;;     ("`" hydra-projectile-other-window/body "other window")
   ;;     ("q" nil "cancel" :color blue))
-    :config
-    (projectile-mode))
+  :config
+  (projectile-mode))
 
-  (defmacro with-projectile-root (&rest body)
-    `(with-temp-buffer
-       (when (projectile-project-root)
-         (cd (projectile-project-root)))
-       ,@body))
+(defmacro with-projectile-root (&rest body)
+  `(with-temp-buffer
+     (when (projectile-project-root)
+       (cd (projectile-project-root)))
+     ,@body))
 #+END_SRC
 
 * Helm
 #+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :config    (setq helm-ff-transformer-show-only-basename nil
-                     helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
-                     helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
-                     helm-yank-symbol-first                 t
-                     helm-buffers-fuzzy-matching            t
-                     helm-ff-auto-update-initial-value      t
-                     helm-input-idle-delay                  0.1
-                     helm-idle-delay                        0.1)
-    :init      (progn
-                 (require 'helm-config)
-                 (helm-mode t)
-                 (use-package helm-projectile
-                   :bind      ("C-c h" . helm-projectile)))
+(use-package helm
+  :config    (setq helm-ff-transformer-show-only-basename nil
+                   helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
+                   helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
+                   helm-yank-symbol-first                 t
+                   helm-buffers-fuzzy-matching            t
+                   helm-ff-auto-update-initial-value      t
+                   helm-input-idle-delay                  0.1
+                   helm-idle-delay                        0.1)
+  :init      (progn
+               (require 'helm-config)
+               (helm-mode t)
+               (use-package helm-projectile
+                 :bind      ("C-c h" . helm-projectile)))
 
-    :bind (("C-x r l" . helm-bookmarks)
-           ("C-x C-m" . helm-M-x)
-           ("C-h i"   . helm-google-suggest)
-           ("M-y"     . helm-show-kill-ring)
-           ("C-h a"   . helm-apropos)
-           ("C-x C-f" . helm-find-files)
-           ("C-x p" .   helm-top)
-           ("C-x C-b" . helm-buffers-list)))
+  :bind (("C-x r l" . helm-bookmarks)
+         ("C-x C-m" . helm-M-x)
+         ("C-h i"   . helm-google-suggest)
+         ("M-y"     . helm-show-kill-ring)
+         ("C-h a"   . helm-apropos)
+         ("C-x C-f" . helm-find-files)
+         ("C-x p" .   helm-top)
+         ("C-x C-b" . helm-buffers-list)))
 #+END_SRC
 
 * Autocompletion
 There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :config
-    (setq company-idle-delay 0.3
-          company-minimum-prefix-length 1
-          company-show-numbers t)
-    :hook
-    (after-init . global-company-mode))
+(use-package company
+  :config
+  (setq company-idle-delay 0.3
+        company-minimum-prefix-length 1
+        company-show-numbers t)
+  :hook
+  (after-init . global-company-mode))
 
-  (use-package company-lsp)
-  ;; (use-package company-tabnine)
+(use-package company-lsp)
+;; (use-package company-tabnine)
 
-  ;; (general-def "C-M-i" #'company-complete)
-  ;; (general-def "M-<tab>" 'company-complete))
+;; (general-def "C-M-i" #'company-complete)
+;; (general-def "M-<tab>" 'company-complete))
 #+END_SRC
 
 * Flycheck
 Syntax checking etc.:
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    ;; :init
-    ;; (defhydra hydra-flycheck
-    ;;   (:pre (flycheck-list-errors)
-    ;;         :post (quit-windows-on "*Flycheck errors*")
-    ;;         :hint nil)
-    ;;   "Errors"
-    ;;   ("f" flycheck-error-list-set-filter "Filter")
-    ;;   ("j" flycheck-next-error "Next")
-    ;;   ("k" flycheck-previous-error "Previous")
-    ;;   ("gg" flycheck-first-error "First")
-    ;;   ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
-    ;;   ("q" nil))
-    :config
-    (setq-default flycheck-disabled-checkers '(emacs-lisp emacs-lisp-checkdoc))
-    (global-flycheck-mode))
-    ;; :general
-    ;; ((normal motion visual) flycheck-mode-map "ze" 'hydra-flycheck/body))
+(use-package flycheck
+  ;; :init
+  ;; (defhydra hydra-flycheck
+  ;;   (:pre (flycheck-list-errors)
+  ;;         :post (quit-windows-on "*Flycheck errors*")
+  ;;         :hint nil)
+  ;;   "Errors"
+  ;;   ("f" flycheck-error-list-set-filter "Filter")
+  ;;   ("j" flycheck-next-error "Next")
+  ;;   ("k" flycheck-previous-error "Previous")
+  ;;   ("gg" flycheck-first-error "First")
+  ;;   ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
+  ;;   ("q" nil))
+  :config
+  (setq-default flycheck-disabled-checkers '(emacs-lisp emacs-lisp-checkdoc))
+  (global-flycheck-mode))
+;; :general
+;; ((normal motion visual) flycheck-mode-map "ze" 'hydra-flycheck/body))
 #+END_SRC
 * aggressive-indent-mode
 Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after every change:
 #+BEGIN_SRC emacs-lisp
-  (use-package aggressive-indent
-    :hook ((clojure-mode . aggressive-indent-mode)
-           (emacs-lisp-mode . aggressive-indent-mode)
-           (lisp-mode . aggressive-indent-mode)
-           (scheme-mode . aggressive-indent-mode)))
+(use-package aggressive-indent
+  :hook ((clojure-mode . aggressive-indent-mode)
+         (emacs-lisp-mode . aggressive-indent-mode)
+         (lisp-mode . aggressive-indent-mode)
+         (scheme-mode . aggressive-indent-mode)))
 #+END_SRC
 
 
 * HTML/ CSS/ SCSS/ SASS
 LSP support for css requires [[https://github.com/vscode-langservers/vscode-html-languageserver][vscode-html-languageserver]].
 #+BEGIN_SRC emacs-lisp
-  (use-package web-mode
-    :mode (("\\.html\\'" . web-mode)
-           ("\\.htm\\'" . web-mode)
-           ("\\.css\\'" . web-mode)
-           ("\\.scss\\'" . web-mode)
-           ("\\.sass\\'" . web-mode))
-    ;; :custom ((web-mode-markup-indent-offset ces-indent-size)
-    ;;          (web-mode-css-indent-offset ces-indent-size)
-    ;;          (web-mode-code-indent-offset ces-indent-size))
-    :hook ((web-mode . emmet-mode)
-           (web-mode . lsp-deferred)))
+(use-package web-mode
+  :mode (("\\.html\\'" . web-mode)
+         ("\\.htm\\'" . web-mode)
+         ("\\.css\\'" . web-mode)
+         ("\\.scss\\'" . web-mode)
+         ("\\.sass\\'" . web-mode))
+  :custom ((web-mode-markup-indent-offset indent-size)
+           (web-mode-css-indent-offset indent-size)
+           (web-mode-code-indent-offset indent-size))
+  :hook ((web-mode . emmet-mode)
+         (web-mode . lsp-deferred)))
 #+END_SRC
 
 * Emment
@@ -514,7 +514,7 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
            ("\\.jsx\\'" . typescript-mode)
            ("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
-    :custom (typescript-indent-level ces-indent-size)
+    :custom (typescript-indent-level indent-size)
     :hook ((typescript-mode . emmet-mode)
             (typescript-mode . lsp-deferred)))
 #+END_SRC
@@ -524,7 +524,7 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-json-languag
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
     :mode (("\\.json\\'" . json-mode))
-    ;; :custom (js-indent-level ces-indent-size)
+    :custom (js-indent-level indent-size)
     :hook (json-mode . lsp-deferred))
 #+END_SRC
 
@@ -626,6 +626,17 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
     :hook (go-mode . lsp-deferred))
 #+END_SRC
 
+* ccls
+n
+  LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
+#+BEGIN_SRC emacs-lisp
+  (use-package ccls
+    :ensure
+    :config
+    '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
+    :hook ((c-mode c++-mode objc-mode) .
+           (lambda () (require 'ccls) (lsp))))
+#+END_SRC
 
 * Dictionary
 This package looks up word definitions online.
