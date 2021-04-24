@@ -495,194 +495,191 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
          ("\\.css\\'" . web-mode)
          ("\\.scss\\'" . web-mode)
          ("\\.sass\\'" . web-mode))
-  :custom ((web-mode-markup-indent-offset indent-size)
-           (web-mode-css-indent-offset indent-size)
-           (web-mode-code-indent-offset indent-size))
+  :custom ((web-mode-css-indent-offset indent-size)
+           (web-mode-code-indent-offset indent-size)
+           (web-mode-markup-indent-offset indent-size))
   :hook ((web-mode . emmet-mode)
          (web-mode . lsp-deferred)))
 #+END_SRC
 
 * Emment
 #+BEGIN_SRC emacs-lisp
-  (use-package emmet-mode)
+(use-package emmet-mode)
 #+END_SRC
 
 * Typescript / Javascript
 #+BEGIN_SRC emacs-lisp
-  (use-package typescript-mode
-    :mode (("\\.js\\'" . typescript-mode)
-           ("\\.jsx\\'" . typescript-mode)
-           ("\\.ts\\'" . typescript-mode)
-           ("\\.tsx\\'" . typescript-mode))
-    :custom (typescript-indent-level indent-size)
-    :hook ((typescript-mode . emmet-mode)
-            (typescript-mode . lsp-deferred)))
+(use-package typescript-mode
+  :mode (("\\.js\\'" . typescript-mode)
+         ("\\.jsx\\'" . typescript-mode)
+         ("\\.ts\\'" . typescript-mode)
+         ("\\.tsx\\'" . typescript-mode))
+  :custom (typescript-indent-level indent-size)
+  :hook ((typescript-mode . emmet-mode)
+         (typescript-mode . lsp-deferred)))
 #+END_SRC
 
 * JSON
 LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
 #+BEGIN_SRC emacs-lisp
-  (use-package json-mode
-    :mode (("\\.json\\'" . json-mode))
-    :custom (js-indent-level indent-size)
-    :hook (json-mode . lsp-deferred))
+(use-package json-mode
+  :mode (("\\.json\\'" . json-mode))
+  :custom (js-indent-level indent-size)
+  :hook (json-mode . lsp-deferred))
 #+END_SRC
 
 * PHP
 PHP support requires [[https://github.com/bmewburn/vscode-intelephense][vscode-intelephense]].
 #+BEGIN_SRC emacs-lisp
-  (use-package php-mode
-    :mode (("\\.php\\'" . php-mode))
-    :hook (php-mode . lsp-deferred))
+(use-package php-mode
+  :mode (("\\.php\\'" . php-mode))
+  :hook (php-mode . lsp-deferred))
 #+END_SRC
 
 * LSP Mode
 Emacs support for the Language Server Protocol
 
-#+BEGIN_SRC emacs-lisp
-    (use-package lsp-mode
-      ;; :defer t
-    ;;   :init
-    ;;   (defhydra hydra-lsp (:exit t :hint nil)
-    ;;     "
-    ;;  Buffer^^               Server^^                   Symbol
-    ;; -------------------------------------------------------------------------------------
-    ;;  [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
-    ;;  [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
-    ;;  [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature"
-    ;;     ("d" lsp-find-declaration)
-    ;;     ("D" lsp-ui-peek-find-definitions)
-    ;;     ("R" lsp-ui-peek-find-references)
-    ;;     ("i" lsp-ui-peek-find-implementation)
-    ;;     ("t" lsp-find-type-definition)
-    ;;     ("s" lsp-signature-help)
-    ;;     ("o" lsp-describe-thing-at-point)
-    ;;     ("r" lsp-rename)
+(use-package lsp-mode
+  ;; :defer t
+  ;;   :init
+  ;;   (defhydra hydra-lsp (:exit t :hint nil)
+  ;;     "
+  ;;  Buffer^^               Server^^                   Symbol
+  ;; -------------------------------------------------------------------------------------
+  ;;  [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
+  ;;  [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
+  ;;  [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature"
+  ;;     ("d" lsp-find-declaration)
+  ;;     ("D" lsp-ui-peek-find-definitions)
+  ;;     ("R" lsp-ui-peek-find-references)
+  ;;     ("i" lsp-ui-peek-find-implementation)
+  ;;     ("t" lsp-find-type-definition)
+  ;;     ("s" lsp-signature-help)
+  ;;     ("o" lsp-describe-thing-at-point)
+  ;;     ("r" lsp-rename)
 
-    ;;     ("f" lsp-format-buffer)
-    ;;     ("m" lsp-ui-imenu)
-    ;;     ("x" lsp-execute-code-action)
+  ;;     ("f" lsp-format-buffer)
+  ;;     ("m" lsp-ui-imenu)
+  ;;     ("x" lsp-execute-code-action)
 
-    ;;     ("M-s" lsp-describe-session)
-    ;;     ("M-r" lsp-restart-workspace)
-    ;;     ("S" lsp-shutdown-workspace))
-      ;; :general
-      ;; (lsp-mode-map "C-c h" 'hydra-lsp/body)
-      ;; ((normal visual motion) lsp-mode-map "K" #'lsp-describe-thing-at-point)
-      :hook
-      (lsp-mode . lsp-enable-which-key-integration)
-       ;; (before-save . lsp-format-buffer))
-       ;; (before-save . lsp-organize-imports))
-      ;; ((lsp-mode . (lambda ()
-      ;;                (let ((lsp-keymap-prefix "gl"))
-      ;;                  (lsp-enable-which-key-integration)))))
-      ;; :config
-      ;; (setq lsp-prefer-flymake nil)
-      ;; (general-def '(normal visual motion) "gl" lsp-command-map)
-      :commands lsp-mode lsp)
-      ;; :custom
-      ;; (lsp-enable-snippet nil)
-      ;; (lsp-eldoc-render-all nil))
+  ;;     ("M-s" lsp-describe-session)
+  ;;     ("M-r" lsp-restart-workspace)
+  ;;     ("S" lsp-shutdown-workspace))
+  ;; :general
+  ;; (lsp-mode-map "C-c h" 'hydra-lsp/body)
+  ;; ((normal visual motion) lsp-mode-map "K" #'lsp-describe-thing-at-point)
+  :hook
+  ((lsp-mode . lsp-enable-which-key-integration)
+   (before-save . lsp-format-buffer)
+   (before-save . lsp-organize-imports))
+  ;; ((lsp-mode . (lambda ()
+  ;;                (let ((lsp-keymap-prefix "gl"))
+  ;;                  (lsp-enable-which-key-integration)))))
+  ;; :config
+  ;; (setq lsp-prefer-flymake nil)
+  ;; (general-def '(normal visual motion) "gl" lsp-command-map)
+  :commands lsp-mode lsp)
+;; :custom
+;; (lsp-enable-snippet nil)
+;; (lsp-eldoc-render-all nil))
 
-  (use-package lsp-ui
-    :after (lsp-mode)
-    :custom
-    (lsp-ui-sideline-enable t)
-    (lsp-ui-sideline-show-symbol t)
-    (lsp-ui-sideline-show-hover t)
-    (lsp-ui-sideline-show-code-actions t)
-    (lsp-ui-sideline-update-mode 'point)
-    (lsp-ui-doc-alignment 'window)
-    (lsp-ui-doc-header t)
-    (lsp-ui-doc-position 'top)
-    (lsp-ui-doc-background '((t (:inherit region))))
-    (lsp-ui-doc-header '((t (:inherit lsp-face-highlight-write))))
-    (lsp-ui-sideline-current-symbol '((t (:inherit font-lock-constant-face
-                                                   :weight ultra-bold)))))
+(use-package lsp-ui
+  :after (lsp-mode)
+  :custom
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-symbol t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-update-mode 'point)
+  (lsp-ui-doc-alignment 'window)
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-position 'top)
+  (lsp-ui-doc-background '((t (:inherit region))))
+  (lsp-ui-doc-header '((t (:inherit lsp-face-highlight-write))))
+  (lsp-ui-sideline-current-symbol '((t (:inherit font-lock-constant-face
+                                                 :weight ultra-bold)))))
 
-  (use-package helm-lsp
-    :commands helm-lsp-workspace-symbol)
-  ;; if you are ivy user
-  ;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+(use-package helm-lsp
+  :commands helm-lsp-workspace-symbol)
+;; if you are ivy user
+;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 
 
-    ;; (with-eval-after-load 'lsp-clients
-    ;;   (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename major-mode)
-    ;;     "Checks if the javascript-typescript language server should be enabled
-    ;;   based on FILE-NAME and MAJOR-MODE"
-    ;;     (or (member major-mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
-    ;;         (and (eq major-mode 'web-mode)
-    ;;              (or (string-suffix-p ".tsx" filename t)
-    ;;                  (string-suffix-p ".ts" filename t)
-    ;;                  (string-suffix-p ".jsx" filename t)
-    ;;                  (string-suffix-p ".js" filename t))))))
-#+END_SRC
+;; (with-eval-after-load 'lsp-clients
+;;   (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename major-mode)
+;;     "Checks if the javascript-typescript language server should be enabled
+;;   based on FILE-NAME and MAJOR-MODE"
+;;     (or (member major-mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
+;;         (and (eq major-mode 'web-mode)
+;;              (or (string-suffix-p ".tsx" filename t)
+;;                  (string-suffix-p ".ts" filename t)
+;;                  (string-suffix-p ".jsx" filename t)
+;;                  (string-suffix-p ".js" filename t))))))
 
 * Go
 LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
 #+BEGIN_SRC emacs-lisp
-  (use-package go-mode
-    :mode ("\\.go\\'" . go-mode)
-    :hook (go-mode . lsp-deferred))
+(use-package go-mode
+  :mode ("\\.go\\'" . go-mode)
+  :hook (go-mode . lsp-deferred))
 #+END_SRC
 
 * ccls
-n
-  LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
+LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
 #+BEGIN_SRC emacs-lisp
-  (use-package ccls
-    :ensure
-    :config
-    '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
-    :hook ((c-mode c++-mode objc-mode) .
-           (lambda () (require 'ccls) (lsp))))
+(use-package ccls
+  :ensure
+  :config
+  '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
 #+END_SRC
 
 * Dictionary
 This package looks up word definitions online.
 #+BEGIN_SRC emacs-lisp
-  (use-package define-word
-    :commands (define-word define-word-at-point)
-    ;; :general
-    ;; (normal "gl" #'define-word-at-point)
-    ;; (normal "gL" #'define-word)
-    )
+(use-package define-word
+  :commands (define-word define-word-at-point)
+  ;; :general
+  ;; (normal "gl" #'define-word-at-point)
+  ;; (normal "gL" #'define-word)
+  )
 #+END_SRC
 
 * Spelling
 #+BEGIN_SRC emacs-lisp
-  (use-package ispell
-    :init      (defun ispell-line()
-                 (interactive)
-                 (ispell-region (line-beginning-position) (line-end-position)))
-    :bind      (("C-c sr" . ispell-region)
-                ("C-c sb" . ispell-buffer)
-                ("C-c sw" . ispell-word)
-                ("C-c sl" . ispell-line)))
+(use-package ispell
+  :init      (defun ispell-line()
+               (interactive)
+               (ispell-region (line-beginning-position) (line-end-position)))
+  :bind      (("C-c sr" . ispell-region)
+              ("C-c sb" . ispell-buffer)
+              ("C-c sw" . ispell-word)
+              ("C-c sl" . ispell-line)))
 
-  (setq ispell-program-name "/usr/local/bin/aspell")
+(setq ispell-program-name "/usr/local/bin/aspell")
 #+END_SRC
 
 * Writegood
-  I have used the [[http://www.hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
+I have used the [[http://www.hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
 #+BEGIN_SRC emacs-lisp
-  (use-package writegood-mode)
+(use-package writegood-mode)
 #+END_SRC
 
 * Olivetti Mode
 Olivetti is a minor mode for a nice writing environment.
 #+BEGIN_SRC emacs-lisp
-  (use-package olivetti
-    :config
-    (setq-default olivetti-body-width 100)
-    (setq olivetti-body-width 100)
-    :commands olivetti-mode)
+(use-package olivetti
+  :config
+  (setq-default olivetti-body-width 100)
+  (setq olivetti-body-width 100)
+  :commands olivetti-mode)
 #+END_SRC
 
 * Encryption
 #+BEGIN_SRC emacs-lisp
-  (require 'epa-file)
-  (epa-file-enable)
-  (setq epa-file-select-keys nil)
-  (setf epa-pinentry-mode 'loopback)
+(require 'epa-file)
+(epa-file-enable)
+(setq epa-file-select-keys nil)
+(setf epa-pinentry-mode 'loopback)
 #+END_SRC
