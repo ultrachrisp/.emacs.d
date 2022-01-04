@@ -1,4 +1,3 @@
--*- eval: (add-hook 'after-save-hook 'org-babel-tangle 0 t) -*-
 #+PROPERTY: header-args :results silent
 #+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/chrisp-init.el
 
@@ -63,9 +62,11 @@ Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/
   (setq-default indent-tabs-mode nil)
 #+END_SRC
 
-* Default directory
+* Default directory & variables
 #+BEGIN_SRC emacs-lisp
   (cd "~")
+  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+ '(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
 #+END_SRC
 
 * Packages
