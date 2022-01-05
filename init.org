@@ -439,19 +439,19 @@ Get rid of the confirmation prompt:
 * Autocompletion
 There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
 #+BEGIN_SRC emacs-lisp
-(use-package company
-  :config
-  (setq company-idle-delay 0.3
-        company-minimum-prefix-length 1
-        company-show-numbers t)
-  :hook
-  (after-init . global-company-mode))
+  (use-package company
+    :config
+    (setq company-idle-delay 0.3
+          company-minimum-prefix-length 1
+          company-show-numbers t)
+    :hook
+    (after-init . global-company-mode))
 
-(use-package company-lsp)
-;; (use-package company-tabnine)
+  (use-package company-lsp)
+  (use-package company-tabnine)
 
-;; (general-def "C-M-i" #'company-complete)
-;; (general-def "M-<tab>" 'company-complete))
+  ;; (general-def "C-M-i" #'company-complete)
+  ;; (general-def "M-<tab>" 'company-complete))
 #+END_SRC
 
 * Flycheck
@@ -540,82 +540,20 @@ PHP support requires [[https://github.com/bmewburn/vscode-intelephense][vscode-i
 * LSP Mode
 Emacs support for the Language Server Protocol
 
-(use-package lsp-mode
-  ;; :defer t
-  ;;   :init
-  ;;   (defhydra hydra-lsp (:exit t :hint nil)
-  ;;     "
-  ;;  Buffer^^               Server^^                   Symbol
-  ;; -------------------------------------------------------------------------------------
-  ;;  [_f_] format           [_M-r_] restart            [_d_] declaration  [_i_] implementation  [_o_] documentation
-  ;;  [_m_] imenu            [_S_]   shutdown           [_D_] definition   [_t_] type            [_r_] rename
-  ;;  [_x_] execute action   [_M-s_] describe session   [_R_] references   [_s_] signature"
-  ;;     ("d" lsp-find-declaration)
-  ;;     ("D" lsp-ui-peek-find-definitions)
-  ;;     ("R" lsp-ui-peek-find-references)
-  ;;     ("i" lsp-ui-peek-find-implementation)
-  ;;     ("t" lsp-find-type-definition)
-  ;;     ("s" lsp-signature-help)
-  ;;     ("o" lsp-describe-thing-at-point)
-  ;;     ("r" lsp-rename)
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :hook
+    ((lsp-mode . lsp-enable-which-key-integration)
+     (before-save . lsp-format-buffer)
+     (before-save . lsp-organize-imports))
+    :commands lsp-mode lsp)
 
-  ;;     ("f" lsp-format-buffer)
-  ;;     ("m" lsp-ui-imenu)
-  ;;     ("x" lsp-execute-code-action)
+  (use-package lsp-ui
+    :after (lsp-mode))
 
-  ;;     ("M-s" lsp-describe-session)
-  ;;     ("M-r" lsp-restart-workspace)
-  ;;     ("S" lsp-shutdown-workspace))
-  ;; :general
-  ;; (lsp-mode-map "C-c h" 'hydra-lsp/body)
-  ;; ((normal visual motion) lsp-mode-map "K" #'lsp-describe-thing-at-point)
-  :hook
-  ((lsp-mode . lsp-enable-which-key-integration)
-   (before-save . lsp-format-buffer)
-   (before-save . lsp-organize-imports))
-  ;; ((lsp-mode . (lambda ()
-  ;;                (let ((lsp-keymap-prefix "gl"))
-  ;;                  (lsp-enable-which-key-integration)))))
-  ;; :config
-  ;; (setq lsp-prefer-flymake nil)
-  ;; (general-def '(normal visual motion) "gl" lsp-command-map)
-  :commands lsp-mode lsp)
-;; :custom
-;; (lsp-enable-snippet nil)
-;; (lsp-eldoc-render-all nil))
-
-(use-package lsp-ui
-  :after (lsp-mode)
-  :custom
-  (lsp-ui-sideline-enable t)
-  (lsp-ui-sideline-show-symbol t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-update-mode 'point)
-  (lsp-ui-doc-alignment 'window)
-  (lsp-ui-doc-header t)
-  (lsp-ui-doc-position 'top)
-  (lsp-ui-doc-background '((t (:inherit region))))
-  (lsp-ui-doc-header '((t (:inherit lsp-face-highlight-write))))
-  (lsp-ui-sideline-current-symbol '((t (:inherit font-lock-constant-face
-                                                 :weight ultra-bold)))))
-
-(use-package helm-lsp
-  :commands helm-lsp-workspace-symbol)
-;; if you are ivy user
-;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-
-
-;; (with-eval-after-load 'lsp-clients
-;;   (defun lsp-typescript-javascript-tsx-jsx-activate-p (filename major-mode)
-;;     "Checks if the javascript-typescript language server should be enabled
-;;   based on FILE-NAME and MAJOR-MODE"
-;;     (or (member major-mode '(typescript-mode typescript-tsx-mode js-mode js2-mode rjsx-mode))
-;;         (and (eq major-mode 'web-mode)
-;;              (or (string-suffix-p ".tsx" filename t)
-;;                  (string-suffix-p ".ts" filename t)
-;;                  (string-suffix-p ".jsx" filename t)
-;;                  (string-suffix-p ".js" filename t))))))
+  (use-package helm-lsp
+    :commands helm-lsp-workspace-symbol)
+#+END_SRC
 
 * Go
 LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
