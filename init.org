@@ -72,25 +72,39 @@ Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/
 * Packages
 Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package installation:
 #+BEGIN_SRC emacs-lisp
-  (defvar bootstrap-version)
-  (unless (boundp 'bootstrapping-init)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage)))
+; (setq straight-disable-native-compile t)
+;   (defvar bootstrap-version)
+;   (unless (boundp 'bootstrapping-init)
+;     (let ((bootstrap-file
+;            (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+;           (bootstrap-version 5))
+;       (unless (file-exists-p bootstrap-file)
+;         (with-current-buffer
+;             (url-retrieve-synchronously
+;              "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+;              'silent 'inhibit-cookies)
+;           (goto-char (point-max))
+;           (eval-print-last-sexp)))
+;       (load bootstrap-file nil 'nomessage)))
+;       (setq straight-disable-native-compile nil)
 #+END_SRC
+
 
 `use-package` is a macro that simplifies installing and loading packages.
 #+BEGIN_SRC emacs-lisp
-  (straight-use-package 'use-package)
-  (setq straight-use-package-by-default t)
+  ; (straight-use-package 'use-package)
+  ; (setq straight-use-package-by-default t)
+  (setq package-enable-at-startup nil)
+    (setq package-archives '(("gnu" . "http://mirrors.163.com/elpa/gnu/")
+                             ("melpa" . "https://melpa.org/packages/")
+                             ("org" . "http://orgmode.org/elpa/")))
+
+  (unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package)
+  (eval-when-compile (require 'use-package)))
+
+  (setq use-package-always-ensure t)
 #+END_SRC
 
 ** Utility functions
@@ -217,7 +231,7 @@ Quick way to move between windows
 (use-package doom-themes
   :config
 
-  (setq doom-themes-enable-bold t 
+  (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   ;; (load-theme 'doom-dark+ t)
   (load-theme 'doom-city-lights t)
@@ -354,7 +368,7 @@ Get rid of the confirmation prompt:
 ** Time format
 #+BEGIN_SRC emacs-lisp
 (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
-#+END_SRC   
+#+END_SRC
 
 * Projectile
 #+BEGIN_SRC emacs-lisp
