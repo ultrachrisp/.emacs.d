@@ -7,7 +7,11 @@ elpa/
 eshell/
 straight/
 transient/
+lsp-cache/
 
+.cache
+.lsp-session-v1
 custom.el
 chrisp-init.el
+projectile.cache
 projectile-bookmarks.eld
