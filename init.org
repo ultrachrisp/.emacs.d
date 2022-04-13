@@ -117,22 +117,23 @@ Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package 
 * Load org mode
 Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-version-of-my-package-was-loaded][avoid a version clash]].
 #+BEGIN_SRC emacs-lisp
-  ; (use-package org
-  ;   :ensure org-plus-contrib
-  ;   :commands (org-element-map)
-  ;   :mode (("\\.org\\'" . org-mode)))
+    ; (use-package org
+    ;   :ensure org-plus-contrib
+    ;   :commands (org-element-map)
+    ;   :mode (("\\.org\\'" . org-mode)))
 
-  (require 'package)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(use-package org
-  :ensure org-plus-contrib
-  :commands (org-element-map)
-  :mode (("\\.org\\'" . org-mode)))
+  ;  (require 'package)
+  ;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+  (use-package org
+    :init (setq org-startup-indented t)
+    :ensure org-plus-contrib
+    :commands (org-element-map)
+    :mode (("\\.org\\'" . org-mode)))
 
-  ;; Annoying that this is necessary...
-  (require 'org)
-  (require 'org-refile)
-  (require 'org-protocol)
+    ;; Annoying that this is necessary...
+    (require 'org)
+    (require 'org-refile)
+    (require 'org-protocol)
 #+END_SRC
 
 * Customization File

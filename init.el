@@ -5,11 +5,12 @@
 ;; right Org version, then tangle ~/.emacs.d/init.org to
 ;; ~/.emacs.d/chrisp-init.el
 
-(when (not (file-exists-p
-            (expand-file-name "~/.emacs.d/chrisp-init.el")))
+;;(when (not (file-exists-p
+;;            (expand-file-name "~/.emacs.d/chrisp-init.el")))
   (require 'org)
   (org-babel-tangle-file
    (expand-file-name "~/.emacs.d/init.org")
-   (expand-file-name "~/.emacs.d/chrisp-init.el")))
+   (expand-file-name "~/.emacs.d/chrisp-init.el"))
+;;  )
 
 (load-file (expand-file-name "~/.emacs.d/chrisp-init.el"))

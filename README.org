@@ -1,11 +1,254 @@
+#+PROPERTY: header-args :results silent
+#+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/chrisp.el
 #+TITLE: My Emacs Setup
 
-This is a remake of [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/commit/8266a2c24a1077ff740e570dba25df7150559b1e/emacs/init.org][Jeremy Dormitzer]]'s Emacs setup. 
-
-This is fairly heavy rework of my previous setup, which was based off of [[https://github.com/yveszoundi/emacs.d][yveszoundi]]'s approach, but there are a fair amount of similarities.
+I initially used [[https://github.com/yveszoundi/emacs.d][yveszoundi]]'s approach to init files, but then moved to something similar to [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/commit/8266a2c24a1077ff740e570dba25df7150559b1e/emacs/init.org][Jeremy Dormitzer]]'s Emacs setup. Additionally, I moved the setup to the README file to have it surfaced immediately in github.
 
 Some of the biggest new features are:
 - Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
 - Use of [[https://github.com/raxod502/straight.el][straight.el]] for package management.
 
-Additionally, it has a cleaner management of the init.org file, which allows for a quick application of updates. 
+Additionally, it has a cleaner management of the init.org file, which allows for a quick application of updates.
+
+* Prelude
+Enables lexical binding for everything in init.el:
+#+BEGIN_SRC emacs-lisp
+  ;;;  -*- lexical-binding: t; -*-
+#+END_SRC
+
+** Garbage collection
+Some GC tweaks [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly]["borrowed" from Doom emacs]].
+
+Turn off GC during init and restore it afterwards:
+#+BEGIN_SRC emacs-lisp
+  (setq gc-cons-threshold most-positive-fixnum
+        gc-cons-percentage 0.6)
+
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold 100000000
+                    gc-cons-percentage 0.1)))
+#+END_SRC
+
+Also suppress GC for 1 second after the minibuffer is active to avoid stuttering autocompletion and other GC hangups:
+#+BEGIN_SRC emacs-lisp
+  (defun defer-garbage-collection ()
+    (setq gc-cons-threshold most-positive-fixnum))
+
+  (defun restore-garbage-collection ()
+    (run-at-time
+     1 nil (lambda () (setq gc-cons-threshold 100000000))))
+
+  (add-hook 'minibuffer-setup-hook #'defer-garbage-collection)
+  (add-hook 'minibuffer-exit-hook #'restore-garbage-collection)
+#+END_SRC
+
+** Unset file-handler-alist during initialization
+Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly][Doom Emacs]].
+#+BEGIN_SRC emacs-lisp
+  (defvar file-name-handler-alist-backup file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq file-name-handler-alist file-name-handler-alist-backup)))
+#+END_SRC
+
+** Variables
+#+BEGIN_SRC emacs-lisp
+  (setq vc-follow-symlinks t
+        frame-resize-pixelwise t
+        tab-always-indent 'complete
+        enable-recursive-minibuffers t
+        read-process-output-max (* 1024 1024)
+        bookmark-save-flag 1)
+#+END_SRC
+
+* Default directory & variables
+#+BEGIN_SRC emacs-lisp
+  (cd "~")
+  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+ '(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
+#+END_SRC
+
+* Packages
+Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package installation:
+#+BEGIN_SRC emacs-lisp
+  (defvar bootstrap-version)
+  (unless (boundp 'bootstrapping-init)
+    (let ((bootstrap-file
+           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+          (bootstrap-version 5))
+      (unless (file-exists-p bootstrap-file)
+        (with-current-buffer
+            (url-retrieve-synchronously
+             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+             'silent 'inhibit-cookies)
+          (goto-char (point-max))
+          (eval-print-last-sexp)))
+      (load bootstrap-file nil 'nomessage)))
+#+END_SRC
+
+`use-package` is a macro that simplifies installing and loading packages.
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'use-package)
+  (setq straight-use-package-by-default t)
+#+END_SRC
+
+* Load org mode
+Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-version-of-my-package-was-loaded][avoid a version clash]].
+#+BEGIN_SRC emacs-lisp
+  ;(require 'package)
+  ;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+  (use-package org
+    :init (setq org-startup-indented t)
+    :ensure org-plus-contrib
+    :commands (org-element-map)
+    :mode (("\\.org\\'" . org-mode)))
+
+    ;; Annoying that this is necessary...
+    (require 'org)
+    (require 'org-refile)
+    (require 'org-protocol)
+#+END_SRC
+
+* Customization File
+I don't want anything to write to my init.el, so save customizations in a separate file:
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file t)
+#+END_SRC
+
+* Path
+`exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user's shell config. This won't work on Windows.
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
+#+END_SRC
+
+* Which-key
+`which-key` makes keybindings discoverable.
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :config
+    (which-key-mode))
+#+END_SRC
+
+* Backups and Autosaves
+Store backups and autosaves in a centralized place. This should really be the default...
+#+BEGIN_SRC emacs-lisp
+  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+#+END_SRC
+
+* Init File
+A function to reload my init file. It reloads the major mode after the init file is loaded to rebind keymappings.
+#+BEGIN_SRC emacs-lisp
+  (defun reload-init-file ()
+    (interactive)
+    (load-file "~/.emacs.d/chrisp.el")
+    (funcall major-mode))
+#+END_SRC
+
+And another one to edit it:
+#+BEGIN_SRC emacs-lisp
+  (defun find-init-file ()
+    (interactive)
+    (find-file "~/.emacs.d/README.org"))
+#+END_SRC
+
+
+* Line Numbers
+Toggle line numbers:
+#+BEGIN_SRC emacs-lisp
+  (setq display-line-numbers-type t)
+#+END_SRC
+
+Toggle line numbering mode (normal or relative):
+#+BEGIN_SRC emacs-lisp
+  (defun toggle-line-number-mode ()
+    (interactive)
+    (when display-line-numbers
+      (if (eq display-line-numbers 'visual)
+          (progn
+            (setq display-line-numbers t)
+            (setq display-line-numbers-type t))
+        (progn
+          (setq display-line-numbers 'visual)
+          (setq display-line-numbers-type 'visual)))))
+#+END_SRC
+
+Display line numbers by default in code and org-mode buffers:
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'org-mode-hook #'display-line-numbers-mode)
+#+END_SRC
+
+* Ace-window
+Quick way to move between windows
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
+  :bind      ("C-x o" . ace-window))
+#+END_SRC
+
+* Doom themes
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes
+  :config
+
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  ;; (load-theme 'doom-dark+ t)
+  (load-theme 'doom-city-lights t)
+  (doom-themes-org-config))
+#+END_SRC
+
+* UI
+Get rid of the janky buttons:
+#+BEGIN_SRC emacs-lisp
+(tool-bar-mode -1)
+#+END_SRC
+
+And the menu bar:
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+#+END_SRC
+
+And the ugly scroll bars:
+#+BEGIN_SRC emacs-lisp
+(set-scroll-bar-mode nil)
+#+END_SRC
+
+And startup screen
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+#+END_SRC
+
+Setting the font
+#+BEGIN_SRC emacs-lisp
+(setq default-frame-alist '((font . "Monaco-15")))
+#+END_SRC
+
+Standarize the tab size
+#+BEGIN_SRC emacs-lisp
+(defconst indent-size 2)
+(setq-default tab-width indent-size)
+(setq-default indent-tabs-mode nil)
+(setq-default indent-line-function 'insert-tab)
+#+END_SRC
+
+
+* Magit
+Magit is objectively the best Git interface.
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :commands (magit-status
+             magit-blame
+             magit-find-file
+             magit-name-local-branch))
+#+END_SRC
