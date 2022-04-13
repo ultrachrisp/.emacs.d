@@ -109,18 +109,25 @@ Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package 
 * Benchmarking
 `benchmark-init` does what it says on the box. This sets it up to benchmark my init time and then disable benchmarking after init completes.
 #+BEGIN_SRC emacs-lisp
-  (use-package benchmark-init
-    :config
-    (add-hook 'after-init-hook 'benchmark-init/deactivate))
+;  (use-package benchmark-init
+;    :config
+;    (add-hook 'after-init-hook 'benchmark-init/deactivate))
 #+END_SRC
 
 * Load org mode
 Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-version-of-my-package-was-loaded][avoid a version clash]].
 #+BEGIN_SRC emacs-lisp
-  (use-package org
-    :straight org-plus-contrib
-    :commands (org-element-map)
-    :mode (("\\.org\\'" . org-mode)))
+  ; (use-package org
+  ;   :ensure org-plus-contrib
+  ;   :commands (org-element-map)
+  ;   :mode (("\\.org\\'" . org-mode)))
+
+  (require 'package)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+(use-package org
+  :ensure org-plus-contrib
+  :commands (org-element-map)
+  :mode (("\\.org\\'" . org-mode)))
 
   ;; Annoying that this is necessary...
   (require 'org)
@@ -217,7 +224,7 @@ Quick way to move between windows
 (use-package doom-themes
   :config
 
-  (setq doom-themes-enable-bold t 
+  (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   ;; (load-theme 'doom-dark+ t)
   (load-theme 'doom-city-lights t)
@@ -354,7 +361,7 @@ Get rid of the confirmation prompt:
 ** Time format
 #+BEGIN_SRC emacs-lisp
 (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
-#+END_SRC   
+#+END_SRC
 
 * Projectile
 #+BEGIN_SRC emacs-lisp
