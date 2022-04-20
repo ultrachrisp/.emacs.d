@@ -1,5 +1,5 @@
 #+PROPERTY: header-args :results silent
-#+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/chrisp.el
+#+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/setup.el
 #+TITLE: My Emacs Setup
 
 I initially used [[https://github.com/yveszoundi/emacs.d][yveszoundi]]'s approach to init files, but then moved to something similar to [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/commit/8266a2c24a1077ff740e570dba25df7150559b1e/emacs/init.org][Jeremy Dormitzer]]'s Emacs setup. Additionally, I moved the setup to the README file to have it surfaced immediately in github.
@@ -251,4 +251,264 @@ Magit is objectively the best Git interface.
              magit-blame
              magit-find-file
              magit-name-local-branch))
+#+END_SRC
+* Org Mode
+Notes, agenda, calendar, blogging, journaling, etc.
+
+** org-babel
+Get rid of the confirmation prompt:
+#+BEGIN_SRC emacs-lisp
+(setq org-confirm-babel-evaluate nil)
+#+END_SRC
+
+** Todo states
+#+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                          (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                          (sequence "|" "CANCELED(c)")))
+#+END_SRC
+
+** Tags
+#+BEGIN_SRC emacs-lisp
+(setq org-tag-alist '(("@orientation" . ?a)
+                      ("@coding" . ?b)
+                      ("@help" . ?c)
+                      ("@phone" . ?d)
+                      ("@documentation" . ?e)
+                      ("@meeting" . ?f)
+                      ("@email" . ?g)
+                      ("@break" . ?h)
+                      ("@study" . ?i)
+                      ("@slack" . ?j)
+                      ("@chat" . ?k)
+                      ))
+#+END_SRC
+
+** Agenda display
+#+BEGIN_SRC emacs-lisp
+(setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+#+END_SRC
+
+** Time estimates
+#+BEGIN_SRC emacs-lisp
+(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+#+END_SRC
+
+** Time format
+#+BEGIN_SRC emacs-lisp
+(setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+#+END_SRC
+
+* Projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :commands (projectile-find-file
+             projectile-grep
+             projectile-switch-project
+             projectile-project-root)
+  :config
+  (projectile-mode))
+
+(defmacro with-projectile-root (&rest body)
+  `(with-temp-buffer
+     (when (projectile-project-root)
+       (cd (projectile-project-root)))
+     ,@body))
+#+END_SRC
+
+* Helm
+#+BEGIN_SRC emacs-lisp
+(use-package helm
+    :config    (setq helm-ff-transformer-show-only-basename nil
+                     helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
+                     helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
+                     helm-yank-symbol-first                 t
+                     helm-buffers-fuzzy-matching            t
+                     helm-ff-auto-update-initial-value      t
+                     helm-input-idle-delay                  0.1
+                     helm-idle-delay                        0.1)
+    :init      (progn
+                 (require 'helm-config)
+                 (helm-mode t)
+                 (use-package helm-projectile
+                     :bind      ("C-c h" . helm-projectile)))
+
+    :bind (("C-x r l" . helm-bookmarks)
+           ("C-x C-m" . helm-M-x)
+           ("C-h i"   . helm-google-suggest)
+           ("M-y"     . helm-show-kill-ring)
+           ("C-h a"   . helm-apropos)
+           ("C-x C-f" . helm-find-files)
+           ("C-x p"   . helm-top)
+           ("C-x C-b" . helm-buffers-list)))
+#+END_SRC
+
+* Company
+There seems to be [[https://github.com/company-mode/company-mode/issues/68][some contention]] about whether autocomplete or company are better autocomplete packages. I'm going with company for now because the maintainer seems nicer...
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :config
+    (setq company-idle-delay 0.3
+          company-minimum-prefix-length 1
+          company-show-numbers t)
+    :hook
+    (after-init . global-company-mode))
+
+  (use-package company-lsp)
+  (use-package company-tabnine)
+#+END_SRC
+
+* Flycheck
+Syntax checking etc.:
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :config
+  (setq-default flycheck-disabled-checkers '(emacs-lisp emacs-lisp-checkdoc))
+  (global-flycheck-mode))
+#+END_SRC
+* aggressive-indent-mode
+Like [[help:electric-indent-mode][electric-indent-mode]] but reindents after every change:
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+  :hook ((clojure-mode . aggressive-indent-mode)
+         (emacs-lisp-mode . aggressive-indent-mode)
+         (lisp-mode . aggressive-indent-mode)
+         (scheme-mode . aggressive-indent-mode)))
+#+END_SRC
+
+
+* LSP Mode
+Emacs support for the Language Server Protocol
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :hook
+    ((lsp-mode . lsp-enable-which-key-integration)
+     (before-save . lsp-format-buffer)
+     (before-save . lsp-organize-imports))
+    :commands lsp-mode lsp)
+
+  (use-package lsp-ui
+    :after (lsp-mode))
+
+  (use-package helm-lsp
+    :commands helm-lsp-workspace-symbol)
+#+END_SRC
+
+* HTML/ CSS/ SCSS/ SASS
+LSP support for css requires [[https://github.com/vscode-langservers/vscode-html-languageserver][vscode-html-languageserver]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :mode (("\\.html\\'" . web-mode)
+         ("\\.htm\\'" . web-mode)
+         ("\\.css\\'" . web-mode)
+         ("\\.scss\\'" . web-mode)
+         ("\\.sass\\'" . web-mode))
+  :custom ((web-mode-css-indent-offset indent-size)
+           (web-mode-code-indent-offset indent-size)
+           (web-mode-markup-indent-offset indent-size))
+  :hook ((web-mode . emmet-mode)
+         (web-mode . lsp-deferred)))
+#+END_SRC
+
+* Emment
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode)
+#+END_SRC
+* Typescript / Javascript
+#+BEGIN_SRC emacs-lisp
+(use-package typescript-mode
+  :mode (("\\.js\\'" . typescript-mode)
+         ("\\.jsx\\'" . typescript-mode)
+         ("\\.ts\\'" . typescript-mode)
+         ("\\.tsx\\'" . typescript-mode))
+  :custom (typescript-indent-level indent-size)
+  :hook ((typescript-mode . emmet-mode)
+         (typescript-mode . lsp-deferred)))
+#+END_SRC
+
+* JSON
+LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package json-mode
+  :mode (("\\.json\\'" . json-mode))
+  :custom (js-indent-level indent-size)
+  :hook (json-mode . lsp-deferred))
+#+END_SRC
+
+* YAML
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'yaml-mode)
+  (use-package yaml-mode
+    :mode (("\\.yml\\'" . yaml-mode)
+           ("\\.yaml\\'" . yaml-mode)))
+#+END_SRC
+
+* PHP
+PHP support requires [[https://github.com/bmewburn/vscode-intelephense][vscode-intelephense]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package php-mode
+  :mode (("\\.php\\'" . php-mode))
+  :hook (php-mode . lsp-deferred))
+#+END_SRC
+* Go
+LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
+#+BEGIN_SRC emacs-lisp
+(use-package go-mode
+  :mode ("\\.go\\'" . go-mode)
+  :hook (go-mode . lsp-deferred))
+#+END_SRC
+
+* ccls
+LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
+
+#+BEGIN_SRC emacs-lisp
+(use-package ccls
+  :ensure
+  :config
+  '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
+#+END_SRC
+
+
+* Spelling
+#+BEGIN_SRC emacs-lisp
+(use-package ispell
+  :init      (defun ispell-line()
+               (interactive)
+               (ispell-region (line-beginning-position) (line-end-position)))
+  :bind      (("C-c sr" . ispell-region)
+              ("C-c sb" . ispell-buffer)
+              ("C-c sw" . ispell-word)
+              ("C-c sl" . ispell-line)))
+
+(setq ispell-program-name "/usr/local/bin/aspell")
+#+END_SRC
+
+* Writegood
+I have used the [[http://www.hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
+#+BEGIN_SRC emacs-lisp
+(use-package writegood-mode)
+#+END_SRC
+
+* Olivetti Mode
+Olivetti is a minor mode for a nice writing environment.
+#+BEGIN_SRC emacs-lisp
+(use-package olivetti
+  :config
+  (setq-default olivetti-body-width 100)
+  (setq olivetti-body-width 100)
+  :commands olivetti-mode)
+#+END_SRC
+
+* Encryption
+#+BEGIN_SRC emacs-lisp
+(require 'epa-file)
+(epa-file-enable)
+(setq epa-file-select-keys nil)
+(setf epa-pinentry-mode 'loopback)
 #+END_SRC

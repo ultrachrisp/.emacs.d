@@ -12,6 +12,6 @@ lsp-cache/
 .cache
 .lsp-session-v1
 custom.el
-chrisp-init.el
+setup.el
 projectile.cache
 projectile-bookmarks.eld
