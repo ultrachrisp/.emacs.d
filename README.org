@@ -1,5 +1,5 @@
 #+PROPERTY: header-args :results silent
-#+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/setup.el
+
 #+TITLE: My Emacs Setup
 
 I initially used [[https://github.com/yveszoundi/emacs.d][yveszoundi]]'s approach to init files, but then moved to something similar to [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/commit/8266a2c24a1077ff740e570dba25df7150559b1e/emacs/init.org][Jeremy Dormitzer]]'s Emacs setup. Additionally, I moved the setup to the README file to have it surfaced immediately in github.
@@ -63,53 +63,6 @@ Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/
         bookmark-save-flag 1)
 #+END_SRC
 
-* Default directory & variables
-#+BEGIN_SRC emacs-lisp
-  (cd "~")
-  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
- '(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
-#+END_SRC
-
-* Packages
-Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package installation:
-#+BEGIN_SRC emacs-lisp
-  (defvar bootstrap-version)
-  (unless (boundp 'bootstrapping-init)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage)))
-#+END_SRC
-
-`use-package` is a macro that simplifies installing and loading packages.
-#+BEGIN_SRC emacs-lisp
-  (straight-use-package 'use-package)
-  (setq straight-use-package-by-default t)
-#+END_SRC
-
-* Load org mode
-Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-version-of-my-package-was-loaded][avoid a version clash]].
-#+BEGIN_SRC emacs-lisp
-  ;(require 'package)
-  ;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-  (use-package org
-    :init (setq org-startup-indented t)
-    :ensure org-plus-contrib
-    :commands (org-element-map)
-    :mode (("\\.org\\'" . org-mode)))
-
-    ;; Annoying that this is necessary...
-    (require 'org)
-    (require 'org-refile)
-    (require 'org-protocol)
-#+END_SRC
 
 * Customization File
 I don't want anything to write to my init.el, so save customizations in a separate file:
