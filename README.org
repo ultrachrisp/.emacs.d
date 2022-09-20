@@ -103,7 +103,7 @@ A function to reload my init file. It reloads the major mode after the init file
 #+BEGIN_SRC emacs-lisp
   (defun reload-init-file ()
     (interactive)
-    (load-file "~/.emacs.d/chrisp.el")
+    (load-file "~/.emacs.d/README.el")
     (funcall major-mode))
 #+END_SRC
 
