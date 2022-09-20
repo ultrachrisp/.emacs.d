@@ -1,5 +1,3 @@
-#+PROPERTY: header-args :results silent
-#+PROPERTY: header-args:emacs-lisp :lexical t :tangle ~/.emacs.d/setup.el
 #+TITLE: My Emacs Setup
 
 I initially used [[https://github.com/yveszoundi/emacs.d][yveszoundi]]'s approach to init files, but then moved to something similar to [[https://git.jeremydormitzer.com/jdormit/dotfiles/src/commit/8266a2c24a1077ff740e570dba25df7150559b1e/emacs/init.org][Jeremy Dormitzer]]'s Emacs setup. Additionally, I moved the setup to the README file to have it surfaced immediately in github.
@@ -11,46 +9,42 @@ Some of the biggest new features are:
 Additionally, it has a cleaner management of the init.org file, which allows for a quick application of updates.
 
 * Prelude
-Enables lexical binding for everything in init.el:
-#+BEGIN_SRC emacs-lisp
-  ;;;  -*- lexical-binding: t; -*-
-#+END_SRC
 
 ** Garbage collection
 Some GC tweaks [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly]["borrowed" from Doom emacs]].
 
 Turn off GC during init and restore it afterwards:
 #+BEGIN_SRC emacs-lisp
-  (setq gc-cons-threshold most-positive-fixnum
-        gc-cons-percentage 0.6)
+  ;; (setq gc-cons-threshold most-positive-fixnum
+  ;;       gc-cons-percentage 0.6)
 
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (setq gc-cons-threshold 100000000
-                    gc-cons-percentage 0.1)))
+  ;; (add-hook 'emacs-startup-hook
+  ;;           (lambda ()
+  ;;             (setq gc-cons-threshold 100000000
+  ;;                   gc-cons-percentage 0.1)))
 #+END_SRC
 
 Also suppress GC for 1 second after the minibuffer is active to avoid stuttering autocompletion and other GC hangups:
 #+BEGIN_SRC emacs-lisp
-  (defun defer-garbage-collection ()
-    (setq gc-cons-threshold most-positive-fixnum))
+  ;; (defun defer-garbage-collection ()
+  ;;   (setq gc-cons-threshold most-positive-fixnum))
 
-  (defun restore-garbage-collection ()
-    (run-at-time
-     1 nil (lambda () (setq gc-cons-threshold 100000000))))
+  ;; (defun restore-garbage-collection ()
+  ;;   (run-at-time
+  ;;    1 nil (lambda () (setq gc-cons-threshold 100000000))))
 
-  (add-hook 'minibuffer-setup-hook #'defer-garbage-collection)
-  (add-hook 'minibuffer-exit-hook #'restore-garbage-collection)
+  ;; (add-hook 'minibuffer-setup-hook #'defer-garbage-collection)
+  ;; (add-hook 'minibuffer-exit-hook #'restore-garbage-collection)
 #+END_SRC
 
 ** Unset file-handler-alist during initialization
 Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly][Doom Emacs]].
 #+BEGIN_SRC emacs-lisp
-  (defvar file-name-handler-alist-backup file-name-handler-alist)
-  (setq file-name-handler-alist nil)
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (setq file-name-handler-alist file-name-handler-alist-backup)))
+  ;; (defvar file-name-handler-alist-backup file-name-handler-alist)
+  ;; (setq file-name-handler-alist nil)
+  ;; (add-hook 'emacs-startup-hook
+  ;;           (lambda ()
+  ;;             (setq file-name-handler-alist file-name-handler-alist-backup)))
 #+END_SRC
 
 ** Variables
@@ -68,47 +62,6 @@ Another optimization from [[https://github.com/hlissner/doom-emacs/blob/develop/
   (cd "~")
   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
  '(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
-#+END_SRC
-
-* Packages
-Load [[https://github.com/raxod502/straight.el][straight.el]] to manage package installation:
-#+BEGIN_SRC emacs-lisp
-  (defvar bootstrap-version)
-  (unless (boundp 'bootstrapping-init)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage)))
-#+END_SRC
-
-`use-package` is a macro that simplifies installing and loading packages.
-#+BEGIN_SRC emacs-lisp
-  (straight-use-package 'use-package)
-  (setq straight-use-package-by-default t)
-#+END_SRC
-
-* Load org mode
-Load org-mode early to [[https://github.com/raxod502/straight.el#the-wrong-version-of-my-package-was-loaded][avoid a version clash]].
-#+BEGIN_SRC emacs-lisp
-  ;(require 'package)
-  ;(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-  (use-package org
-    :init (setq org-startup-indented t)
-    :ensure org-plus-contrib
-    :commands (org-element-map)
-    :mode (("\\.org\\'" . org-mode)))
-
-    ;; Annoying that this is necessary...
-    (require 'org)
-    (require 'org-refile)
-    (require 'org-protocol)
 #+END_SRC
 
 * Customization File

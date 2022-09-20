@@ -1,11 +1,28 @@
-;;;  -*- lexical-binding: t; -*-
+;; Load straight.el to manage package installation:
+(defvar bootstrap-version)
+(unless (boundp 'bootstrapping-init)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage)))
 
-;;(when (not (file-exists-p
-;;            (expand-file-name "~/.emacs.d/chrisp-init.el")))
-(require 'org)
-  (org-babel-tangle-file
-   (expand-file-name "~/.emacs.d/README.org")
-   (expand-file-name "~/.emacs.d/setup.el"))
-;;  )
+;; use-package is a macro that simplifies installing and loading packages.
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
-(load-file (expand-file-name "~/.emacs.d/setup.el"))
+;; Load org-mode early to avoid a version clash.
+(use-package org
+  :init (setq org-startup-indented t)
+  :ensure org-plus-contrib
+  :commands (org-element-map)
+  :mode (("\\.org\\'" . org-mode)))
+
+(org-babel-load-file "~/.emacs.d/README.org")
+
