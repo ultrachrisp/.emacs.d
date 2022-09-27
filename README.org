@@ -9,114 +9,105 @@ Some of the biggest new features are:
 
 ** Variables
 #+BEGIN_SRC emacs-lisp
-  (setq vc-follow-symlinks t
-        frame-resize-pixelwise t
-        tab-always-indent 'complete
-        enable-recursive-minibuffers t
-        read-process-output-max (* 1024 1024)
-        bookmark-save-flag 1)
+(setq vc-follow-symlinks t
+      frame-resize-pixelwise t
+      tab-always-indent 'complete
+      enable-recursive-minibuffers t
+      read-process-output-max (* 1024 1024)
+      bookmark-save-flag 1)
 #+END_SRC
 
 ** WSL support
 A work around for copying & pasting in WSL.
 #+BEGIN_SRC emacs-lisp
-  (defun wsl-copy (start end)
+(defun wsl-copy (start end)
   (interactive "r")
   (shell-command-on-region start end "clip.exe")
   (deactivate-mark))
 
-  ;; wsl-paste
-  (defun wsl-paste ()
-    (interactive)
-    (let ((clipboard
-           (shell-command-to-string "powershell.exe -command 'Get-Clipboard' 2> /dev/null")))
-      (setq clipboard (replace-regexp-in-string "\r" "" clipboard)) ; Remove Windows ^M characters
-      (setq clipboard (substring clipboard 0 -1)) ; Remove newline added by Powershell
-      (insert clipboard)))
+(defun wsl-paste ()
+  (interactive)
+  (let ((clipboard
+         (shell-command-to-string "powershell.exe -command 'Get-Clipboard' 2> /dev/null")))
+    (setq clipboard (replace-regexp-in-string "\r" "" clipboard)) ; Remove Windows ^M characters
+    (setq clipboard (substring clipboard 0 -1)) ; Remove newline added by Powershell
+    (insert clipboard)))
 #+END_SRC
 
 * Default directory & variables
 #+BEGIN_SRC emacs-lisp
-  (cd "~")
-  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-  '(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
-#+END_SRC
-
-* Customization File
-I don't want anything to write to my init.el, so save customizations in a separate file:
-This is no longer needed as the README.el is created and written too.
-#+BEGIN_SRC emacs-lisp
-  ;; (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  ;; (load custom-file t)
+(cd "~")
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+'(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
 #+END_SRC
 
 * Path
 `exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user's shell config. This won't work on Windows.
 #+BEGIN_SRC emacs-lisp
-  (use-package exec-path-from-shell
-    :if (memq window-system '(mac ns x))
-    :config
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-          exec-path-from-shell-check-startup-files nil)
-    (exec-path-from-shell-initialize))
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :config
+  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+        exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-initialize))
 #+END_SRC
 
 * Which-key
 `which-key` makes keybindings discoverable.
 #+BEGIN_SRC emacs-lisp
-  (use-package which-key
-    :config
-    (which-key-mode))
+(use-package which-key
+  :config
+  (which-key-mode))
 #+END_SRC
 
 * Backups and Autosaves
 Store backups and autosaves in a centralized place.
 #+BEGIN_SRC emacs-lisp
-  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
-  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(make-directory (expand-file-name "~/.emacs.d/autosaves") t)
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
 
 * Init File
 A function to reload my init file. It reloads the major mode after the init file is loaded to rebind keymappings.
 #+BEGIN_SRC emacs-lisp
-  (defun reload-init-file ()
-    (interactive)
-    (load-file "~/.emacs.d/README.el")
-    (funcall major-mode))
+(defun reload-init-file ()
+  (interactive)
+  (load-file "~/.emacs.d/README.el")
+  (funcall major-mode))
 #+END_SRC
 
 And another one to edit it:
 #+BEGIN_SRC emacs-lisp
-  (defun find-init-file ()
-    (interactive)
-    (find-file "~/.emacs.d/README.org"))
+(defun find-init-file ()
+  (interactive)
+  (find-file "~/.emacs.d/README.org"))
 #+END_SRC
 
 * Line Numbers
 Toggle line numbers.
 #+BEGIN_SRC emacs-lisp
-  (setq display-line-numbers-type t)
+(setq display-line-numbers-type t)
 #+END_SRC
 
 Toggle line numbering mode (normal or relative).
 #+BEGIN_SRC emacs-lisp
-  (defun toggle-line-number-mode ()
-    (interactive)
-    (when display-line-numbers
-      (if (eq display-line-numbers 'visual)
-          (progn
-            (setq display-line-numbers t)
-            (setq display-line-numbers-type t))
+(defun toggle-line-number-mode ()
+  (interactive)
+  (when display-line-numbers
+    (if (eq display-line-numbers 'visual)
         (progn
-          (setq display-line-numbers 'visual)
-          (setq display-line-numbers-type 'visual)))))
+          (setq display-line-numbers t)
+          (setq display-line-numbers-type t))
+      (progn
+        (setq display-line-numbers 'visual)
+        (setq display-line-numbers-type 'visual)))))
 #+END_SRC
 
 Display line numbers by default in code and org-mode buffers.
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  (add-hook 'org-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
 
 * Ace-window
@@ -140,11 +131,11 @@ Quick way to move between windows.
 * UI
 General UI settings
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (set-scroll-bar-mode nil)
-  (setq inhibit-startup-screen t)
-  (setq default-frame-alist '((font . "Monaco-15")))
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(set-scroll-bar-mode nil)
+(setq inhibit-startup-screen t)
+(setq default-frame-alist '((font . "Monaco-15")))
 #+END_SRC
 
 Standarise the tab size
@@ -171,30 +162,30 @@ Magit is objectively the best Git interface.
 ** org-babel
 Get rid of the confirmation prompt:
 #+BEGIN_SRC emacs-lisp
-  (setq org-confirm-babel-evaluate nil)
+(setq org-confirm-babel-evaluate nil)
 #+END_SRC
 
 ** Todo states
 #+BEGIN_SRC emacs-lisp
-  (setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
-                            (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                            (sequence "|" "CANCELED(c)")))
+(setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                          (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                          (sequence "|" "CANCELED(c)")))
 #+END_SRC
 
 ** Tags
 #+BEGIN_SRC emacs-lisp
-  (setq org-tag-alist '(("@orientation" . ?a)
-                        ("@coding" . ?b)
-                        ("@help" . ?c)
-                        ("@phone" . ?d)
-                        ("@documentation" . ?e)
-                        ("@meeting" . ?f)
-                        ("@email" . ?g)
-                        ("@break" . ?h)
-                        ("@study" . ?i)
-                        ("@slack" . ?j)
-                        ("@chat" . ?k)
-                        ))
+(setq org-tag-alist '(("@orientation" . ?a)
+                      ("@coding" . ?b)
+                      ("@help" . ?c)
+                      ("@phone" . ?d)
+                      ("@documentation" . ?e)
+                      ("@meeting" . ?f)
+                      ("@email" . ?g)
+                      ("@break" . ?h)
+                      ("@study" . ?i)
+                      ("@slack" . ?j)
+                      ("@chat" . ?k)
+                      ))
 #+END_SRC
 
 ** Agenda display
@@ -232,43 +223,43 @@ Get rid of the confirmation prompt:
 * Helm
 #+BEGIN_SRC emacs-lisp
 (use-package helm
-    :config    (setq helm-ff-transformer-show-only-basename nil
-                     helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
-                     helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
-                     helm-yank-symbol-first                 t
-                     helm-buffers-fuzzy-matching            t
-                     helm-ff-auto-update-initial-value      t
-                     helm-input-idle-delay                  0.1
-                     helm-idle-delay                        0.1)
-    :init      (progn
-                 (require 'helm-config)
-                 (helm-mode t)
-                 (use-package helm-projectile
-                     :bind      ("C-c h" . helm-projectile)))
+  :config    (setq helm-ff-transformer-show-only-basename nil
+                   helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
+                   helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
+                   helm-yank-symbol-first                 t
+                   helm-buffers-fuzzy-matching            t
+                   helm-ff-auto-update-initial-value      t
+                   helm-input-idle-delay                  0.1
+                   helm-idle-delay                        0.1)
+  :init      (progn
+               (require 'helm-config)
+               (helm-mode t)
+               (use-package helm-projectile
+                 :bind      ("C-c h" . helm-projectile)))
 
-    :bind (("C-x r l" . helm-bookmarks)
-           ("C-x C-m" . helm-M-x)
-           ("C-h i"   . helm-google-suggest)
-           ("M-y"     . helm-show-kill-ring)
-           ("C-h a"   . helm-apropos)
-           ("C-x C-f" . helm-find-files)
-           ("C-x p"   . helm-top)
-           ("C-x C-b" . helm-buffers-list)))
+  :bind (("C-x r l" . helm-bookmarks)
+         ("C-x C-m" . helm-M-x)
+         ("C-h i"   . helm-google-suggest)
+         ("M-y"     . helm-show-kill-ring)
+         ("C-h a"   . helm-apropos)
+         ("C-x C-f" . helm-find-files)
+         ("C-x p"   . helm-top)
+         ("C-x C-b" . helm-buffers-list)))
 #+END_SRC
 
 * Company
 Company for autocomplete functionality.
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :config
-    (setq company-idle-delay 0.3
-          company-minimum-prefix-length 1
-          company-show-numbers t)
-    :hook
-    (after-init . global-company-mode))
+(use-package company
+  :config
+  (setq company-idle-delay 0.3
+        company-minimum-prefix-length 1
+        company-show-numbers t)
+  :hook
+  (after-init . global-company-mode))
 
-  (use-package company-lsp)
-  (use-package company-tabnine)
+(use-package company-lsp)
+(use-package company-tabnine)
 #+END_SRC
 
 * Flycheck
@@ -293,18 +284,18 @@ Syntax checking.
 * LSP Mode
 Emacs support for the Language Server Protocol.
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :hook
-    ((lsp-mode . lsp-enable-which-key-integration)
-     (before-save . lsp-format-buffer)
-     (before-save . lsp-organize-imports))
-    :commands lsp-mode lsp)
+(use-package lsp-mode
+  :hook
+  ((lsp-mode . lsp-enable-which-key-integration)
+   (before-save . lsp-format-buffer)
+   (before-save . lsp-organize-imports))
+  :commands lsp-mode lsp)
 
-  (use-package lsp-ui
-    :after (lsp-mode))
+(use-package lsp-ui
+  :after (lsp-mode))
 
-  (use-package helm-lsp
-    :commands helm-lsp-workspace-symbol)
+(use-package helm-lsp
+  :commands helm-lsp-workspace-symbol)
 #+END_SRC
 
 * HTML/ CSS/ SCSS/ SASS
@@ -351,10 +342,10 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-json-languag
 
 * YAML
 #+BEGIN_SRC emacs-lisp
-  (straight-use-package 'yaml-mode)
-  (use-package yaml-mode
-    :mode (("\\.yml\\'" . yaml-mode)
-           ("\\.yaml\\'" . yaml-mode)))
+(straight-use-package 'yaml-mode)
+(use-package yaml-mode
+  :mode (("\\.yml\\'" . yaml-mode)
+         ("\\.yaml\\'" . yaml-mode)))
 #+END_SRC
 
 * PHP
