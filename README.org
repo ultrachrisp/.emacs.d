@@ -387,7 +387,7 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
               ("C-c sw" . ispell-word)
               ("C-c sl" . ispell-line)))
 
-(setq ispell-program-name "/usr/local/bin/aspell")
+(setq ispell-program-name "/usr/bin/aspell")
 #+END_SRC
 
 * Writegood
