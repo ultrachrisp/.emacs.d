@@ -156,6 +156,13 @@ Standarise the tab size
 #+END_SRC
 
 ** Org Mode
+
+*** Disable cache
+It was causing some issues, turning off the cache for now
+#+BEGIN_SRC emacs-lisp
+(setq org-element-use-cache nil)
+#+END_SRC
+
 *** org-babel
 Get rid of the confirmation prompt:
 #+BEGIN_SRC emacs-lisp
