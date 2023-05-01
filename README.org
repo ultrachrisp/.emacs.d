@@ -1,4 +1,5 @@
 #+TITLE: My Emacs Setup
+#+OPTIONS: num:nil
 
 Some of the biggest new features are:
 - Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
