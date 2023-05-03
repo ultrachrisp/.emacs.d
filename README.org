@@ -87,8 +87,8 @@ And another one to edit it:
 
 *** Encryption
 #+BEGIN_SRC emacs-lisp
-  (setq epg-gpg-program "gpg2")
-  (setf epg-pinentry-mode 'loopback)
+  (require 'epg)
+  (setq epg-pinentry-mode 'loopback)
 #+END_SRC
 
 ** Look & Feel
