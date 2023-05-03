@@ -86,6 +86,7 @@ And another one to edit it:
 #+END_SRC
 
 *** Encryption
+Got this to work with GnuPG@2.2.41, but encryption/ pinentry fails on GnuPG@4.1
 #+BEGIN_SRC emacs-lisp
   (require 'epg)
   (setq epg-pinentry-mode 'loopback)
