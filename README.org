@@ -156,7 +156,6 @@ Standarise the tab size
 #+END_SRC
 
 ** Org Mode
-
 *** Disable cache
 It was causing some issues, turning off the cache for now
 #+BEGIN_SRC emacs-lisp
