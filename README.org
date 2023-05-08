@@ -286,6 +286,18 @@ Syntax checking.
   (global-flycheck-mode))
 #+END_SRC
 
+*** Neotree
+Taken from https://hiepph.github.io/post/2018-11-07-use-package/
+#+BEGIN_SRC emacs-lisp
+(use-package neotree
+  :ensure t
+  :bind ("<f8>" . 'neotree-toggle)
+  :init (setq inhibit-compacting-font-caches t)
+  (setq neo-smart-open t)
+  (setq projectile-switch-project-action 'neotree-projectile-action)
+  (setq-default neo-show-hidden-files t))
+#+END_SRC
+
 *** Aggressive indentation
 For lisps
 #+BEGIN_SRC emacs-lisp
