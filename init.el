@@ -17,8 +17,6 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
-(setenv "GPG_AGENT_INFO" nil)
-
 ;; Load org-mode early to avoid a version clash.
 (use-package org
   :init (setq org-startup-indented t)
