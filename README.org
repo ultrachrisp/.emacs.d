@@ -286,16 +286,38 @@ Syntax checking.
   (global-flycheck-mode))
 #+END_SRC
 
-*** Neotree
-Taken from https://hiepph.github.io/post/2018-11-07-use-package/
+*** Treemacs
 #+BEGIN_SRC emacs-lisp
-(use-package neotree
-  :ensure t
-  :bind ("<f8>" . 'neotree-toggle)
-  :init (setq inhibit-compacting-font-caches t)
-  (setq neo-smart-open t)
-  (setq projectile-switch-project-action 'neotree-projectile-action)
-  (setq-default neo-show-hidden-files t))
+    (use-package treemacs
+      :ensure t
+      :defer t
+      :init  (with-eval-after-load 'winum
+        (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+      :config
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode 'always)
+      :bind
+      (:map global-map
+            ("M-0"       . treemacs-select-window)
+            ("C-x t 1"   . treemacs-delete-other-windows)
+            ("C-x t t"   . treemacs)
+            ("C-x t d"   . treemacs-select-directory)
+            ("C-x t B"   . treemacs-bookmark)
+            ("C-x t C-t" . treemacs-find-file)
+            ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-projectile
+    :after (treemacs projectile)
+    :ensure t)
+
+  (use-package treemacs-icons-dired
+    :hook (dired-mode . treemacs-icons-dired-enable-once)
+    :ensure t)
+
+  (use-package treemacs-magit
+    :after (treemacs magit)
+    :ensure t)
 #+END_SRC
 
 *** Aggressive indentation
