@@ -92,6 +92,15 @@ Got this to work with GnuPG@2.2.41, but encryption/ pinentry fails on GnuPG@4.1
 (setq epg-pinentry-mode 'loopback)
 #+END_SRC
 
+*** Deafault key-bindings
+set keys for Apple keyboard, for emacs in OS X
+#+BEGIN_SRC emacs-lisp
+(setq mac-command-modifier 'meta) ; make cmd key do Meta
+(setq mac-option-modifier 'super) ; make opt key do Super
+(setq mac-control-modifier 'control) ; make Control key do Control
+(setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
+#+END_SRC
+
 ** Look & Feel
 *** Line Numbers
 Toggle line numbers.
