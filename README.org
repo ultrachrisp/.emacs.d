@@ -16,6 +16,8 @@ Some of the biggest new features are:
       enable-recursive-minibuffers t
       read-process-output-max (* 1024 1024)
       bookmark-save-flag 1)
+
+(add-to-list 'image-types 'svg)
 #+END_SRC
 
 *** WSL support
