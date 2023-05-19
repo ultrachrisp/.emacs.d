@@ -256,7 +256,6 @@ Magit is objectively the best Git interface.
                    helm-input-idle-delay                  0.1
                    helm-idle-delay                        0.1)
   :init      (progn
-               (require 'helm-config)
                (helm-mode t)
                (use-package helm-projectile
                  :bind      ("C-c h" . helm-projectile)))
