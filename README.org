@@ -437,16 +437,17 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
-(use-package ispell
-  :init      (defun ispell-line()
-               (interactive)
-               (ispell-region (line-beginning-position) (line-end-position)))
-  :bind      (("C-c sr" . ispell-region)
-              ("C-c sb" . ispell-buffer)
-              ("C-c sw" . ispell-word)
-              ("C-c sl" . ispell-line)))
+  (use-package ispell
+    :init      (defun ispell-line()
+                 (interactive)
+                 (ispell-region (line-beginning-position) (line-end-position)))
+    :bind      (("C-c sr" . ispell-region)
+                ("C-c sb" . ispell-buffer)
+                ("C-c sw" . ispell-word)
+                ("C-c sl" . ispell-line)))
 
-(setq ispell-program-name "/usr/local/bin/aspell")
+  ;; (setq ispell-program-name "/usr/local/bin/aspell")
+  (setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Writegood
