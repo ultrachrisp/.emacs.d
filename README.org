@@ -229,45 +229,49 @@ Magit is objectively the best Git interface.
 
 *** Projectile
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :commands (projectile-find-file
-             projectile-grep
-             projectile-switch-project
-             projectile-project-root)
-  :config
-  (projectile-mode))
+  (use-package projectile
+    :commands (projectile-find-file
+               projectile-grep
+               projectile-switch-project
+               projectile-project-root)
+    :config
+    (projectile-mode))
 
-(defmacro with-projectile-root (&rest body)
-  `(with-temp-buffer
-     (when (projectile-project-root)
-       (cd (projectile-project-root)))
-     ,@body))
+  (use-package helm-projectile
+                   :bind      ("C-c h" . helm-projectile))
+
+  (defmacro with-projectile-root (&rest body)
+    `(with-temp-buffer
+       (when (projectile-project-root)
+         (cd (projectile-project-root)))
+       ,@body))
 #+END_SRC
 
 *** Helm
 #+BEGIN_SRC emacs-lisp
-(use-package helm
-  :config    (setq helm-ff-transformer-show-only-basename nil
-                   helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
-                   helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
-                   helm-yank-symbol-first                 t
-                   helm-buffers-fuzzy-matching            t
-                   helm-ff-auto-update-initial-value      t
-                   helm-input-idle-delay                  0.1
-                   helm-idle-delay                        0.1)
-  :init      (progn
-               (helm-mode t)
-               (use-package helm-projectile
-                 :bind      ("C-c h" . helm-projectile)))
+    (use-package helm
+      :ensure t
+      :config    
+                  (setq helm-ff-transformer-show-only-basename nil
+                       helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
+                       helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
+                       helm-yank-symbol-first                 t
+                       helm-buffers-fuzzy-matching            t
+                       helm-ff-auto-update-initial-value      t
+                       helm-input-idle-delay                  0.1
+                       helm-idle-delay                        0.1)
 
-  :bind (("C-x r l" . helm-bookmarks)
-         ("C-x C-m" . helm-M-x)
-         ("C-h i"   . helm-google-suggest)
-         ("M-y"     . helm-show-kill-ring)
-         ("C-h a"   . helm-apropos)
-         ("C-x C-f" . helm-find-files)
-         ("C-x p"   . helm-top)
-         ("C-x C-b" . helm-buffers-list)))
+                   
+
+
+      :bind (("C-x r l" . helm-bookmarks)
+             ("C-x C-m" . helm-M-x)
+             ("C-h i"   . helm-google-suggest)
+             ("M-y"     . helm-show-kill-ring)
+             ("C-h a"   . helm-apropos)
+             ("C-x C-f" . helm-find-files)
+             ("C-x p"   . helm-top)
+             ("C-x C-b" . helm-buffers-list)))
 #+END_SRC
 
 *** Company
@@ -441,16 +445,17 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
-(use-package ispell
-  :init      (defun ispell-line()
-               (interactive)
-               (ispell-region (line-beginning-position) (line-end-position)))
-  :bind      (("C-c sr" . ispell-region)
-              ("C-c sb" . ispell-buffer)
-              ("C-c sw" . ispell-word)
-              ("C-c sl" . ispell-line)))
+  (use-package ispell
+    :init      (defun ispell-line()
+                 (interactive)
+                 (ispell-region (line-beginning-position) (line-end-position)))
+    :bind      (("C-c sr" . ispell-region)
+                ("C-c sb" . ispell-buffer)
+                ("C-c sw" . ispell-word)
+                ("C-c sl" . ispell-line)))
 
-(setq ispell-program-name "/usr/local/bin/aspell")
+  ;; (setq ispell-program-name "/usr/local/bin/aspell")
+  (setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Writegood
