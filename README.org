@@ -64,9 +64,10 @@ A work around for copying & pasting in WSL.
 *** Backups and Autosaves
 Store backups and autosaves in a centralised place.
 #+BEGIN_SRC emacs-lisp
-(make-directory (expand-file-name "~/.emacs.d/autosaves") t)
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
+  (setq auto-save-default nil)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
 
 *** Init File
