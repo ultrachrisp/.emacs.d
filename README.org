@@ -262,17 +262,20 @@ Magit is objectively the best Git interface.
 *** Company
 Company for autocomplete functionality.
 #+BEGIN_SRC emacs-lisp
-(use-package company
-  :config
-  (setq company-idle-delay 0.3
-        company-minimum-prefix-length 1
-        company-show-numbers t)
-  :hook
-  (after-init . global-company-mode))
+  (use-package company
+    :config
+    (setq company-idle-delay 0.3
+          company-minimum-prefix-length 1
+          company-show-numbers t)
+    :hook
+    (after-init . global-company-mode))
 
-(use-package company-lsp)
-(use-package company-tabnine)
+  (use-package company-lsp)
+  (use-package company-tabnine :ensure t)
+  (add-to-list 'company-backends #'company-tabnine)
 #+END_SRC
+
+
 
 *** Flycheck
 Syntax checking.
@@ -400,7 +403,8 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
               ("C-c sw" . ispell-word)
               ("C-c sl" . ispell-line)))
 
-(setq ispell-program-name "/usr/local/bin/aspell")
+;; (setq ispell-program-name "/usr/local/bin/aspell")
+(setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Writegood
