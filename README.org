@@ -281,16 +281,45 @@ Magit is objectively the best Git interface.
 *** Company
 Company for autocomplete functionality.
 #+BEGIN_SRC emacs-lisp
-(use-package company
-  :config
-  (setq company-idle-delay 0.3
-        company-minimum-prefix-length 1
-        company-show-numbers t)
-  :hook
-  (after-init . global-company-mode))
+  (use-package company
+    :config
+    (setq company-idle-delay 0.3
+          company-minimum-prefix-length 1
+          company-show-numbers t)
+    :hook
+    (after-init . global-company-mode))
 
-(use-package company-box
-  :hook (company-mode . company-box-mode))
+  (use-package company-lsp)
+  ;; (use-package company-tabnine :ensure t)
+  ;; (setq company-backends '(company-tabnine))
+  ;; (add-to-list 'company-backends 'company-tabnine)
+
+#+END_SRC
+
+*** Tabnine
+Trying something more from https://github.com/shuxiao9058/tabnine
+#+BEGIN_SRC emacs-lisp
+(use-package tabnine
+  :commands (tabnine-start-process)
+  :hook (prog-mode . tabnine-mode)
+  :straight t
+  :diminish "⌬"
+  :custom
+  (tabnine-wait 1)
+  (tabnine-minimum-prefix-length 0)
+  :hook (kill-emacs . tabnine-kill-process)
+  :config
+  (add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
+  (tabnine-start-process)
+  :bind
+  (:map  tabnine-completion-map
+	 ("<tab>" . tabnine-accept-completion)
+	 ("TAB" . tabnine-accept-completion)
+	 ("M-f" . tabnine-accept-completion-by-word)
+	 ("M-<return>" . tabnine-accept-completion-by-line)
+	 ("C-g" . tabnine-clear-overlay)
+	 ("M-[" . tabnine-previous-completion)
+	 ("M-]" . tabnine-next-completion)))
 #+END_SRC
 
 *** Flycheck
@@ -459,6 +488,7 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
               ("C-c sl" . ispell-line)))
 
 (setq ispell-program-name "/usr/bin/aspell")
+;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Writegood
