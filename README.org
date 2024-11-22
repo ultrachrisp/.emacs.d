@@ -20,24 +20,6 @@ Some of the biggest new features are:
 (add-to-list 'image-types 'svg)
 #+END_SRC
 
-*** WSL support
-A work around for copying & pasting in WSL.
-#+BEGIN_SRC emacs-lisp
-(defun wsl-copy (start end)
-  (interactive "r")
-  (shell-command-on-region start end "clip.exe")
-  (deactivate-mark))
-
-(defun wsl-paste ()
-  (interactive)
-  (let ((clipboard
-         (shell-command-to-string "powershell.exe -command 'Get-Clipboard' 2> /dev/null")))
-    (setq clipboard (replace-regexp-in-string "\r" "" clipboard)) ; Remove Windows ^M characters
-    (setq clipboard (substring clipboard 0 -1)) ; Remove newline added by Powershell
-    (insert clipboard)))
-#+END_SRC^
-
-
 *** Path
 `exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user's shell config. This won't work on Windows.
 #+BEGIN_SRC emacs-lisp
@@ -242,13 +224,7 @@ Magit is objectively the best Git interface.
     (projectile-mode))
 
   (use-package helm-projectile
-                   :bind      ("C-c h" . helm-projectile))
-
-  (defmacro with-projectile-root (&rest body)
-    `(with-temp-buffer
-       (when (projectile-project-root)
-         (cd (projectile-project-root)))
-       ,@body))
+    :bind      ("C-c h" . helm-projectile))
 #+END_SRC
 
 *** Helm
@@ -299,27 +275,27 @@ Company for autocomplete functionality.
 *** Tabnine
 Trying something more from https://github.com/shuxiao9058/tabnine
 #+BEGIN_SRC emacs-lisp
-(use-package tabnine
-  :commands (tabnine-start-process)
-  :hook (prog-mode . tabnine-mode)
-  :straight t
-  :diminish "⌬"
-  :custom
-  (tabnine-wait 1)
-  (tabnine-minimum-prefix-length 0)
-  :hook (kill-emacs . tabnine-kill-process)
-  :config
-  (add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
-  (tabnine-start-process)
-  :bind
-  (:map  tabnine-completion-map
-	 ("<tab>" . tabnine-accept-completion)
-	 ("TAB" . tabnine-accept-completion)
-	 ("M-f" . tabnine-accept-completion-by-word)
-	 ("M-<return>" . tabnine-accept-completion-by-line)
-	 ("C-g" . tabnine-clear-overlay)
-	 ("M-[" . tabnine-previous-completion)
-	 ("M-]" . tabnine-next-completion)))
+  ;; (use-package tabnine
+  ;;   :commands (tabnine-start-process)
+  ;;   :hook (prog-mode . tabnine-mode)
+  ;;   :straight t
+  ;;   :diminish "⌬"
+  ;;   :custom
+  ;;   (tabnine-wait 1)
+  ;;   (tabnine-minimum-prefix-length 0)
+  ;;   :hook (kill-emacs . tabnine-kill-process)
+  ;;   :config
+  ;;   (add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
+  ;;   (tabnine-start-process)
+  ;;   :bind
+  ;;   (:map  tabnine-completion-map
+  ;; 	 ("<tab>" . tabnine-accept-completion)
+  ;; 	 ("TAB" . tabnine-accept-completion)
+  ;; 	 ("M-f" . tabnine-accept-completion-by-word)
+  ;; 	 ("M-<return>" . tabnine-accept-completion-by-line)
+  ;; 	 ("C-g" . tabnine-clear-overlay)
+  ;; 	 ("M-[" . tabnine-previous-completion)
+  ;; 	 ("M-]" . tabnine-next-completion)))
 #+END_SRC
 
 *** Flycheck
@@ -388,14 +364,6 @@ Emacs support for the Language Server Protocol.
 
 (use-package helm-lsp
   :commands helm-lsp-workspace-symbol)
-#+END_SRC
-
-*** Github copilot
-#+BEGIN_SRC emacs-lisp
-(use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-  :ensure t
-  :bind ("C-c j" . copilot-accept-completion))
 #+END_SRC
 
 *** Emment
@@ -488,7 +456,6 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
               ("C-c sl" . ispell-line)))
 
 (setq ispell-program-name "/usr/bin/aspell")
-;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Writegood
