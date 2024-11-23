@@ -229,73 +229,48 @@ Magit is objectively the best Git interface.
 
 *** Helm
 #+BEGIN_SRC emacs-lisp
-    (use-package helm
-      :ensure t
-      :config    
-                  (setq helm-ff-transformer-show-only-basename nil
-                       helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
-                       helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
-                       helm-yank-symbol-first                 t
-                       helm-buffers-fuzzy-matching            t
-                       helm-ff-auto-update-initial-value      t
-                       helm-input-idle-delay                  0.1
-                       helm-idle-delay                        0.1)
+(use-package helm
+  :ensure t
+  :config    
+  (setq helm-ff-transformer-show-only-basename nil
+        helm-adaptative-history-file           "~/.emacs.d/data/helm-adaptative-history-file"
+        helm-boring-file-regexp-list           '("\\.git$" "\\.svn$" "\\.elc$")
+        helm-yank-symbol-first                 t
+        helm-buffers-fuzzy-matching            t
+        helm-ff-auto-update-initial-value      t
+        helm-input-idle-delay                  0.1
+        helm-idle-delay                        0.1)
 
-                   
+  
 
 
-      :bind (("C-x r l" . helm-bookmarks)
-             ("C-x C-m" . helm-M-x)
-             ("C-h i"   . helm-google-suggest)
-             ("M-y"     . helm-show-kill-ring)
-             ("C-h a"   . helm-apropos)
-             ("C-x C-f" . helm-find-files)
-             ("C-x p"   . helm-top)
-             ("C-x C-b" . helm-buffers-list)))
+  :bind (("C-x r l" . helm-bookmarks)
+         ("C-x C-m" . helm-M-x)
+         ("C-h i"   . helm-google-suggest)
+         ("M-y"     . helm-show-kill-ring)
+         ("C-h a"   . helm-apropos)
+         ("C-x C-f" . helm-find-files)
+         ("C-x p"   . helm-top)
+         ("C-x C-b" . helm-buffers-list)))
 #+END_SRC
 
 *** Company
 Company for autocomplete functionality.
 #+BEGIN_SRC emacs-lisp
   (use-package company
+    :defer 0.1    
     :config
-    (setq company-idle-delay 0.3
-          company-minimum-prefix-length 1
-          company-show-numbers t)
-    :hook
-    (after-init . global-company-mode))
+    (global-company-mode t)
+    (setq-default company-idle-delay 0.05
+                  company-require-match nil
+                  company-minimum-prefix-length 0
+                  company-show-numbers t
 
-  (use-package company-lsp)
-  ;; (use-package company-tabnine :ensure t)
-  ;; (setq company-backends '(company-tabnine))
-  ;; (add-to-list 'company-backends 'company-tabnine)
-
-#+END_SRC
-
-*** Tabnine
-Trying something more from https://github.com/shuxiao9058/tabnine
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package tabnine
-  ;;   :commands (tabnine-start-process)
-  ;;   :hook (prog-mode . tabnine-mode)
-  ;;   :straight t
-  ;;   :diminish "⌬"
-  ;;   :custom
-  ;;   (tabnine-wait 1)
-  ;;   (tabnine-minimum-prefix-length 0)
-  ;;   :hook (kill-emacs . tabnine-kill-process)
-  ;;   :config
-  ;;   (add-to-list 'completion-at-point-functions #'tabnine-completion-at-point)
-  ;;   (tabnine-start-process)
-  ;;   :bind
-  ;;   (:map  tabnine-completion-map
-  ;; 	 ("<tab>" . tabnine-accept-completion)
-  ;; 	 ("TAB" . tabnine-accept-completion)
-  ;; 	 ("M-f" . tabnine-accept-completion-by-word)
-  ;; 	 ("M-<return>" . tabnine-accept-completion-by-line)
-  ;; 	 ("C-g" . tabnine-clear-overlay)
-  ;; 	 ("M-[" . tabnine-previous-completion)
-  ;; 	 ("M-]" . tabnine-next-completion)))
+                  ;; get only preview
+                  company-frontends '(company-preview-frontend)
+                  ;; also get a drop down
+                  company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
+                  ))
 #+END_SRC
 
 *** Flycheck
@@ -309,36 +284,36 @@ Syntax checking.
 
 *** Treemacs
 #+BEGIN_SRC emacs-lisp
-    (use-package treemacs
-      :ensure t
-      :defer t
-      :init  (with-eval-after-load 'winum
-        (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-      :config
-      (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t)
-      (treemacs-fringe-indicator-mode 'always)
-      :bind
-      (:map global-map
-            ("M-0"       . treemacs-select-window)
-            ("C-x t 1"   . treemacs-delete-other-windows)
-            ("C-x t t"   . treemacs)
-            ("C-x t d"   . treemacs-select-directory)
-            ("C-x t B"   . treemacs-bookmark)
-            ("C-x t C-t" . treemacs-find-file)
-            ("C-x t M-t" . treemacs-find-tag)))
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init  (with-eval-after-load 'winum
+           (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode 'always)
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t d"   . treemacs-select-directory)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
 
-  (use-package treemacs-projectile
-    :after (treemacs projectile)
-    :ensure t)
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
 
-  (use-package treemacs-icons-dired
-    :hook (dired-mode . treemacs-icons-dired-enable-once)
-    :ensure t)
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
 
-  (use-package treemacs-magit
-    :after (treemacs magit)
-    :ensure t)
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
 #+END_SRC
 
 *** Aggressive indentation
@@ -366,11 +341,6 @@ Emacs support for the Language Server Protocol.
   :commands helm-lsp-workspace-symbol)
 #+END_SRC
 
-*** Emment
-#+BEGIN_SRC emacs-lisp
-(use-package emmet-mode)
-#+END_SRC
-
 *** HTML/ CSS/ SCSS/ SASS
 LSP support for css requires [[https://github.com/vscode-langservers/vscode-html-languageserver][vscode-html-languageserver]].
 #+BEGIN_SRC emacs-lisp
@@ -385,6 +355,12 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
            (web-mode-markup-indent-offset indent-size))
   :hook ((web-mode . emmet-mode)
          (web-mode . lsp-deferred)))
+#+END_SRC
+
+*** Emment
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode
+  :hook (emmet-mode . lsp-deferred))
 #+END_SRC
 
 *** Typescript / Javascript

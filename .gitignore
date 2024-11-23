@@ -4,13 +4,15 @@ auto-save-list/
 autosaves/
 backups/
 elpa/
+eln-cache/  
 eshell/
+lsp-cache/  
 straight/
 transient/
-lsp-cache/
 
 .cache
 .lsp-session-v1
-README.el
 projectile.cache
 projectile-bookmarks.eld
+README.el  
+tramp
