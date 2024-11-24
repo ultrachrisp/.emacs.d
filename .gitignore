@@ -14,5 +14,4 @@ transient/
 .lsp-session-v1
 projectile.cache
 projectile-bookmarks.eld
-README.el  
 tramp

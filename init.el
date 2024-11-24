@@ -24,7 +24,7 @@
   :commands (org-element-map)
   :mode (("\\.org\\'" . org-mode)))
 
-(org-babel-load-file "~/.emacs.d/README.org")
+;; (org-babel-load-file "~/.emacs.d/README.org")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
