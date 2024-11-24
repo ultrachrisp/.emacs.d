@@ -19,15 +19,12 @@
 (setq straight-use-package-by-default t)
 
 ;; Load org-mode early to avoid a version clash.
-;; (use-package org
-;;   :init (setq org-startup-indented t)
-;;   :ensure org-plus-contrib
-;;   :commands (org-element-map)
-;;   :mode (("\\.org\\'" . org-mode)))
+(use-package org
+  :init (setq org-startup-indented t)
+  :ensure org-plus-contrib
+  :commands (org-element-map)
+  :mode (("\\.org\\'" . org-mode)))
 
-;; (org-babel-load-file "~/.emacs.d/README.org")
-
-(require 'org)
 (require 'ob-tangle)
 (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
 
