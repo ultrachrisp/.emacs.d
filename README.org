@@ -261,7 +261,7 @@ Company for autocomplete functionality.
     :defer 0.1    
     :config
     (global-company-mode t)
-    (setq-default company-idle-delay 0.05
+    (setq-default company-idle-delay 0.5
                   company-require-match nil
                   company-minimum-prefix-length 0
                   company-show-numbers t
