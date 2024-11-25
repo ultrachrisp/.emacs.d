@@ -49,10 +49,10 @@ Some of the biggest new features are:
 *** Backups and Autosaves
 Store backups and autosaves in a centralised place.
 #+BEGIN_SRC emacs-lisp
-  (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
-  (setq auto-save-default nil)
-  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(make-directory (expand-file-name "~/.emacs.d/autosaves") t)
+(setq auto-save-default nil)
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 #+END_SRC
 
 *** Init File
@@ -125,7 +125,6 @@ Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :config
-
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (load-theme 'doom-city-lights t)
@@ -215,16 +214,16 @@ Magit is objectively the best Git interface.
 
 *** Projectile
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :commands (projectile-find-file
-               projectile-grep
-               projectile-switch-project
-               projectile-project-root)
-    :config
-    (projectile-mode))
+(use-package projectile
+  :commands (projectile-find-file
+             projectile-grep
+             projectile-switch-project
+             projectile-project-root)
+  :config
+  (projectile-mode))
 
-  (use-package helm-projectile
-    :bind      ("C-c h" . helm-projectile))
+(use-package helm-projectile
+  :bind      ("C-c h" . helm-projectile))
 #+END_SRC
 
 *** Helm
@@ -257,17 +256,17 @@ Magit is objectively the best Git interface.
 *** Company
 Company for autocomplete functionality.
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :defer 0.1    
-    :config
-    (global-company-mode t)
-    (setq-default company-idle-delay 0.5
-                  company-require-match nil
-                  company-minimum-prefix-length 0
-                  company-show-numbers t
+(use-package company
+  :defer 0.1
+  :config
+  (global-company-mode t)
+  (setq-default company-idle-delay 0.5
+                company-require-match nil
+                company-minimum-prefix-length 0
+                company-show-numbers t
 
-                  company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
-                  ))
+                company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
+                ))
 #+END_SRC
 
 *** Flycheck
@@ -429,6 +428,7 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
               ("C-c sl" . ispell-line)))
 
 (setq ispell-program-name "/usr/bin/aspell")
+;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Writegood
