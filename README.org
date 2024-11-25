@@ -266,9 +266,6 @@ Company for autocomplete functionality.
                   company-minimum-prefix-length 0
                   company-show-numbers t
 
-                  ;; get only preview
-                  company-frontends '(company-preview-frontend)
-                  ;; also get a drop down
                   company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
                   ))
 #+END_SRC
