@@ -1,15 +1,3 @@
-#+TITLE: My Emacs Setup
-#+OPTIONS: num:nil
-
-Some of the biggest new features are:
-- Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
-- Use of [[https://github.com/raxod502/straight.el][straight.el]] for package management. This has been moved to init.el for early package loading.
-- Loading org-mode in the init.el, to prevent version conflicts
-
-* Setup
-** General
-*** Variables
-#+BEGIN_SRC emacs-lisp
 (setq vc-follow-symlinks t
       frame-resize-pixelwise t
       tab-always-indent 'complete
@@ -18,84 +6,46 @@ Some of the biggest new features are:
       bookmark-save-flag 1)
 
 (add-to-list 'image-types 'svg)
-#+END_SRC
 
-*** Path
-`exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user's shell config. This won't work on Windows.
-#+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns x))
   :config
   (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
         exec-path-from-shell-check-startup-files nil)
   (exec-path-from-shell-initialize))
-#+END_SRC
 
-*** Default directory & variables
-#+BEGIN_SRC emacs-lisp
 (cd "~")
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 '(safe-local-variable-values '((eval add-hook 'after-save-hook 'org-babel-tangle 0 t)))
-#+END_SRC
 
-*** Which-key
-`which-key` makes keybindings discoverable.
-#+BEGIN_SRC emacs-lisp
 (use-package which-key
   :config
   (which-key-mode))
-#+END_SRC
 
-*** Backups and Autosaves
-Store backups and autosaves in a centralised place.
-#+BEGIN_SRC emacs-lisp
 (make-directory (expand-file-name "~/.emacs.d/autosaves") t)
 (setq auto-save-default nil)
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t)))
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-#+END_SRC
 
-*** Init File
-A function to reload my init file. It reloads the major mode after the init file is loaded to rebind keymappings.
-#+BEGIN_SRC emacs-lisp
 (defun reload-init-file ()
   (interactive)
   (load-file "~/.emacs.d/README.el")
   (funcall major-mode))
-#+END_SRC
 
-And another one to edit it:
-#+BEGIN_SRC emacs-lisp
 (defun find-init-file ()
   (interactive)
   (find-file "~/.emacs.d/README.org"))
-#+END_SRC
 
-*** Encryption
-Got this to work with GnuPG@2.2.41, but encryption/ pinentry fails on GnuPG@4.1
-#+BEGIN_SRC emacs-lisp
 (require 'epg)
 (setq epg-pinentry-mode 'loopback)
-#+END_SRC
 
-*** Deafault key-bindings
-set keys for Apple keyboard, for emacs in OS X
-#+BEGIN_SRC emacs-lisp
 (setq mac-command-modifier 'meta) ; make cmd key do Meta
 (setq mac-option-modifier 'super) ; make opt key do Super
 (setq mac-control-modifier 'control) ; make Control key do Control
 (setq ns-function-modifier 'hyper)  ; make Fn key do Hyper
-#+END_SRC
 
-** Look & Feel
-*** Line Numbers
-Toggle line numbers.
-#+BEGIN_SRC emacs-lisp
 (setq display-line-numbers-type t)
-#+END_SRC
 
-Toggle line numbering mode (normal or relative).
-#+BEGIN_SRC emacs-lisp
 (defun toggle-line-number-mode ()
   (interactive)
   (when display-line-numbers
@@ -106,71 +56,39 @@ Toggle line numbering mode (normal or relative).
       (progn
         (setq display-line-numbers 'visual)
         (setq display-line-numbers-type 'visual)))))
-#+END_SRC
 
-Display line numbers by default in code and org-mode buffers.
-#+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'org-mode-hook #'display-line-numbers-mode)
-#+END_SRC
 
-*** Ace-window
-Quick way to move between windows.
-#+BEGIN_SRC emacs-lisp
 (use-package ace-window
   :bind      ("C-x o" . ace-window))
-#+END_SRC
 
-*** Doom themes
-#+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (load-theme 'doom-city-lights t)
   (doom-themes-org-config))
-#+END_SRC
 
-*** UI
-General UI settings
-#+BEGIN_SRC emacs-lisp
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (set-scroll-bar-mode nil)
 (setq inhibit-startup-screen t)
 (setq default-frame-alist '((font . "Monaco-15")))
-#+END_SRC
 
-Standarise the tab size
-#+BEGIN_SRC emacs-lisp
 (defconst indent-size 2)
 (setq-default tab-width indent-size)
 (setq-default indent-tabs-mode nil)
 (setq-default indent-line-function 'insert-tab)
-#+END_SRC
 
-** Org Mode
-*** Disable cache
-It was causing some issues, turning off the cache for now
-#+BEGIN_SRC emacs-lisp
 (setq org-element-use-cache nil)
-#+END_SRC
 
-*** org-babel
-Get rid of the confirmation prompt:
-#+BEGIN_SRC emacs-lisp
 (setq org-confirm-babel-evaluate nil)
-#+END_SRC
 
-*** Todo states
-#+BEGIN_SRC emacs-lisp
 (setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
                           (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
                           (sequence "|" "CANCELED(c)")))
-#+END_SRC
 
-*** Tags
-#+BEGIN_SRC emacs-lisp
 (setq org-tag-alist '(("@orientation" . ?a)
                       ("@coding" . ?b)
                       ("@help" . ?c)
@@ -183,37 +101,20 @@ Get rid of the confirmation prompt:
                       ("@slack" . ?j)
                       ("@chat" . ?k)
                       ))
-#+END_SRC
 
-*** Agenda display
-#+BEGIN_SRC emacs-lisp
 (setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
-#+END_SRC
 
-*** Time estimates
-#+BEGIN_SRC emacs-lisp
 (setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
-#+END_SRC
 
-*** Time format
-#+BEGIN_SRC emacs-lisp
 (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
-#+END_SRC
 
-** Productivity
-*** Magit
-Magit is objectively the best Git interface.
-#+BEGIN_SRC emacs-lisp
 (use-package magit
   :bind ("C-x g" . magit-status)
   :commands (magit-status
              magit-blame
              magit-find-file
              magit-name-local-branch))
-#+END_SRC
 
-*** Helm
-#+BEGIN_SRC emacs-lisp
 (use-package helm
   :ensure t
   :config    
@@ -234,10 +135,7 @@ Magit is objectively the best Git interface.
          ("C-x C-f" . helm-find-files)
          ("C-x p"   . helm-top)
          ("C-x C-b" . helm-buffers-list)))
-#+END_SRC
 
-*** Projectile
-#+BEGIN_SRC emacs-lisp
 (use-package projectile
   :commands (projectile-find-file
              projectile-grep
@@ -248,11 +146,7 @@ Magit is objectively the best Git interface.
 
 (use-package helm-projectile
   :bind      ("C-c h" . helm-projectile))
-#+END_SRC
 
-*** Company
-Company for autocomplete functionality.
-#+BEGIN_SRC emacs-lisp
 (use-package company
   :defer 0.1
   :config
@@ -264,20 +158,12 @@ Company for autocomplete functionality.
 
                 company-frontends '(company-pseudo-tooltip-frontend company-preview-frontend)
                 ))
-#+END_SRC
 
-*** Flycheck
-Syntax checking.
-#+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :config
   (setq-default flycheck-disabled-checkers '(emacs-lisp emacs-lisp-checkdoc))
   (global-flycheck-mode))
-#+END_SRC
 
-*** Treemacs
-This is a pretty handy project, [[https://github.com/Alexander-Miller/treemacs][github repo here]].
-#+BEGIN_SRC emacs-lisp
 (use-package treemacs
   :ensure t
   :defer t
@@ -308,38 +194,25 @@ This is a pretty handy project, [[https://github.com/Alexander-Miller/treemacs][
 (use-package treemacs-magit
   :after (treemacs magit)
   :ensure t)
-#+END_SRC
 
-*** Aggressive indentation
-To keep the lisps in check.
-#+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent
   :hook ((clojure-mode . aggressive-indent-mode)
          (emacs-lisp-mode . aggressive-indent-mode)
          (lisp-mode . aggressive-indent-mode)
          (scheme-mode . aggressive-indent-mode)))
-#+END_SRC
 
-** Development
-*** LSP
-Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/][Language Server Protocol]].
-#+begin_SRC emacs-lisp
-  (use-package lsp-mode
-    :init
-    (setq lsp-keymap-prefix "C-c l")
-    :hook
-    ((lsp-mode . lsp-enable-which-key-integration)
-     (before-save . lsp-format-buffer)
-     (before-save . lsp-organize-imports))
-    :commands lsp-mode lsp)
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :hook
+  ((lsp-mode . lsp-enable-which-key-integration)
+   (before-save . lsp-format-buffer)
+   (before-save . lsp-organize-imports))
+  :commands lsp-mode lsp)
 
-  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-#+END_SRC
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
-*** HTML/ CSS/ SCSS/ SASS
-LSP support for css requires [[https://github.com/vscode-langservers/vscode-html-languageserver][vscode-html-languageserver]].
-#+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :mode (("\\.html\\'" . web-mode)
          ("\\.htm\\'" . web-mode)
@@ -351,16 +224,10 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
            (web-mode-markup-indent-offset indent-size))
   :hook ((web-mode . emmet-mode)
          (web-mode . lsp-deferred)))
-#+END_SRC
 
-*** Emment
-#+BEGIN_SRC emacs-lisp
 (use-package emmet-mode
   :hook (emmet-mode . lsp-deferred))
-#+END_SRC
 
-*** Typescript / Javascript
-#+BEGIN_SRC emacs-lisp
 (use-package typescript-mode
   :mode (("\\.js\\'" . typescript-mode)
          ("\\.jsx\\'" . typescript-mode)
@@ -369,55 +236,31 @@ LSP support for css requires [[https://github.com/vscode-langservers/vscode-html
   :custom (typescript-indent-level indent-size)
   :hook ((typescript-mode . emmet-mode)
          (typescript-mode . lsp-deferred)))
-#+END_SRC
 
-*** JSON
-LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
-#+BEGIN_SRC emacs-lisp
 (use-package json-mode
   :mode (("\\.json\\'" . json-mode))
   :custom (js-indent-level indent-size)
   :hook (json-mode . lsp-deferred))
-#+END_SRC
 
-*** YAML
-#+BEGIN_SRC emacs-lisp
-(straight-use-package 'yaml-mode)
 (use-package yaml-mode
   :mode (("\\.yml\\'" . yaml-mode)
          ("\\.yaml\\'" . yaml-mode)))
-#+END_SRC
 
-*** PHP
-PHP support requires [[https://github.com/bmewburn/vscode-intelephense][vscode-intelephense]].
-#+BEGIN_SRC emacs-lisp
 (use-package php-mode
   :mode (("\\.php\\'" . php-mode))
   :hook (php-mode . lsp-deferred))
-#+END_SRC
 
-*** Go
-LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
-#+BEGIN_SRC emacs-lisp
 (use-package go-mode
   :mode ("\\.go\\'" . go-mode)
   :hook (go-mode . lsp-deferred))
-#+END_SRC
 
-*** CCLS
-LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
-#+BEGIN_SRC emacs-lisp
 (use-package ccls
   :ensure
   :config
   '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
   :hook ((c-mode c++-mode objc-mode) .
          (lambda () (require 'ccls) (lsp))))
-#+END_SRC
 
-** Writing
-*** Spelling
-#+BEGIN_SRC emacs-lisp
 (use-package ispell
   :init      (defun ispell-line()
                (interactive)
@@ -429,21 +272,11 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
 
 (setq ispell-program-name "/usr/bin/aspell")
 ;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
-#+END_SRC
 
-*** Writegood
-I have used the [[http://www.hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
-#+BEGIN_SRC emacs-lisp
 (use-package writegood-mode)
-#+END_SRC
 
-*** Olivetti Mode
-Olivetti is a minor mode for a nice writing environment.
-#+BEGIN_SRC emacs-lisp
 (use-package olivetti
   :config
   (setq-default olivetti-body-width 100)
   (setq olivetti-body-width 100)
   :commands olivetti-mode)
-#+END_SRC
-
