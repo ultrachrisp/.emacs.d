@@ -213,20 +213,20 @@
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
-(use-package web-mode
-  :mode (("\\.html\\'" . web-mode)
-         ("\\.htm\\'" . web-mode)
-         ("\\.css\\'" . web-mode)
-         ("\\.scss\\'" . web-mode)
-         ("\\.sass\\'" . web-mode))
-  :custom ((web-mode-css-indent-offset indent-size)
-           (web-mode-code-indent-offset indent-size)
-           (web-mode-markup-indent-offset indent-size))
-  :hook ((web-mode . emmet-mode)
-         (web-mode . lsp-deferred)))
+(use-package mhtml-mode
+  :mode (("\\.htm\\'" . mhtml-mode)
+         ("\\.html\\'" . mhtml-mode))
+  :hook ((mhtml-mode . emmet-mode)
+         (mhtml-mode . lsp-deferred)))
 
 (use-package emmet-mode
   :hook (emmet-mode . lsp-deferred))
+
+(use-package css-mode
+  :mode (("\\.css\\'" . css-mode)
+         ("\\.scss\\'" . css-mode)
+         ("\\.sass\\'" . css-mode))
+  :hook (css-mode . lsp-deferred))
 
 (use-package typescript-mode
   :mode (("\\.js\\'" . typescript-mode)
