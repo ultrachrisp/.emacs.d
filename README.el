@@ -213,6 +213,13 @@
 (use-package helm-lsp :commands helm-lsp-workspace-symbol)
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
+(use-package copilot
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+  :ensure t)
+(define-key copilot-mode-map (kbd "M-C-<return>") #'copilot-accept-completion)
+(define-key copilot-mode-map (kbd "C-<right>") #'copilot-accept-completion-by-word)
+(define-key copilot-mode-map (kbd "C-<down>") #'copilot-accept-completion-by-line)
+
 (use-package mhtml-mode
   :mode (("\\.htm\\'" . mhtml-mode)
          ("\\.html\\'" . mhtml-mode))

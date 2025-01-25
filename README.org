@@ -337,30 +337,40 @@ Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/]
   (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 #+END_SRC
 
+*** Co-pilot
+#+BEGIN_SRC emacs-lisp
+  (use-package copilot
+    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+      :ensure t)
+  (define-key copilot-mode-map (kbd "M-C-<return>") #'copilot-accept-completion)
+  (define-key copilot-mode-map (kbd "C-<right>") #'copilot-accept-completion-by-word)
+  (define-key copilot-mode-map (kbd "C-<down>") #'copilot-accept-completion-by-line)
+#+END_SRC
+
 *** HTML
 Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.com/microsoft/vscode/tree/main/extensions/html-language-features/server][vscode-langservers-extracted]] server.
 #+BEGIN_SRC emacs-lisp
-(use-package mhtml-mode
-  :mode (("\\.htm\\'" . mhtml-mode)
-         ("\\.html\\'" . mhtml-mode))
-  :hook ((mhtml-mode . emmet-mode)
-         (mhtml-mode . lsp-deferred)))
+  (use-package mhtml-mode
+    :mode (("\\.htm\\'" . mhtml-mode)
+           ("\\.html\\'" . mhtml-mode))
+    :hook ((mhtml-mode . emmet-mode)
+           (mhtml-mode . lsp-deferred)))
 #+END_SRC
 
 *** Emment
 #+BEGIN_SRC emacs-lisp
-(use-package emmet-mode
-  :hook (emmet-mode . lsp-deferred))
+  (use-package emmet-mode
+    :hook (emmet-mode . lsp-deferred))
 #+END_SRC
 
 *** CSS/ SCSS/ SASS
 LSP support for css/scss/sass requires [[https://github.com/microsoft/vscode/tree/main/extensions/css-language-features/server][vscode-langservers-extracted]].
 #+BEGIN_SRC emacs-lisp
-(use-package css-mode
-  :mode (("\\.css\\'" . css-mode)
-         ("\\.scss\\'" . css-mode)
-         ("\\.sass\\'" . css-mode))
-  :hook (css-mode . lsp-deferred))
+  (use-package css-mode
+    :mode (("\\.css\\'" . css-mode)
+           ("\\.scss\\'" . css-mode)
+           ("\\.sass\\'" . css-mode))
+    :hook (css-mode . lsp-deferred))
 #+END_SRC
 
 *** Typescript / Javascript
