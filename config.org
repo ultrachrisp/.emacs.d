@@ -1,0 +1,344 @@
+#+TITLE: My Emacs Setup
+#+OPTIONS: num:nil
+
+Some of the biggest new features are:
+- Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
+
+* Setup
+** General
+*** Path
+`exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user’s shell config. This won’t work on Windows.
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
+#+END_SRC
+*** Backups and Autosaves
+Turning both off
+#+BEGIN_SRC emacs-lisp
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
+#+END_SRC
+
+*** Reloading the configuration
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    "Reloads ~/.emacs.d/config.org at runtime"
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'config-reload)
+#+END_SRC
+
+*** Encryption
+#+BEGIN_SRC emacs-lisp
+  (require 'epg)
+  (setq epg-pinentry-mode 'loopback)
+#+END_SRC
+
+** Look & Feel
+*** Line Numbers
+Toggle line numbers.
+#+BEGIN_SRC emacs-lisp
+  (setq line-number-mode t)
+  (setq column-number-mode t)
+#+END_SRC
+
+*** Ace-window
+Quick way to move between windows.
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+    :bind      ("C-x o" . ace-window))
+#+END_SRC
+
+*** Doom themes
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :config
+    (setq doom-themes-enable-bold t
+          doom-themes-enable-italic t)
+    (load-theme 'doom-city-lights t))
+#+END_SRC
+
+*** UI
+General UI settings
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (set-scroll-bar-mode t)
+  (setq inhibit-startup-screen t)
+  (setq default-frame-alist '((font . "Monaco-15")))
+#+END_SRC
+
+** Org Mode
+*** Todo states
+#+BEGIN_SRC emacs-lisp
+  (setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                            (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                            (sequence "|" "CANCELED(c)")))
+#+END_SRC
+
+*** Tags
+#+BEGIN_SRC emacs-lisp
+  (setq org-tag-alist '(("@orientation" . ?a)
+                        ("@coding" . ?b)
+                        ("@help" . ?c)
+                        ("@phone" . ?d)
+                        ("@documentation" . ?e)
+                        ("@meeting" . ?f)
+                        ("@email" . ?g)
+                        ("@break" . ?h)
+                        ("@study" . ?i)
+                        ("@slack" . ?j)
+                        ("@chat" . ?k)
+                        ))
+#+END_SRC
+
+*** Agenda display
+#+BEGIN_SRC emacs-lisp
+  (setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+#+END_SRC
+
+*** Time estimates
+#+BEGIN_SRC emacs-lisp
+  (setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+#+END_SRC
+
+*** Time format
+#+BEGIN_SRC emacs-lisp
+  (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+#+END_SRC
+
+** Productivity
+*** Magit
+Magit is objectively the best Git interface.
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :bind ("C-x g" . magit-status)
+    :commands (magit-status
+               magit-blame
+               magit-find-file
+               magit-name-local-branch))
+#+END_SRC
+
+*** Helm
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :ensure t
+    :bind (("M-y"     . helm-show-kill-ring)
+  	 ("C-x C-f" . helm-find-files)
+  	 ("C-x C-b" . helm-buffers-list))
+    :config    
+    (setq helm-autoresize-max-height 0
+  	helm-autoresize-min-height 40
+  	helm-boring-file-regexp-list '("\\.git$")
+  	helm-M-x-fuzzy-match t
+  	helm-recentf-fuzzy-match t
+  	helm-semantic-fuzzy-match t
+          helm-buffers-fuzzy-matching t))
+#+END_SRC
+
+*** Projectile
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t
+    :commands (projectile-find-file
+               projectile-grep
+               projectile-switch-project
+               projectile-project-root)
+    :config
+    (projectile-mode))
+
+  (use-package helm-projectile
+    :ensure t
+    :bind      ("C-c h" . helm-projectile))
+#+END_SRC
+
+*** Company
+Company for autocomplete functionality.
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :config
+    (setq-default company-idle-delay 0.5
+                  company-require-match nil
+                  company-minimum-prefix-length 1
+                  company-show-numbers t ))
+#+END_SRC
+
+*** Flycheck
+Syntax checking.
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t)
+#+END_SRC
+
+*** Treemacs
+This is a pretty handy project, [[https://github.com/Alexander-Miller/treemacs][github repo here]].
+#+BEGIN_SRC emacs-lisp
+  (use-package treemacs
+    :ensure t
+    :defer t
+    :init  (with-eval-after-load 'winum
+             (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+    :config
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    :bind
+    (:map global-map
+          ("M-0"       . treemacs-select-window)
+          ("C-x t 1"   . treemacs-delete-other-windows)
+          ("C-x t t"   . treemacs)
+          ("C-x t d"   . treemacs-select-directory)
+          ("C-x t B"   . treemacs-bookmark)
+          ("C-x t C-t" . treemacs-find-file)
+          ("C-x t M-t" . treemacs-find-tag)))
+
+  (use-package treemacs-projectile
+    :after (treemacs projectile)
+    :ensure t)
+
+  (use-package treemacs-icons-dired
+    :hook (dired-mode . treemacs-icons-dired-enable-once)
+    :ensure t)
+
+  (use-package treemacs-magit
+    :after (treemacs magit)
+    :ensure t)
+#+END_SRC
+
+** Development
+*** LSP
+Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/][Language Server Protocol]].
+#+begin_SRC emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :config
+    (setq lsp-enable-snippet nil)
+    :hook
+    ((lsp-mode . lsp-enable-which-key-integration)
+     (before-save . lsp-format-buffer)
+     (before-save . lsp-organize-imports))
+    :commands lsp-mode lsp)
+
+  (use-package helm-lsp :commands helm-lsp-workspace-symbol)
+  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+#+END_SRC
+
+*** HTML
+Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.com/microsoft/vscode/tree/main/extensions/html-language-features/server][vscode-langservers-extracted]] server.
+#+BEGIN_SRC emacs-lisp
+  (use-package mhtml-mode
+    :ensure t
+    :mode (("\\.htm\\'" . mhtml-mode)
+           ("\\.html\\'" . mhtml-mode))
+    :hook ((mhtml-mode . emmet-mode)
+           (mhtml-mode . lsp-deferred)))
+#+END_SRC
+
+*** Emment
+#+BEGIN_SRC emacs-lisp
+  (use-package emmet-mode
+    :ensure t
+    :hook (emmet-mode . lsp-deferred))
+#+END_SRC
+
+*** CSS/ SCSS/ SASS
+LSP support for css/scss/sass requires [[https://github.com/microsoft/vscode/tree/main/extensions/css-language-features/server][vscode-langservers-extracted]].
+#+BEGIN_SRC emacs-lisp
+  (use-package css-mode
+    :ensure t
+    :mode (("\\.css\\'" . css-mode)
+           ("\\.scss\\'" . css-mode)
+           ("\\.sass\\'" . css-mode))
+    :hook (css-mode . lsp-deferred))
+#+END_SRC
+
+*** Typescript / Javascript
+LSP support for typescript requires [[https://github.com/typescript-language-server/typescript-language-server][typescript-language-server]].
+#+BEGIN_SRC emacs-lisp
+  (use-package typescript-mode
+    :ensure t
+    :mode (("\\.js\\'" . typescript-mode)
+           ("\\.jsx\\'" . typescript-mode)
+           ("\\.ts\\'" . typescript-mode)
+           ("\\.tsx\\'" . typescript-mode))
+    :hook ((typescript-mode . emmet-mode)
+           (typescript-mode . lsp-deferred)))
+#+END_SRC
+
+*** JSON
+LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
+#+BEGIN_SRC emacs-lisp
+  (use-package json-mode
+    :mode ("\\.json\\'" . json-mode)
+    :hook (json-mode . lsp-deferred))
+#+END_SRC
+
+*** YAML
+#+BEGIN_SRC emacs-lisp
+    (use-package yaml-mode
+      :mode (("\\.yml\\'" . yaml-mode)
+             ("\\.yaml\\'" . yaml-mode))
+      :hook (yaml-mode . lsp-deferred))
+#+END_SRC
+
+*** PHP
+PHP support requires [[https://github.com/bmewburn/vscode-intelephense][vscode-intelephense]].
+#+BEGIN_SRC emacs-lisp
+  (use-package php-mode
+    :mode ("\\.php\\'" . php-mode)
+    :hook (php-mode . lsp-deferred))
+#+END_SRC
+
+*** Go
+LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
+#+BEGIN_SRC emacs-lisp
+(use-package go-mode
+  :mode ("\\.go\\'" . go-mode)
+  :hook (go-mode . lsp-deferred))
+#+END_SRC
+
+*** CCLS
+LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
+#+BEGIN_SRC emacs-lisp
+(use-package ccls
+  :config
+  '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
+#+END_SRC
+
+** Writing
+*** Spelling
+#+BEGIN_SRC emacs-lisp
+  (use-package ispell
+    :init      (defun ispell-line()
+                 (interactive)
+                 (ispell-region (line-beginning-position) (line-end-position)))
+    :bind      (("C-c sr" . ispell-region)
+                ("C-c sb" . ispell-buffer)
+                ("C-c sw" . ispell-word)
+                ("C-c sl" . ispell-line)))
+
+  (setq ispell-program-name "/usr/bin/aspell")
+  ;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
+#+END_SRC
+
+*** Olivetti Mode
+Olivetti is a minor mode for a nice writing environment.
+#+BEGIN_SRC emacs-lisp
+  (use-package olivetti
+    :config
+    (setq-default olivetti-body-width 100)
+    (setq olivetti-body-width 100)
+    :commands olivetti-mode)
+#+END_SRC
+
