@@ -3,7 +3,6 @@
 
 Some of the biggest new features are:
 - Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
-- Loading org-mode in the init.el, to prevent version conflicts
 
 * Setup
 ** General
