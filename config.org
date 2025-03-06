@@ -14,6 +14,15 @@ Turning both off
   (setq auto-save-default nil)
 #+END_SRC
 
+*** Reloading the configuration
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    "Reloads ~/.emacs.d/config.org at runtime"
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'config-reload)
+#+END_SRC
+
 *** Encryption
 #+BEGIN_SRC emacs-lisp
   (require 'epg)
@@ -38,11 +47,11 @@ Quick way to move between windows.
 *** Doom themes
 #+BEGIN_SRC emacs-lisp
   (use-package doom-themes
+    :ensure t
     :config
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t)
-    (load-theme 'doom-city-lights t)
-    (doom-themes-org-config))
+    (load-theme 'doom-city-lights t))
 #+END_SRC
 
 *** UI
@@ -50,7 +59,7 @@ General UI settings
 #+BEGIN_SRC emacs-lisp
   (tool-bar-mode -1)
   (menu-bar-mode -1)
-  (set-scroll-bar-mode nil)
+  (set-scroll-bar-mode t)
   (setq inhibit-startup-screen t)
   (setq default-frame-alist '((font . "Monaco-15")))
 #+END_SRC
@@ -104,6 +113,22 @@ Magit is objectively the best Git interface.
                magit-blame
                magit-find-file
                magit-name-local-branch))
+#+END_SRC
+
+*** Helm
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :ensure t
+    :bind (("M-y"     . helm-show-kill-ring)
+  	 ("C-x C-f" . helm-find-files)
+  	 ("C-x C-b" . helm-buffers-list))
+    :config    
+    (setq helm-autoresize-max-height 0
+  	helm-autoresize-min-height 40
+  	helm-M-x-fuzzy-match t
+  	helm-recentf-fuzzy-match t
+  	helm-semantic-fuzzy-match t
+          helm-buffers-fuzzy-matching t))
 #+END_SRC
 
 *** Projectile
@@ -189,16 +214,6 @@ Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/]
 
   (use-package helm-lsp :commands helm-lsp-workspace-symbol)
   (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-#+END_SRC
-
-*** Co-pilot
-#+BEGIN_SRC emacs-lisp
-  (use-package copilot
-    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-      :ensure t)
-  (define-key copilot-mode-map (kbd "M-C-<return>") #'copilot-accept-completion)
-  (define-key copilot-mode-map (kbd "C-<right>") #'copilot-accept-completion-by-word)
-  (define-key copilot-mode-map (kbd "C-<down>") #'copilot-accept-completion-by-line)
 #+END_SRC
 
 *** HTML
