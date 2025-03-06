@@ -7,6 +7,17 @@ Some of the biggest new features are:
 
 * Setup
 ** General
+*** Path
+`exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user’s shell config. This won’t work on Windows.
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
+#+END_SRC
 *** Backups and Autosaves
 Turning both off
 #+BEGIN_SRC emacs-lisp
@@ -125,6 +136,7 @@ Magit is objectively the best Git interface.
     :config    
     (setq helm-autoresize-max-height 0
   	helm-autoresize-min-height 40
+  	helm-boring-file-regexp-list '("\\.git$")
   	helm-M-x-fuzzy-match t
   	helm-recentf-fuzzy-match t
   	helm-semantic-fuzzy-match t
@@ -134,6 +146,7 @@ Magit is objectively the best Git interface.
 *** Projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
+    :ensure t
     :commands (projectile-find-file
                projectile-grep
                projectile-switch-project
@@ -142,6 +155,7 @@ Magit is objectively the best Git interface.
     (projectile-mode))
 
   (use-package helm-projectile
+    :ensure t
     :bind      ("C-c h" . helm-projectile))
 #+END_SRC
 
@@ -204,8 +218,11 @@ This is a pretty handy project, [[https://github.com/Alexander-Miller/treemacs][
 Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/][Language Server Protocol]].
 #+begin_SRC emacs-lisp
   (use-package lsp-mode
+    :ensure t
     :init
     (setq lsp-keymap-prefix "C-c l")
+    :config
+    (setq lsp-enable-snippet nil)
     :hook
     ((lsp-mode . lsp-enable-which-key-integration)
      (before-save . lsp-format-buffer)
@@ -220,6 +237,7 @@ Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/]
 Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.com/microsoft/vscode/tree/main/extensions/html-language-features/server][vscode-langservers-extracted]] server.
 #+BEGIN_SRC emacs-lisp
   (use-package mhtml-mode
+    :ensure t
     :mode (("\\.htm\\'" . mhtml-mode)
            ("\\.html\\'" . mhtml-mode))
     :hook ((mhtml-mode . emmet-mode)
@@ -229,6 +247,7 @@ Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.c
 *** Emment
 #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode
+    :ensure t
     :hook (emmet-mode . lsp-deferred))
 #+END_SRC
 
@@ -236,6 +255,7 @@ Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.c
 LSP support for css/scss/sass requires [[https://github.com/microsoft/vscode/tree/main/extensions/css-language-features/server][vscode-langservers-extracted]].
 #+BEGIN_SRC emacs-lisp
   (use-package css-mode
+    :ensure t
     :mode (("\\.css\\'" . css-mode)
            ("\\.scss\\'" . css-mode)
            ("\\.sass\\'" . css-mode))
@@ -246,6 +266,7 @@ LSP support for css/scss/sass requires [[https://github.com/microsoft/vscode/tre
 LSP support for typescript requires [[https://github.com/typescript-language-server/typescript-language-server][typescript-language-server]].
 #+BEGIN_SRC emacs-lisp
   (use-package typescript-mode
+    :ensure t
     :mode (("\\.js\\'" . typescript-mode)
            ("\\.jsx\\'" . typescript-mode)
            ("\\.ts\\'" . typescript-mode)
@@ -290,7 +311,6 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
 LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
 #+BEGIN_SRC emacs-lisp
 (use-package ccls
-  :ensure
   :config
   '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
   :hook ((c-mode c++-mode objc-mode) .
