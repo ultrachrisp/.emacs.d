@@ -1,8 +1,12 @@
-#+TITLE: My Emacs Setup
+#+TITLE: Chrisp Emacs
+#+CREATOR: Chrisp
+#+LANGUAGE: en
 #+OPTIONS: num:nil
+#+ATTR_HTML: :style margin-left: auto; margin-right: auto;
 
 Some of the biggest new features are:
 - Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
+- Taking a fair amount of inspiration form [[https://github.com/daedreth/UncleDavesEmacs/blob/master/config.org][Uncle Dave's Emacs]] setup.
 
 * Setup
 ** General
