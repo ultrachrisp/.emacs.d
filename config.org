@@ -1,13 +1,17 @@
-#+TITLE: My Emacs Setup
+#+TITLE: Chrisp Emacs
+#+CREATOR: Chrisp
+#+LANGUAGE: en
 #+OPTIONS: num:nil
+#+ATTR_HTML: :style margin-left: auto; margin-right: auto;
 
 Some of the biggest new features are:
 - Use of [[https://emacs-lsp.github.io/lsp-mode/][lsp-mode]] for a consistent developer environment across languages.
+- Taking a fair amount of inspiration form [[https://github.com/daedreth/UncleDavesEmacs/blob/master/config.org][Uncle Dave's Emacs]] setup.
 
 * Setup
 ** General
 *** Path
-`exec-path-from-shell` uses Bash to set MANPATH, PATH, and exec-path from those defined in the user’s shell config. This won’t work on Windows.
+'exec-path-from-shell' uses Bash to set MANPATH, PATH, and exec-path from those defined in the user’s shell config. This won’t work on Windows.
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
     :ensure t
@@ -17,6 +21,7 @@ Some of the biggest new features are:
           exec-path-from-shell-check-startup-files nil)
     (exec-path-from-shell-initialize))
 #+END_SRC
+
 *** Backups and Autosaves
 Turning both off
 #+BEGIN_SRC emacs-lisp
@@ -25,9 +30,9 @@ Turning both off
 #+END_SRC
 
 *** Reloading the configuration
+Reloads ~/.emacs.d/config.org at runtime
 #+BEGIN_SRC emacs-lisp
   (defun config-reload ()
-    "Reloads ~/.emacs.d/config.org at runtime"
     (interactive)
     (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
   (global-set-key (kbd "C-c r") 'config-reload)
@@ -45,6 +50,12 @@ Toggle line numbers.
 #+BEGIN_SRC emacs-lisp
   (setq line-number-mode t)
   (setq column-number-mode t)
+#+END_SRC
+
+Display line numbers by default in code and org-mode buffers.
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
 
 *** Ace-window
@@ -72,6 +83,14 @@ General UI settings
   (set-scroll-bar-mode t)
   (setq inhibit-startup-screen t)
   (setq default-frame-alist '((font . "Monaco-15")))
+#+END_SRC
+
+Standarise the tab size
+#+BEGIN_SRC emacs-lisp
+  (defconst indent-size 2)
+  (setq-default tab-width indent-size)
+  (setq-default indent-tabs-mode nil)
+  (setq-default indent-line-function 'insert-tab)
 #+END_SRC
 
 ** Org Mode
@@ -130,15 +149,15 @@ Magit is objectively the best Git interface.
   (use-package helm
     :ensure t
     :bind (("M-y"     . helm-show-kill-ring)
-  	 ("C-x C-f" . helm-find-files)
-  	 ("C-x C-b" . helm-buffers-list))
+  	       ("C-x C-f" . helm-find-files)
+  	       ("C-x C-b" . helm-buffers-list))
     :config    
     (setq helm-autoresize-max-height 0
-  	helm-autoresize-min-height 40
-  	helm-boring-file-regexp-list '("\\.git$")
-  	helm-M-x-fuzzy-match t
-  	helm-recentf-fuzzy-match t
-  	helm-semantic-fuzzy-match t
+  	      helm-autoresize-min-height 40
+  	      helm-boring-file-regexp-list '("\\.git$")
+  	      helm-M-x-fuzzy-match t
+  	      helm-recentf-fuzzy-match t
+  	      helm-semantic-fuzzy-match t
           helm-buffers-fuzzy-matching t))
 #+END_SRC
 
@@ -169,6 +188,16 @@ Company for autocomplete functionality.
                   company-minimum-prefix-length 1
                   company-show-numbers t ))
 #+END_SRC
+
+*** Yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :config
+      (use-package yasnippet-snippets
+        :ensure t)
+      (yas-reload-all))
+#+END_SRC    
 
 *** Flycheck
 Syntax checking.
@@ -220,8 +249,6 @@ Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/]
     :ensure t
     :init
     (setq lsp-keymap-prefix "C-c l")
-    :config
-    (setq lsp-enable-snippet nil)
     :hook
     ((lsp-mode . lsp-enable-which-key-integration)
      (before-save . lsp-format-buffer)
@@ -270,14 +297,21 @@ LSP support for typescript requires [[https://github.com/typescript-language-ser
            ("\\.jsx\\'" . typescript-mode)
            ("\\.ts\\'" . typescript-mode)
            ("\\.tsx\\'" . typescript-mode))
+    :custom (typescript-indent-level indent-size)
     :hook ((typescript-mode . emmet-mode)
            (typescript-mode . lsp-deferred)))
+
+    ;; hack to use deno instead of the default ts language server
+    ;; :config
+    ;;       (setq-default lsp-clients-typescript-tls-path "~/.deno/bin/deno"
+    ;; 		      lsp-clients-typescript-server-args "lsp")
 #+END_SRC
 
 *** JSON
 LSP support requires [[https://github.com/vscode-langservers/vscode-json-languageserver][vscode-json-languageserver]].
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
+    :ensure t
     :mode ("\\.json\\'" . json-mode)
     :hook (json-mode . lsp-deferred))
 #+END_SRC
@@ -309,11 +343,12 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
 *** CCLS
 LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via `brew install ccls`
 #+BEGIN_SRC emacs-lisp
-(use-package ccls
-  :config
-  '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
+  (use-package ccls
+    :ensure t
+    :config
+    '(ccls-initialization-options (quote (compilationDatabaseDirectory :build)))
+    :hook ((c-mode c++-mode objc-mode) .
+           (lambda () (require 'ccls) (lsp))))
 #+END_SRC
 
 ** Writing
@@ -330,6 +365,11 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
 
   (setq ispell-program-name "/usr/bin/aspell")
   ;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
+#+END_SRC
+*** Writegood
+I have used the [[https://hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
+#+BEGIN_SRC emacs-lisp
+  (use-package writegood :commands olivetti-mode)
 #+END_SRC
 
 *** Olivetti Mode
