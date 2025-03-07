@@ -25,9 +25,9 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(ccls company doom-themes emmet-mode exec-path-from-shell flycheck
-	  helm helm-projectile json-mode treemacs-icons-dired
-	  treemacs-magit treemacs-projectile typescript-mode yasnippet
-	  yasnippet-snippets))
+          helm helm-projectile json-mode treemacs-icons-dired
+          treemacs-magit treemacs-projectile typescript-mode yasnippet
+          yasnippet-snippets))
  '(warning-suppress-types '((lsp-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
