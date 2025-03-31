@@ -228,6 +228,14 @@ Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/]
      (before-save . lsp-organize-imports))
     :commands lsp-mode lsp)
 
+  (use-package lsp-ui
+    :config
+    (setq lsp-enable-symbol-highlighting t)
+    (setq lsp-ui-doc-enable t)
+    (setq lsp-ui-sideline-show-diagnostics t)
+    (setq lsp-ui-sideline-show-hover t)
+    (setq lsp-ui-sideline-show-code-actions t)
+    :commands lsp-ui-mode)
   (use-package helm-lsp :commands helm-lsp-workspace-symbol)
   (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 #+END_SRC
@@ -279,6 +287,7 @@ LSP support requires [[https://github.com/vscode-langservers/vscode-json-languag
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
     :mode ("\\.json\\'" . json-mode)
+    :custom (js-indent-level indent-size)
     :hook (json-mode . lsp-deferred))
 #+END_SRC
 
