@@ -193,10 +193,12 @@ Company for autocomplete functionality.
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :ensure t
+    :init
+    (yas-global-mode 1)
     :config
-      (use-package yasnippet-snippets
-        :ensure t)
-      (yas-reload-all))
+    (use-package yasnippet-snippets
+      :ensure t)
+    (yas-reload-all))
 #+END_SRC    
 
 *** Flycheck
