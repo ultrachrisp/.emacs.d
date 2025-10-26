@@ -380,7 +380,7 @@ LSP support - requires [[https://github.com/MaskRay/ccls][ccls]]. Installed via 
 *** Writegood
 I have used the [[https://hemingwayapp.com/][Hemingway editor]] just to sanity check my writings, but leaving the comforts of Emacs was a knock. Giving writegood a spin.
 #+BEGIN_SRC emacs-lisp
-  (use-package writegood :commands olivetti-mode)
+  ;; (use-package writegood :commands olivetti-mode)
 #+END_SRC
 
 *** Olivetti Mode
