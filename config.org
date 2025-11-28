@@ -188,7 +188,45 @@ Company for autocomplete functionality.
   ;;                 company-minimum-prefix-length 1
   ;;                 company-show-numbers t ))
 #+END_SRC
-
+*** Vertico
+#+BEGIN_SRC emacs-lisp
+(use-package vertico
+  :ensure t
+  :config
+  (setq vertico-cycle t)
+  (setq vertico-resize nil)
+  (vertico-mode 1))
+#+END_SRC
+*** Marginalia
+#+BEGIN_SRC emacs-lisp
+(use-package marginalia
+  :ensure t
+  :config
+  (marginalia-mode 1))
+#+END_SRC
+*** Orderless
+#+BEGIN_SRC emacs-lisp
+(use-package orderless
+  :ensure t
+  :config
+  (setq completion-styles '(orderless basic)))
+#+END_SRC
+*** Consult
+#+BEGIN_SRC emacs-lisp
+(use-package consult
+  :ensure t
+  :bind (;; A recursive grep
+         ("M-s M-g" . consult-grep)
+         ;; Search for files names recursively
+         ("M-s M-f" . consult-find)
+         ;; Search through the outline (headings) of the file
+         ("M-s M-o" . consult-outline)
+         ;; Search the current buffer
+         ("M-s M-l" . consult-line)
+         ;; Switch to another buffer, or bookmarked file, or recently
+         ;; opened file.
+         ("M-s M-b" . consult-buffer)))
+#+END_SRC
 *** Corfu
 #+BEGIN_SRC emacs-lisp
   (use-package corfu
@@ -285,7 +323,6 @@ This is a pretty handy project, [[https://github.com/Alexander-Miller/treemacs][
 #+END_SRC
 
 ** Development
-
 *** Treesitter
 I've heard a lot of good things.
 #+begin_SRC emacs-lisp
@@ -466,6 +503,21 @@ Emacs support for the [[https://emacs-lsp.github.io/lsp-mode/page/installation/]
   ;; (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 #+END_SRC
 
+*** Apheleia
+#+begin_SRC emacs-lisp
+(use-package apheleia
+  :ensure apheleia
+  :diminish ""
+  :defines
+  apheleia-formatters
+  apheleia-mode-alist
+  :functions
+  apheleia-global-mode
+  :config
+  (setf (alist-get 'prettier-json apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (apheleia-global-mode +1))
+#+END_SRC
 *** HTML
 Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.com/microsoft/vscode/tree/main/extensions/html-language-features/server][vscode-langservers-extracted]] server.
 #+BEGIN_SRC emacs-lisp
@@ -495,6 +547,22 @@ LSP support for css/scss/sass requires [[https://github.com/microsoft/vscode/tre
   ;;   :hook (css-mode . lsp-deferred))
 #+END_SRC
 
+*** Tailwind
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-tailwindcss
+    :init (setq lsp-tailwindcss-add-on-mode t)
+    :config
+    (dolist (tw-major-mode
+             '(css-mode
+               css-ts-mode
+               typescript-mode
+               typescript-ts-mode
+               tsx-ts-mode
+               js2-mode
+               js-ts-mode
+               clojure-mode))
+      (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
+#+END_SRC
 *** Typescript / Javascript
 LSP support for typescript requires [[https://github.com/typescript-language-server/typescript-language-server][typescript-language-server]].
 #+BEGIN_SRC emacs-lisp
