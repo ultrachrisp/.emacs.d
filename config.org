@@ -31,142 +31,142 @@ Using [[https://github.com/radian-software/straight.el][straight]] for package m
 
 ;; Configure use-package to use straight.el by default
 (use-package straight
-  :custom
+    :custom
   (straight-use-package-by-default t))
 #+END_SRC
 
 *** Path
 'exec-path-from-shell' uses Bash to set MANPATH, PATH, and exec-path from those defined in the user’s shell config. This won’t work on Windows.
 #+BEGIN_SRC emacs-lisp
-    (use-package exec-path-from-shell
-      :if (memq window-system '(mac ns x))
-      :config
-      (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-            exec-path-from-shell-check-startup-files nil)
-      (exec-path-from-shell-initialize))
+(use-package exec-path-from-shell
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
 
-  ;; consider this one later... a bit cleaner
-  ;; (use-package exec-path-from-shell
-  ;;   :ensure t
-  ;;   :config
-  ;;   (when (memq window-system '(mac ns x))
-  ;;     (exec-path-from-shell-initialize)))  
+;; consider this one later... a bit cleaner
+;; (use-package exec-path-from-shell
+;;   :ensure t
+;;   :config
+;;   (when (memq window-system '(mac ns x))
+;;     (exec-path-from-shell-initialize)))  
 #+END_SRC
 
 *** Backups and Autosaves
 Turning both off
 #+BEGIN_SRC emacs-lisp
-  (setq make-backup-files nil)
-  (setq auto-save-default nil)
+(setq make-backup-files nil)
+(setq auto-save-default nil)
 #+END_SRC
 
 *** Reloading the configuration
 Reloads ~/.emacs.d/config.org at runtime
 #+BEGIN_SRC emacs-lisp
-  (defun config-reload ()
-    (interactive)
-    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
-  (global-set-key (kbd "C-c r") 'config-reload)
+(defun config-reload ()
+  (interactive)
+  (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+(global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
 
 *** Encryption
 #+BEGIN_SRC emacs-lisp
-  (require 'epg)
-  (setq epg-pinentry-mode 'loopback)
+(require 'epg)
+(setq epg-pinentry-mode 'loopback)
 #+END_SRC
 
 ** Look & Feel
 *** Line Numbers
 Toggle line numbers.
 #+BEGIN_SRC emacs-lisp
-  (setq line-number-mode t)
-  (setq column-number-mode t)
+(setq line-number-mode t)
+(setq column-number-mode t)
 #+END_SRC
 
 Display line numbers by default in code and org-mode buffers.
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  (add-hook 'org-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
 
 *** Ace-window
 Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
-  (use-package ace-window
+(use-package ace-window
     :bind      ("C-x o" . ace-window))
 #+END_SRC
 
 *** Doom themes
 #+BEGIN_SRC emacs-lisp
-  (use-package doom-themes
+(use-package doom-themes
     :config
-    (setq doom-themes-enable-bold t
-          doom-themes-enable-italic t)
-    (load-theme 'doom-city-lights t))
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-city-lights t))
 #+END_SRC
 
 *** UI
 General UI settings
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (set-scroll-bar-mode t)
-  (setq inhibit-startup-screen t)
-  (setq default-frame-alist '((font . "Monaco-15")))
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(set-scroll-bar-mode t)
+(setq inhibit-startup-screen t)
+(setq default-frame-alist '((font . "Monaco-15")))
 #+END_SRC
 
 Standarise the tab size
 #+BEGIN_SRC emacs-lisp
-  (defconst indent-size 2)
-  (setq-default tab-width indent-size)
-  (setq-default indent-tabs-mode nil)
-  (setq-default indent-line-function 'insert-tab)
+(defconst indent-size 2)
+(setq-default tab-width indent-size)
+(setq-default indent-tabs-mode nil)
+(setq-default indent-line-function 'insert-tab)
 #+END_SRC
 
 ** Org Mode
 *** Todo states
 #+BEGIN_SRC emacs-lisp
-  (setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
-                            (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                            (sequence "|" "CANCELED(c)")))
+(setq org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                          (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                          (sequence "|" "CANCELED(c)")))
 #+END_SRC
 
 *** Tags
 #+BEGIN_SRC emacs-lisp
-  (setq org-tag-alist '(("@orientation" . ?a)
-                        ("@coding" . ?b)
-                        ("@help" . ?c)
-                        ("@phone" . ?d)
-                        ("@documentation" . ?e)
-                        ("@meeting" . ?f)
-                        ("@email" . ?g)
-                        ("@break" . ?h)
-                        ("@study" . ?i)
-                        ("@slack" . ?j)
-                        ("@chat" . ?k)
-                        ))
+(setq org-tag-alist '(("@orientation" . ?a)
+                      ("@coding" . ?b)
+                      ("@help" . ?c)
+                      ("@phone" . ?d)
+                      ("@documentation" . ?e)
+                      ("@meeting" . ?f)
+                      ("@email" . ?g)
+                      ("@break" . ?h)
+                      ("@study" . ?i)
+                      ("@slack" . ?j)
+                      ("@chat" . ?k)
+                      ))
 #+END_SRC
 
 *** Agenda display
 #+BEGIN_SRC emacs-lisp
-  (setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+(setq org-columns-default-format '"%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
 #+END_SRC
 
 *** Time estimates
 #+BEGIN_SRC emacs-lisp
-  (setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+(setq org-global-properties '(("Effort_ALL". "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
 #+END_SRC
 
 *** Time format
 #+BEGIN_SRC emacs-lisp
-  (setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
+(setq org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t))
 #+END_SRC
 
 ** Productivity
 *** Magit
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
+(use-package magit
     :bind ("C-x g" . magit-status)
     :commands (magit-status
                magit-blame
@@ -176,7 +176,7 @@ Magit is objectively the best Git interface.
 
 *** Projectile
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
+(use-package projectile
     :ensure t
     :bind-keymap
     ("C-c p" . projectile-command-map)
@@ -191,57 +191,57 @@ Magit is objectively the best Git interface.
 *** Vertico
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
-  :ensure t
-  :config
-  (setq vertico-cycle t)
-  (setq vertico-resize nil)
-  (vertico-mode 1))
+    :ensure t
+    :config
+    (setq vertico-cycle t)
+    (setq vertico-resize nil)
+    (vertico-mode 1))
 #+END_SRC
 *** Orderless
 #+BEGIN_SRC emacs-lisp
 (use-package orderless
-  :ensure t
-  :config
-  (setq completion-styles '(orderless basic)))
+    :ensure t
+    :config
+    (setq completion-styles '(orderless basic)))
 #+END_SRC
 *** Consult
 #+BEGIN_SRC emacs-lisp
 (use-package consult
-  :ensure t
-  :bind (;; A recursive grep
-         ("M-s M-g" . consult-grep)
-         ;; Search for files names recursively
-         ("M-s M-f" . consult-find)
-         ;; Search through the outline (headings) of the file
-         ("M-s M-o" . consult-outline)
-         ;; Search the current buffer
-         ("M-s M-l" . consult-line)
-         ;; Switch to another buffer, or bookmarked file, or recently
-         ;; opened file.
-         ("M-s M-b" . consult-buffer)))
+    :ensure t
+    :bind (;; A recursive grep
+           ("M-s M-g" . consult-grep)
+           ;; Search for files names recursively
+           ("M-s M-f" . consult-find)
+           ;; Search through the outline (headings) of the file
+           ("M-s M-o" . consult-outline)
+           ;; Search the current buffer
+           ("M-s M-l" . consult-line)
+           ;; Switch to another buffer, or bookmarked file, or recently
+           ;; opened file.
+           ("M-s M-b" . consult-buffer)))
 #+END_SRC
 *** Marginalia
 #+BEGIN_SRC emacs-lisp
 (use-package marginalia
-  :ensure t
-  :config
-  (marginalia-mode 1))
+    :ensure t
+    :config
+    (marginalia-mode 1))
 #+END_SRC
 *** Embark
 #+BEGIN_SRC emacs-lisp
 (use-package embark
-  :ensure t
-  :bind (("C-." . embark-act)
-         :map minibuffer-local-map
-         ("C-c C-c" . embark-collect)
-         ("C-c C-e" . embark-export)))
+    :ensure t
+    :bind (("C-." . embark-act)
+           :map minibuffer-local-map
+           ("C-c C-c" . embark-collect)
+           ("C-c C-e" . embark-export)))
 
 (use-package embark-consult
-  :ensure t)
+    :ensure t)
 #+END_SRC
 *** Corfu
 #+BEGIN_SRC emacs-lisp
-  (use-package corfu
+(use-package corfu
     :ensure t
     ;; Optional customizations
     :custom
@@ -272,27 +272,25 @@ Magit is objectively the best Git interface.
               (lambda () (setq-local corfu-quit-at-boundary t
                                      corfu-quit-no-match t
                                      corfu-auto nil)
-                (corfu-mode))
-              nil
-              t))
+                (corfu-mode)) nil t))
 #+END_SRC
 
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
+(use-package yasnippet
     :ensure t
     :init
     (yas-global-mode 1)
     :config
-      (use-package yasnippet-snippets
+    (use-package yasnippet-snippets
         :ensure t)
-      (yas-reload-all))
+    (yas-reload-all))
 #+END_SRC    
 
 *** Flycheck
 Syntax checking.
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck
+(use-package flycheck
     :ensure t)
 #+END_SRC
 
@@ -300,42 +298,16 @@ Syntax checking.
 *** Treesit-auto
 #+BEGIN_SRC emacs-lisp
 (use-package treesit-auto
-  :custom
+    :custom
   (treesit-auto-install 'prompt)
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 #+END_SRC
 
-*** Egot
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package eglot
-  ;;     :ensure t
-  ;;     :defer t
-  ;;     :custom
-  ;;     ;; Optimize performance
-  ;;     (eglot-send-changes-idle-time 0.5)
-  ;;     (eglot-extend-to-xref t)
-  ;;     ;; Configure language servers
-  ;;     (eglot-server-programs
-  ;;      '((js-ts-mode typescript-ts-mode tsx-ts-mode) .
-  ;;         ("typescript-language-server" "--stdio")))
-  ;;     :bind (:map eglot-mode-map
-  ;;                 ("C-c l a" . eglot-code-actions)
-  ;;                 ("C-c l r" . eglot-rename)
-  ;;                 ("C-c l f" . eglot-format)
-  ;;                 ("C-c l d" . eldoc)
-  ;;                 ("C-c l o" . eglot-code-action-organize-imports)
-  ;;                 ("C-c l h" . eglot-inlay-hints-mode)
-  ;;                 ("C-c l q" . eglot-shutdown-all))
-  ;;     :hook ((js-ts-mode . eglot-ensure)
-  ;;            (typescript-ts-mode . eglot-ensure)
-  ;;            (tsx-ts-mode . eglot-ensure)))
-#+END_SRC
-
 *** LSP-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
+(use-package lsp-mode
     :ensure t
     :init
     (setq lsp-keymap-prefix "C-c l")
@@ -343,41 +315,23 @@ Syntax checking.
     ((lsp-mode . lsp-enable-which-key-integration)
      (before-save . lsp-format-buffer)
      (before-save . lsp-organize-imports)
-     ((tsx-ts-mode
-     typescript-ts-mode
-     js-ts-mode) . lsp-deferred))
+     ((tsx-ts-mode typescript-ts-mode js-ts-mode) . lsp-deferred))
     :commands lsp-mode lsp)
 
-  (use-package lsp-ui
+(use-package lsp-ui
     :config
-    (setq lsp-enable-symbol-highlighting t)
-    (setq lsp-ui-doc-enable t)
-    (setq lsp-ui-sideline-show-diagnostics t)
-    (setq lsp-ui-sideline-show-hover t)
-    (setq lsp-ui-sideline-show-code-actions t)
-    :commands lsp-ui-mode)
+  (setq lsp-enable-symbol-highlighting t)
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-sideline-show-diagnostics t)
+  (setq lsp-ui-sideline-show-hover t)
+  (setq lsp-ui-sideline-show-code-actions t)
+  :commands lsp-ui-mode)
 #+END_SRC
 
-*** Apheleia
-#+BEGIN_SRC emacs-lisp
-(use-package apheleia
-  :ensure apheleia
-  :diminish ""
-  :defines
-  apheleia-formatters
-  apheleia-mode-alist
-  :functions
-  apheleia-global-mode
-  :config
-  (setf (alist-get 'prettier-json apheleia-formatters)
-        '("prettier" "--stdin-filepath" filepath))
-  (apheleia-global-mode +1))
-#+END_SRC
 *** HTML
 Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.com/microsoft/vscode/tree/main/extensions/html-language-features/server][vscode-langservers-extracted]] server.
 #+BEGIN_SRC emacs-lisp
-  (use-package mhtml-mode
-    :ensure t
+(use-package mhtml-mode
     :mode (("\\.htm\\'" . mhtml-mode)
            ("\\.html\\'" . mhtml-mode))
     :hook (mhtml-mode . emmet-mode))
@@ -385,50 +339,61 @@ Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.c
 
 *** Emment
 #+BEGIN_SRC emacs-lisp
-  (use-package emmet-mode
+(use-package emmet-mode
     :ensure t)
 #+END_SRC
 
 *** CSS/ SCSS/ SASS
-LSP support for css/scss/sass requires [[https://github.com/microsoft/vscode/tree/main/extensions/css-language-features/server][vscode-langservers-extracted]].
 #+BEGIN_SRC emacs-lisp
-  (use-package css-mode
-    :ensure t
+(use-package css-mode
     :mode (("\\.css\\'" . css-mode)
            ("\\.scss\\'" . css-mode)
            ("\\.sass\\'" . css-mode)))
 #+END_SRC
 
 *** Typescript / Javascript
-LSP support for typescript requires [[https://github.com/typescript-language-server/typescript-language-server][typescript-language-server]].
 #+BEGIN_SRC emacs-lisp
-    (use-package typescript-mode
-      :ensure t
-      :mode (("\\.js\\'" . typescript-mode)
-             ("\\.jsx\\'" . typescript-mode)
-             ("\\.ts\\'" . typescript-mode)
-             ("\\.tsx\\'" . typescript-mode))
-      :custom (typescript-indent-level indent-size)
-      :hook ((typescript-mode . emmet-mode)
-             (typescript-mode . lsp-deferred)))
+(use-package typescript-mode
+    :ensure t
+    :mode (("\\.js\\'" . typescript-mode)
+           ("\\.jsx\\'" . typescript-mode)
+           ("\\.ts\\'" . typescript-mode)
+           ("\\.tsx\\'" . typescript-mode))
+    :custom (typescript-indent-level indent-size)
+    :hook (typescript-mode . emmet-mode))
 
-      ;; hack to use deno instead of the default ts language server
-      ;; :config
-      ;;       (setq-default lsp-clients-typescript-tls-path "~/.deno/bin/deno"
-      ;; 		      lsp-clients-typescript-server-args "lsp")
+;; hack to use deno instead of the default ts language server
+;; :config
+;;       (setq-default lsp-clients-typescript-tls-path "~/.deno/bin/deno"
+;; 		      lsp-clients-typescript-server-args "lsp")
 #+END_SRC
 
 *** Go
 LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
 #+BEGIN_SRC emacs-lisp
 (use-package go-mode
-  :mode ("\\.go\\'" . go-mode))
+    :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 
+*** Apheleia
+#+BEGIN_SRC emacs-lisp
+(use-package apheleia
+    :ensure apheleia
+    :diminish ""
+    :defines
+    apheleia-formatters
+    apheleia-mode-alist
+    :functions
+    apheleia-global-mode
+    :config
+    (setf (alist-get 'prettier-json apheleia-formatters)
+          '("prettier" "--stdin-filepath" filepath))
+    (apheleia-global-mode +1))
+#+END_SRC
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
-  (use-package ispell
+(use-package ispell
     :init      (defun ispell-line()
                  (interactive)
                  (ispell-region (line-beginning-position) (line-end-position)))
@@ -437,17 +402,17 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
                 ("C-c sw" . ispell-word)
                 ("C-c sl" . ispell-line)))
 
-  (setq ispell-program-name "/usr/bin/aspell")
-  ;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
+(setq ispell-program-name "/usr/bin/aspell")
+;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Olivetti Mode
 Olivetti is a minor mode for a nice writing environment.
 #+BEGIN_SRC emacs-lisp
-  (use-package olivetti
+(use-package olivetti
     :config
-    (setq-default olivetti-body-width 100)
-    (setq olivetti-body-width 100)
-    :commands olivetti-mode)
+  (setq-default olivetti-body-width 100)
+  (setq olivetti-body-width 100)
+  :commands olivetti-mode)
 #+END_SRC
 
