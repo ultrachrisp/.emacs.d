@@ -9,8 +9,8 @@
 (setq package-enable-at-startup nil)
 
 ;;; Move emacs customizations to separate file
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file) 
+;; (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+;; (load custom-file) 
 
 (require 'org)
 (org-babel-load-file (expand-file-name "config.org" user-emacs-directory))
