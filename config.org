@@ -328,27 +328,11 @@ Syntax checking.
   :commands lsp-ui-mode)
 #+END_SRC
 
-*** HTML
-Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.com/microsoft/vscode/tree/main/extensions/html-language-features/server][vscode-langservers-extracted]] server.
+*** Go
+LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
 #+BEGIN_SRC emacs-lisp
-(use-package mhtml-mode
-    :mode (("\\.htm\\'" . mhtml-mode)
-           ("\\.html\\'" . mhtml-mode))
-    :hook (mhtml-mode . emmet-mode))
-#+END_SRC
-
-*** Emment
-#+BEGIN_SRC emacs-lisp
-(use-package emmet-mode
-    :ensure t)
-#+END_SRC
-
-*** CSS/ SCSS/ SASS
-#+BEGIN_SRC emacs-lisp
-(use-package css-mode
-    :mode (("\\.css\\'" . css-mode)
-           ("\\.scss\\'" . css-mode)
-           ("\\.sass\\'" . css-mode)))
+(use-package go-mode
+    :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 
 *** Typescript / Javascript
@@ -368,14 +352,46 @@ Using mhtml-mode and LSP for editing HTML files. Requires the [[https://github.c
 ;; 		      lsp-clients-typescript-server-args "lsp")
 #+END_SRC
 
-*** Go
-LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langserver]].
+*** HTML
 #+BEGIN_SRC emacs-lisp
-(use-package go-mode
-    :mode ("\\.go\\'" . go-mode))
+(use-package mhtml-mode
+    :mode (("\\.htm\\'" . mhtml-mode)
+           ("\\.html\\'" . mhtml-mode))
+    :hook (mhtml-mode . emmet-mode))
 #+END_SRC
 
+*** Emment
+#+BEGIN_SRC emacs-lisp
+(use-package emmet-mode
+    :ensure t)
+#+END_SRC
+
+*** CSS/ SCSS/ SASS
+#+BEGIN_SRC emacs-lisp
+(use-package css-mode
+    :mode (("\\.css\\'" . css-mode)
+           ("\\.scss\\'" . css-mode)
+           ("\\.sass\\'" . css-mode))
+    :custom (css-indent-level indent-size))
+#+END_SRC
+
+*** Vue
+#+BEGIN_SRC emacs-lisp
+(use-package vue-mode
+    :mode ("\\.vue\\'" . vue-mode)
+    :custom (vue-indent-level indent-size)
+    :hook (vue-mode . emmet-mode))
+#+END_SRC
+
+*** Eslint
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-eslint
+    :demand t
+    :after lsp-mode)
+#+END_SRC#
+
 *** Apheleia
+Great for prettier and other formatters
 #+BEGIN_SRC emacs-lisp
 (use-package apheleia
     :ensure apheleia
@@ -390,6 +406,7 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
           '("prettier" "--stdin-filepath" filepath))
     (apheleia-global-mode +1))
 #+END_SRC
+
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
