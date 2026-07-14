@@ -38,19 +38,19 @@ Using [[https://github.com/radian-software/straight.el][straight]] for package m
 *** Path
 'exec-path-from-shell' uses Bash to set MANPATH, PATH, and exec-path from those defined in the user’s shell config. This won’t work on Windows.
 #+BEGIN_SRC emacs-lisp
-(use-package exec-path-from-shell
-    :if (memq window-system '(mac ns x))
-    :config
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-          exec-path-from-shell-check-startup-files nil)
-    (exec-path-from-shell-initialize))
+  (use-package exec-path-from-shell
+      :if (memq window-system '(mac ns x))
+      :config
+      (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+            exec-path-from-shell-check-startup-files nil)
+      (exec-path-from-shell-initialize))
 
-;; consider this one later... a bit cleaner
-;; (use-package exec-path-from-shell
-;;   :ensure t
-;;   :config
-;;   (when (memq window-system '(mac ns x))
-;;     (exec-path-from-shell-initialize)))  
+  ;; consider this one later... a bit cleaner
+  ;; (use-package exec-path-from-shell
+  ;;     :ensure t
+  ;;     :config
+  ;;     (when (memq window-system '(mac ns x))
+  ;;       (exec-path-from-shell-initialize)))  
 #+END_SRC
 
 *** Backups and Autosaves
@@ -71,8 +71,21 @@ Reloads ~/.emacs.d/config.org at runtime
 
 *** Encryption
 #+BEGIN_SRC emacs-lisp
-(require 'epg)
-(setq epg-pinentry-mode 'loopback)
+  ;; (require 'epg)
+  ;; (setq epg-pinentry-mode 'loopback)
+
+  (use-package pinentry :ensure t)
+  (pinentry-start)
+#+END_SRC
+
+*** Macos
+#+BEGIN_SRC emacs-lisp
+(when (eq system-type 'darwin)
+  (setq
+   ns-command-modifier 'meta
+   ns-option-modifier 'super
+   ;; ns-control-modifier 'super
+   ns-function-modifier 'hyper))
 #+END_SRC
 
 ** Look & Feel
