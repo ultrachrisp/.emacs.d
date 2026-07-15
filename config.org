@@ -425,8 +425,8 @@ Great for prettier and other formatters
                 ("C-c sw" . ispell-word)
                 ("C-c sl" . ispell-line)))
 
-(setq ispell-program-name "/usr/bin/aspell")
-;; (setq ispell-program-name "/opt/homebrew/bin/aspell")
+;; (setq ispell-program-name "/usr/bin/aspell")
+(setq ispell-program-name "/opt/homebrew/bin/aspell")
 #+END_SRC
 
 *** Olivetti Mode
