@@ -310,35 +310,32 @@ Syntax checking.
 ** Development
 *** Treesit-auto
 #+BEGIN_SRC emacs-lisp
-(use-package treesit-auto
-    :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
+(use-package tree-sitter)
+(use-package tree-sitter-langs)
 #+END_SRC
 
 *** LSP-mode
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-    :ensure t
-    :init
-    (setq lsp-keymap-prefix "C-c l")
-    :hook
-    ((lsp-mode . lsp-enable-which-key-integration)
-     (before-save . lsp-format-buffer)
-     (before-save . lsp-organize-imports)
-     ((tsx-ts-mode typescript-ts-mode js-ts-mode) . lsp-deferred))
-    :commands lsp-mode lsp)
+  (use-package lsp-mode
+      :ensure t
+      :init
+      (setq lsp-keymap-prefix "C-c l")
+      :hook
+      ((lsp-mode . lsp-enable-which-key-integration)
+       (before-save . lsp-format-buffer)
+       (before-save . lsp-organize-imports)
+       ((tsx-ts-mode typescript-ts-mode js-ts-mode) . lsp-deferred))
+      :commands lsp-mode lsp)
 
-(use-package lsp-ui
-    :config
-  (setq lsp-enable-symbol-highlighting t)
-  (setq lsp-ui-doc-enable t)
-  (setq lsp-ui-sideline-show-diagnostics t)
-  (setq lsp-ui-sideline-show-hover t)
-  (setq lsp-ui-sideline-show-code-actions t)
-  :commands lsp-ui-mode)
+  (use-package lsp-ui
+      :config
+    (setq lsp-enable-symbol-highlighting t)
+    (setq lsp-auto-configure t)
+    (setq lsp-ui-doc-enable t)
+    (setq lsp-ui-sideline-show-diagnostics t)
+    (setq lsp-ui-sideline-show-hover t)
+    (setq lsp-ui-sideline-show-code-actions t)
+    :commands lsp-ui-mode)
 #+END_SRC
 
 *** Go
