@@ -285,6 +285,8 @@ Magit is objectively the best Git interface.
       tsx-ts-mode
       js-mode
       js-ts-mode
+      json-mode
+      json-ts-mode
       html-mode
       mhtml-mode
       css-mode
@@ -317,6 +319,10 @@ Magit is objectively the best Git interface.
   (typescript-indent-level indent-size)
   :hook ((typescript-mode . emmet-mode)
          (typescript-mode . lsp-deferred)))
+
+(use-package json-mode
+  :mode "\\.json\\'"
+  :hook (json-mode . lsp-deferred))
 
 (use-package mhtml-mode
   :mode (("\\.htm\\'" . mhtml-mode)
