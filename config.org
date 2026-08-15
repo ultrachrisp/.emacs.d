@@ -104,9 +104,6 @@ Quick way to move between windows.
 
 *** UI General Settings
 #+BEGIN_SRC emacs-lisp
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(set-scroll-bar-mode nil)
 (setq inhibit-startup-screen t)
 (add-to-list 'default-frame-alist '(font . "Monaco-15"))
 
@@ -256,19 +253,44 @@ Magit is objectively the best Git interface.
   (global-treesit-auto-mode 1))
 #+END_SRC
 
-*** LSP-mode
+*** LSP-mode (TypeScript 7 & Polyglot Ready)
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
   :custom
   (lsp-enable-symbol-highlighting t)
+  (lsp-lens-enable t)
+  (lsp-headerline-breadcrumb-enable t)
+  (lsp-modeline-code-actions-enable t)
+  
+  ;; TypeScript 7 Inlay Hints & Modern Completion Features
+  (lsp-inlay-hint-enable t)
+  (lsp-javascript-display-parameter-name-hints 'all)
+  (lsp-javascript-display-variable-type-hints t)
+  (lsp-javascript-display-property-declaration-type-hints t)
+  (lsp-javascript-display-function-like-return-type-hints t)
+  (lsp-javascript-display-enum-member-value-hints t)
+  (lsp-typescript-suggest-complete-function-calls t)
+  (lsp-typescript-surround-auto-string-template-literals t)
+  (lsp-typescript-update-imports-on-file-move-enabled "always")
+
   :hook
   ((lsp-mode . lsp-enable-which-key-integration)
    (lsp-mode . (lambda ()
                  (add-hook 'before-save-hook #'lsp-format-buffer nil t)
                  (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
-   ((tsx-ts-mode typescript-ts-mode js-ts-mode) . lsp-deferred))
+   (( typescript-mode
+      typescript-ts-mode
+      tsx-ts-mode
+      js-mode
+      js-ts-mode
+      html-mode
+      mhtml-mode
+      css-mode
+      css-ts-mode
+      go-mode
+      go-ts-mode ) . lsp-deferred))
   :commands (lsp-mode lsp))
 
 (use-package lsp-ui
@@ -283,7 +305,8 @@ Magit is objectively the best Git interface.
 *** Languages & Frameworks
 #+BEGIN_SRC emacs-lisp
 (use-package go-mode
-  :mode "\\.go\\'")
+  :mode "\\.go\\'"
+  :hook (go-mode . lsp-deferred))
 
 (use-package typescript-mode
   :mode (("\\.js\\'" . typescript-mode)
@@ -292,12 +315,14 @@ Magit is objectively the best Git interface.
          ("\\.tsx\\'" . typescript-mode))
   :custom
   (typescript-indent-level indent-size)
-  :hook (typescript-mode . emmet-mode))
+  :hook ((typescript-mode . emmet-mode)
+         (typescript-mode . lsp-deferred)))
 
 (use-package mhtml-mode
   :mode (("\\.htm\\'" . mhtml-mode)
          ("\\.html\\'" . mhtml-mode))
-  :hook (mhtml-mode . emmet-mode))
+  :hook ((mhtml-mode . emmet-mode)
+         (mhtml-mode . lsp-deferred)))
 
 (use-package emmet-mode)
 
@@ -306,13 +331,15 @@ Magit is objectively the best Git interface.
          ("\\.scss\\'" . css-mode)
          ("\\.sass\\'" . css-mode))
   :custom
-  (css-indent-level indent-size))
+  (css-indent-level indent-size)
+  :hook (css-mode . lsp-deferred))
 
 (use-package vue-mode
   :mode "\\.vue\\'"
   :custom
   (vue-indent-level indent-size)
-  :hook (vue-mode . emmet-mode))
+  :hook ((vue-mode . emmet-mode)
+         (vue-mode . lsp-deferred)))
 #+END_SRC
 
 *** Apheleia
