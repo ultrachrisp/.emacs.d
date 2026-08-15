@@ -274,7 +274,40 @@ Magit is objectively the best Git interface.
                                      corfu-auto nil)
                 (corfu-mode)) nil t))
 #+END_SRC
+*** Cape
+#+BEGIN_SRC emacs-lisp
+;; Enable Corfu completion UI
+;; See the Corfu README for more configuration tips.
+(use-package corfu
+    :init
+  (global-corfu-mode))
 
+;; Add extensions
+(use-package cape
+    ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+    ;; Press C-c p ? to for help.
+    :bind ("M-p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+    ;; Alternatively bind Cape commands individually.
+    ;; :bind (("C-c p d" . cape-dabbrev)
+    ;;        ("C-c p h" . cape-history)
+    ;;        ("C-c p f" . cape-file)
+    ;;        ...)
+    :init
+    ;; Add to the global default value of `completion-at-point-functions' which is
+    ;; used by `completion-at-point'.  The order of the functions matters, the
+    ;; first function returning a result wins.  Note that the list of buffer-local
+    ;; completion functions takes precedence over the global list.
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    ;; (add-hook 'completion-at-point-functions #'cape-history)
+    )
+;; Use Company backends as Capfs.
+(setq-local completion-at-point-functions
+            (mapcar #'cape-company-to-capf
+                    (list #'company-files #'company-keywords #'company-dabbrev)))    
+
+#+END_SRC
 *** Yasnippet
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
@@ -311,11 +344,15 @@ Syntax checking.
     :ensure t
     :init
     (setq lsp-keymap-prefix "C-c l")
+    :custom
+    (lsp-completion-provider :none)
+    (lsp-lens-enable nil)
+    (lsp-log-io nil)
     :hook
     ((lsp-mode . lsp-enable-which-key-integration)
      (before-save . lsp-format-buffer)
      (before-save . lsp-organize-imports)
-     ((tsx-ts-mode typescript-ts-mode js-ts-mode) . lsp-deferred))
+     ((typescript-mode vue-mode) . lsp-deferred))
     :commands lsp-mode lsp)
 
 (use-package lsp-ui
@@ -373,6 +410,24 @@ LSP support - requires [[https://github.com/sourcegraph/go-langserver][go-langse
            ("\\.scss\\'" . css-mode)
            ("\\.sass\\'" . css-mode))
     :custom (css-indent-level indent-size))
+#+END_SRC
+
+*** Tailwind
+#+BEGIN_SRC emacs-lisp
+;; (use-package lsp-tailwindcss
+;;     :straight '(lsp-tailwindcss :type git :host github :repo "merrickluo/lsp-tailwindcss")
+;;     :init (setq lsp-tailwindcss-add-on-mode t)
+;;     :config
+;;     (dolist (tw-major-mode
+;;               '(css-mode
+;;                 css-ts-mode
+;;                 typescript-mode
+;;                 typescript-ts-mode
+;;                 tsx-ts-mode
+;;                 js2-mode
+;;                 js-ts-mode
+;;                 clojure-mode))
+;;       (add-to-list 'lsp-tailwindcss-major-modes tw-major-mode)))
 #+END_SRC
 
 *** Vue
