@@ -231,6 +231,7 @@ Magit is objectively the best Git interface.
   :init
   (setq lsp-keymap-prefix "C-c l")
   :custom
+  (lsp-enable-indentation nil)
   (lsp-enable-symbol-highlighting t)
   (lsp-lens-enable t)
   (lsp-headerline-breadcrumb-enable t)
@@ -294,6 +295,9 @@ Magit is objectively the best Git interface.
 
 (use-package json-mode
   :mode "\\.json\\'"
+  :custom
+  (js-indent-level indent-size)
+  (json-ts-mode-indent-offset indent-size)
   :hook (json-mode . lsp-deferred))
 
 (use-package mhtml-mode
