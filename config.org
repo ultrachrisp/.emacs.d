@@ -2,358 +2,360 @@
 #+AUTHOR: Chrisp
 #+LANGUAGE: en
 
+
 * Setup
 ** General
 *** Environment & Path
 Load environment variables on macOS and Linux GUI frames.
 #+BEGIN_SRC emacs-lisp
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
-  :config
-  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-        exec-path-from-shell-check-startup-files nil)
-  (exec-path-from-shell-initialize))
+  (use-package exec-path-from-shell
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
 #+END_SRC
 
 *** Backups and Autosaves
 Turning both off
 #+BEGIN_SRC emacs-lisp
-(setq make-backup-files nil
-      auto-save-default nil)
+  (setq make-backup-files nil
+        auto-save-default nil)
 #+END_SRC
 
 *** Configuration Reload
 Reloads ~/.emacs.d/config.org at runtime.
 #+BEGIN_SRC emacs-lisp
-(defun config-reload ()
-  "Reload user Emacs org configuration."
-  (interactive)
-  (org-babel-load-file (expand-file-name "config.org" user-emacs-directory)))
+  (defun config-reload ()
+    "Reload user Emacs org configuration."
+    (interactive)
+    (org-babel-load-file (expand-file-name "config.org" user-emacs-directory)))
 
-(global-set-key (kbd "C-c r") #'config-reload)
+  (global-set-key (kbd "C-c r") #'config-reload)
 #+END_SRC
 
 *** Encryption
 #+BEGIN_SRC emacs-lisp
-(use-package pinentry
-  :config
-  (pinentry-start))
+  (use-package pinentry
+    :config
+    (pinentry-start))
 #+END_SRC
 
 *** macOS Specifics
 #+BEGIN_SRC emacs-lisp
-(when (eq system-type 'darwin)
-  (setq ns-command-modifier 'meta
-        ns-option-modifier 'super
-        ns-function-modifier 'hyper))
+  (when (eq system-type 'darwin)
+    (setq ns-command-modifier 'meta
+          ns-option-modifier 'super
+          ns-function-modifier 'hyper))
 #+END_SRC
 
 ** Look & Feel
 *** Line & Column Numbers
 #+BEGIN_SRC emacs-lisp
-(column-number-mode 1)
-(line-number-mode 1)
+  (column-number-mode 1)
+  (line-number-mode 1)
 
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-(add-hook 'org-mode-hook #'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'org-mode-hook #'display-line-numbers-mode)
 #+END_SRC
 
 *** Ace-window
 Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
-(use-package ace-window
-  :bind ("C-x o" . ace-window))
+  (use-package ace-window
+    :bind ("C-x o" . ace-window))
 #+END_SRC
 
 *** Doom Themes
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes
-  :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
-  (load-theme 'doom-city-lights t))
+  (use-package doom-themes
+    :config
+    (setq doom-themes-enable-bold t
+          doom-themes-enable-italic t)
+    (load-theme 'doom-city-lights t))
 #+END_SRC
 
 *** UI General Settings
 #+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-screen t)
-(add-to-list 'default-frame-alist '(font . "Monaco-15"))
+  (setq inhibit-startup-screen t)
+  (add-to-list 'default-frame-alist '(font . "Monaco-15"))
 
-(defconst indent-size 2)
-(setq-default tab-width indent-size
-              indent-tabs-mode nil)
+  (defconst indent-size 2)
+  (setq-default tab-width indent-size
+                indent-tabs-mode nil)
 #+END_SRC
 
 ** Org Mode
 *** Todo States, Tags & Display
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :custom
-  (org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
-                       (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                       (sequence "|" "CANCELED(c)")))
-  (org-tag-alist '(("@orientation" . ?a)
-                   ("@coding" . ?b)
-                   ("@help" . ?c)
-                   ("@phone" . ?d)
-                   ("@documentation" . ?e)
-                   ("@meeting" . ?f)
-                   ("@email" . ?g)
-                   ("@break" . ?h)
-                   ("@study" . ?i)
-                   ("@slack" . ?j)
-                   ("@chat" . ?k)))
-  (org-columns-default-format "%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
-  (org-global-properties '(("Effort_ALL" . "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
-  (org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t)))
+  (use-package org
+    :custom
+    (org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+                         (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                         (sequence "|" "CANCELED(c)")))
+    (org-tag-alist '(("@orientation" . ?a)
+                     ("@coding" . ?b)
+                     ("@help" . ?c)
+                     ("@phone" . ?d)
+                     ("@documentation" . ?e)
+                     ("@meeting" . ?f)
+                     ("@email" . ?g)
+                     ("@break" . ?h)
+                     ("@study" . ?i)
+                     ("@slack" . ?j)
+                     ("@chat" . ?k)))
+    (org-columns-default-format "%40ITEM(Task) %10TAGS %17Effort(Estimated Effort){:} %CLOCKSUM %CLOCKSUM_T")
+    (org-global-properties '(("Effort_ALL" . "0 0:10 0:30 1:00 2:00 3:00 4:00 5:00 6:00 7:00 8:00 16:00 24:00 32:00 40:00")))
+    (org-time-clocksum-format '(:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t)))
 #+END_SRC
 
 ** Productivity
 *** Magit
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
-(use-package magit
-  :bind ("C-x g" . magit-status)
-  :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
+  (use-package magit
+    :bind ("C-x g" . magit-status)
+    :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
 #+END_SRC
 
 *** Projectile
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :bind-keymap ("C-c p" . projectile-command-map)
-  :commands (projectile-find-file projectile-grep projectile-switch-project projectile-project-root)
-  :config
-  (projectile-mode 1))
+  (use-package projectile
+    :bind-keymap ("C-c p" . projectile-command-map)
+    :commands (projectile-find-file projectile-grep projectile-switch-project projectile-project-root)
+    :config
+    (projectile-mode 1))
 #+END_SRC
 
 *** Minibuffer Completion Stack
 #+BEGIN_SRC emacs-lisp
-(use-package savehist
-  :init
-  (savehist-mode 1))
+  (use-package savehist
+    :init
+    (savehist-mode 1))
 
-(use-package recentf
-  :init
-  (recentf-mode 1))
+  (use-package recentf
+    :init
+    (recentf-mode 1))
 
-(use-package vertico
-  :custom
-  (vertico-cycle t)
-  (vertico-resize nil)
-  :init
-  (vertico-mode 1))
+  (use-package vertico
+    :custom
+    (vertico-cycle t)
+    (vertico-resize nil)
+    :init
+    (vertico-mode 1))
 
-(use-package orderless
-  :custom
-  (completion-styles '(orderless basic)))
+  (use-package orderless
+    :custom
+    (completion-styles '(orderless basic)))
 
-(use-package consult
-  :bind (("M-s M-g" . consult-grep)
-         ("M-s M-f" . consult-find)
-         ("M-s M-o" . consult-outline)
-         ("M-s M-l" . consult-line)
-         ("M-s M-b" . consult-buffer)))
+  (use-package consult
+    :bind (("M-s M-g" . consult-grep)
+           ("M-s M-f" . consult-find)
+           ("M-s M-o" . consult-outline)
+           ("M-s M-l" . consult-line)
+           ("M-s M-b" . consult-buffer)))
 
-(use-package marginalia
-  :init
-  (marginalia-mode 1))
+  (use-package marginalia
+    :init
+    (marginalia-mode 1))
 
-(use-package embark
-  :bind (("C-." . embark-act)
-         :map minibuffer-local-map
-         ("C-c C-c" . embark-collect)
-         ("C-c C-e" . embark-export)))
+  (use-package embark
+    :bind (("C-." . embark-act)
+           :map minibuffer-local-map
+           ("C-c C-c" . embark-collect)
+           ("C-c C-e" . embark-export)))
 
-(use-package embark-consult)
+  (use-package embark-consult)
 #+END_SRC
 
 *** Corfu & Completion
 #+BEGIN_SRC emacs-lisp
-(use-package corfu
-  :custom
-  (corfu-cycle t)
-  (corfu-auto t)
-  (corfu-auto-prefix 2)
-  (corfu-auto-delay 0)
-  (corfu-popupinfo-delay '(0.5 . 0.2))
-  (corfu-preview-current 'insert)
-  (corfu-preselect 'prompt)
-  (corfu-on-exact-match nil)
-  :bind (:map corfu-map
-              ("M-SPC"      . corfu-insert-separator)
-              ("TAB"        . corfu-next)
-              ([tab]        . corfu-next)
-              ("S-TAB"      . corfu-previous)
-              ([backtab]    . corfu-previous)
-              ("S-<return>" . corfu-insert)
-              ("RET"        . corfu-insert))
-  :init
-  (global-corfu-mode)
-  (corfu-history-mode)
-  (corfu-popupinfo-mode)
-  :config
-  (add-hook 'eshell-mode-hook
-            (lambda ()
-              (setq-local corfu-quit-at-boundary t
-                          corfu-quit-no-match t
-                          corfu-auto nil)
-              (corfu-mode 1))))
+  (use-package corfu
+    :custom
+    (corfu-cycle t)
+    (corfu-auto t)
+    (corfu-auto-prefix 2)
+    (corfu-auto-delay 0)
+    (corfu-popupinfo-delay '(0.5 . 0.2))
+    (corfu-preview-current 'insert)
+    (corfu-preselect 'prompt)
+    (corfu-on-exact-match nil)
+    :bind (:map corfu-map
+                ("M-SPC"      . corfu-insert-separator)
+                ("TAB"        . corfu-next)
+                ([tab]        . corfu-next)
+                ("S-TAB"      . corfu-previous)
+                ([backtab]    . corfu-previous)
+                ("S-<return>" . corfu-insert)
+                ("RET"        . corfu-insert))
+    :init
+    (global-corfu-mode)
+    (corfu-history-mode)
+    (corfu-popupinfo-mode)
+    :config
+    (add-hook 'eshell-mode-hook
+              (lambda ()
+                (setq-local corfu-quit-at-boundary t
+                            corfu-quit-no-match t
+                            corfu-auto nil)
+                (corfu-mode 1))))
 #+END_SRC
 
 *** Snippets & Diagnostics
 #+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :init
-  (yas-global-mode 1)
-  :config
-  (use-package yasnippet-snippets)
-  (yas-reload-all))
+  (use-package yasnippet
+    :init
+    (yas-global-mode 1)
+    :config
+    (use-package yasnippet-snippets)
+    (yas-reload-all))
 
-(use-package flycheck
-  :init
-  (global-flycheck-mode 1))
+  (use-package flycheck
+    :init
+    (global-flycheck-mode 1))
 #+END_SRC
 
 ** Development
 *** Tree-Sitter
 #+BEGIN_SRC emacs-lisp
-(use-package treesit-auto
-  :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode 1))
+  (use-package treesit-auto
+    :custom
+    (treesit-auto-install 'prompt)
+    :config
+    (treesit-auto-add-to-auto-mode-alist 'all)
+    (global-treesit-auto-mode 1))
 #+END_SRC
 
 *** LSP-mode (TypeScript 7 & Polyglot Ready)
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :custom
-  (lsp-enable-symbol-highlighting t)
-  (lsp-lens-enable t)
-  (lsp-headerline-breadcrumb-enable t)
-  (lsp-modeline-code-actions-enable t)
-  
-  ;; TypeScript 7 Inlay Hints & Modern Completion Features
-  (lsp-inlay-hint-enable t)
-  (lsp-javascript-display-parameter-name-hints 'all)
-  (lsp-javascript-display-variable-type-hints t)
-  (lsp-javascript-display-property-declaration-type-hints t)
-  (lsp-javascript-display-function-like-return-type-hints t)
-  (lsp-javascript-display-enum-member-value-hints t)
-  (lsp-typescript-suggest-complete-function-calls t)
-  (lsp-typescript-surround-auto-string-template-literals t)
-  (lsp-typescript-update-imports-on-file-move-enabled "always")
+  (use-package lsp-mode
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :custom
+    (lsp-enable-symbol-highlighting t)
+    (lsp-lens-enable t)
+    (lsp-headerline-breadcrumb-enable t)
+    (lsp-modeline-code-actions-enable t)
 
-  :hook
-  ((lsp-mode . lsp-enable-which-key-integration)
-   (lsp-mode . (lambda ()
-                 (add-hook 'before-save-hook #'lsp-format-buffer nil t)
-                 (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
-   (( typescript-mode
-      typescript-ts-mode
-      tsx-ts-mode
-      js-mode
-      js-ts-mode
-      json-mode
-      json-ts-mode
-      html-mode
-      mhtml-mode
-      css-mode
-      css-ts-mode
-      go-mode
-      go-ts-mode ) . lsp-deferred))
-  :commands (lsp-mode lsp))
+    
+    ;; TypeScript 7 Inlay Hints & Modern Completion Features
+    (lsp-inlay-hint-enable t)
+    (lsp-javascript-display-parameter-name-hints 'all)
+    (lsp-javascript-display-variable-type-hints t)
+    (lsp-javascript-display-property-declaration-type-hints t)
+    (lsp-javascript-display-function-like-return-type-hints t)
+    (lsp-javascript-display-enum-member-value-hints t)
+    (lsp-typescript-suggest-complete-function-calls t)
+    (lsp-typescript-surround-auto-string-template-literals t)
+    (lsp-typescript-update-imports-on-file-move-enabled "always")
 
-(use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-enable t)
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-show-code-actions t))
+    :hook
+    ((lsp-mode . lsp-enable-which-key-integration)
+     (lsp-mode . (lambda ()
+                   (add-hook 'before-save-hook #'lsp-format-buffer nil t)
+                   (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
+     (( typescript-mode
+        typescript-ts-mode
+        tsx-ts-mode
+        js-mode
+        js-ts-mode
+        json-mode
+        json-ts-mode
+        html-mode
+        mhtml-mode
+        css-mode
+        css-ts-mode
+        go-mode
+        go-ts-mode ) . lsp-deferred))
+    :commands (lsp-mode lsp))
+
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-enable t)
+    (lsp-ui-sideline-show-diagnostics t)
+    (lsp-ui-sideline-show-hover t)
+    (lsp-ui-sideline-show-code-actions t))
 #+END_SRC
 
 *** Languages & Frameworks
 #+BEGIN_SRC emacs-lisp
-(use-package go-mode
-  :mode "\\.go\\'"
-  :hook (go-mode . lsp-deferred))
+  (use-package go-mode
+    :mode "\\.go\\'"
+    :hook (go-mode . lsp-deferred))
 
-(use-package typescript-mode
-  :mode (("\\.js\\'" . typescript-mode)
-         ("\\.jsx\\'" . typescript-mode)
-         ("\\.ts\\'" . typescript-mode)
-         ("\\.tsx\\'" . typescript-mode))
-  :custom
-  (typescript-indent-level indent-size)
-  :hook ((typescript-mode . emmet-mode)
-         (typescript-mode . lsp-deferred)))
+  (use-package typescript-mode
+    :mode (("\\.js\\'" . typescript-mode)
+           ("\\.jsx\\'" . typescript-mode)
+           ("\\.ts\\'" . typescript-mode)
+           ("\\.tsx\\'" . typescript-mode))
+    :custom
+    (typescript-indent-level indent-size)
+    :hook ((typescript-mode . emmet-mode)
+           (typescript-mode . lsp-deferred)))
 
-(use-package json-mode
-  :mode "\\.json\\'"
-  :hook (json-mode . lsp-deferred))
+  (use-package json-mode
+    :mode "\\.json\\'"
+    :hook (json-mode . lsp-deferred))
 
-(use-package mhtml-mode
-  :mode (("\\.htm\\'" . mhtml-mode)
-         ("\\.html\\'" . mhtml-mode))
-  :hook ((mhtml-mode . emmet-mode)
-         (mhtml-mode . lsp-deferred)))
+  (use-package mhtml-mode
+    :mode (("\\.htm\\'" . mhtml-mode)
+           ("\\.html\\'" . mhtml-mode))
+    :hook ((mhtml-mode . emmet-mode)
+           (mhtml-mode . lsp-deferred)))
 
-(use-package emmet-mode)
+  (use-package emmet-mode)
 
-(use-package css-mode
-  :mode (("\\.css\\'" . css-mode)
-         ("\\.scss\\'" . css-mode)
-         ("\\.sass\\'" . css-mode))
-  :custom
-  (css-indent-level indent-size)
-  :hook (css-mode . lsp-deferred))
+  (use-package css-mode
+    :mode (("\\.css\\'" . css-mode)
+           ("\\.scss\\'" . css-mode)
+           ("\\.sass\\'" . css-mode))
+    :custom
+    (css-indent-level indent-size)
+    :hook (css-mode . lsp-deferred))
 
-(use-package vue-mode
-  :mode "\\.vue\\'"
-  :custom
-  (vue-indent-level indent-size)
-  :hook ((vue-mode . emmet-mode)
-         (vue-mode . lsp-deferred)))
+  (use-package vue-mode
+    :mode "\\.vue\\'"
+    :custom
+    (vue-indent-level indent-size)
+    :hook ((vue-mode . emmet-mode)
+           (vue-mode . lsp-deferred)))
 #+END_SRC
 
 *** Apheleia
 Great for prettier and other formatters.
 #+BEGIN_SRC emacs-lisp
-(use-package apheleia
-  :diminish ""
-  :config
-  (setf (alist-get 'prettier-json apheleia-formatters)
-        '("prettier" "--stdin-filepath" filepath))
-  (apheleia-global-mode 1))
+  (use-package apheleia
+    :diminish ""
+    :config
+    (setf (alist-get 'prettier-json apheleia-formatters)
+          '("prettier" "--stdin-filepath" filepath))
+    (apheleia-global-mode 1))
 #+END_SRC
 
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
-(use-package ispell
-  :init
-  (defun ispell-line ()
-    (interactive)
-    (ispell-region (line-beginning-position) (line-end-position)))
-  :bind (("C-c sr" . ispell-region)
-         ("C-c sb" . ispell-buffer)
-         ("C-c sw" . ispell-word)
-         ("C-c sl" . ispell-line))
-  :config
-  (when-let ((aspell-bin (or (executable-find "aspell")
-                             (executable-find "hunspell"))))
-    (setq ispell-program-name aspell-bin)))
+  (use-package ispell
+    :init
+    (defun ispell-line ()
+      (interactive)
+      (ispell-region (line-beginning-position) (line-end-position)))
+    :bind (("C-c sr" . ispell-region)
+           ("C-c sb" . ispell-buffer)
+           ("C-c sw" . ispell-word)
+           ("C-c sl" . ispell-line))
+    :config
+    (when-let ((aspell-bin (or (executable-find "aspell")
+                               (executable-find "hunspell"))))
+      (setq ispell-program-name aspell-bin)))
 #+END_SRC
 
 *** Olivetti Mode
 Olivetti is a minor mode for a nice writing environment.
 #+BEGIN_SRC emacs-lisp
-(use-package olivetti
-  :custom
-  (olivetti-body-width 100)
-  :commands olivetti-mode)
+  (use-package olivetti
+    :custom
+    (olivetti-body-width 100)
+    :commands olivetti-mode)
 #+END_SRC
