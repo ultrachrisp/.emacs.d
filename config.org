@@ -8,11 +8,13 @@
 Load environment variables on macOS and Linux GUI frames.
 #+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
-  :config
-  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-        exec-path-from-shell-check-startup-files nil)
-  (exec-path-from-shell-initialize))
+    :if (memq window-system '(mac ns x))
+    :config
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
+          exec-path-from-shell-check-startup-files nil)
+    (exec-path-from-shell-initialize))
+
+(add-to-list 'warning-suppress-types '(files missing-lexbind-cookie))  
 #+END_SRC
 
 *** Backups and Autosaves
@@ -36,7 +38,7 @@ Reloads ~/.emacs.d/config.org at runtime.
 *** Encryption
 #+BEGIN_SRC emacs-lisp
 (use-package pinentry
-  :config
+    :config
   (pinentry-start))
 #+END_SRC
 
@@ -62,13 +64,13 @@ Reloads ~/.emacs.d/config.org at runtime.
 Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
 (use-package ace-window
-  :bind ("C-x o" . ace-window))
+    :bind ("C-x o" . ace-window))
 #+END_SRC
 
 *** Doom Themes
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :config
+    :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (load-theme 'doom-city-lights t))
@@ -88,7 +90,7 @@ Quick way to move between windows.
 *** Todo States, Tags & Display
 #+BEGIN_SRC emacs-lisp
 (use-package org
-  :custom
+    :custom
   (org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
                        (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
                        (sequence "|" "CANCELED(c)")))
@@ -113,56 +115,56 @@ Quick way to move between windows.
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :bind ("C-x g" . magit-status)
-  :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
+    :bind ("C-x g" . magit-status)
+    :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
 #+END_SRC
 
 *** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :bind-keymap ("C-c p" . projectile-command-map)
-  :commands (projectile-find-file projectile-grep projectile-switch-project projectile-project-root)
-  :config
-  (projectile-mode 1))
+    :bind-keymap ("C-c p" . projectile-command-map)
+    :commands (projectile-find-file projectile-grep projectile-switch-project projectile-project-root)
+    :config
+    (projectile-mode 1))
 #+END_SRC
 
 *** Minibuffer Completion Stack
 #+BEGIN_SRC emacs-lisp
 (use-package savehist
-  :init
+    :init
   (savehist-mode 1))
 
 (use-package recentf
-  :init
+    :init
   (recentf-mode 1))
 
 (use-package vertico
-  :custom
+    :custom
   (vertico-cycle t)
   (vertico-resize nil)
   :init
   (vertico-mode 1))
 
 (use-package orderless
-  :custom
+    :custom
   (completion-styles '(orderless basic)))
 
 (use-package consult
-  :bind (("M-s M-g" . consult-grep)
-         ("M-s M-f" . consult-find)
-         ("M-s M-o" . consult-outline)
-         ("M-s M-l" . consult-line)
-         ("M-s M-b" . consult-buffer)))
+    :bind (("M-s M-g" . consult-grep)
+           ("M-s M-f" . consult-find)
+           ("M-s M-o" . consult-outline)
+           ("M-s M-l" . consult-line)
+           ("M-s M-b" . consult-buffer)))
 
 (use-package marginalia
-  :init
+    :init
   (marginalia-mode 1))
 
 (use-package embark
-  :bind (("C-." . embark-act)
-         :map minibuffer-local-map
-         ("C-c C-c" . embark-collect)
-         ("C-c C-e" . embark-export)))
+    :bind (("C-." . embark-act)
+           :map minibuffer-local-map
+           ("C-c C-c" . embark-collect)
+           ("C-c C-e" . embark-export)))
 
 (use-package embark-consult)
 #+END_SRC
@@ -170,7 +172,7 @@ Magit is objectively the best Git interface.
 *** Corfu & Completion
 #+BEGIN_SRC emacs-lisp
 (use-package corfu
-  :custom
+    :custom
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-auto-prefix 2)
@@ -203,14 +205,14 @@ Magit is objectively the best Git interface.
 *** Snippets & Diagnostics
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-  :init
+    :init
   (yas-global-mode 1)
   :config
   (use-package yasnippet-snippets)
   (yas-reload-all))
 
 (use-package flycheck
-  :init
+    :init
   (global-flycheck-mode 1))
 #+END_SRC
 
@@ -218,7 +220,7 @@ Magit is objectively the best Git interface.
 *** Tree-Sitter
 #+BEGIN_SRC emacs-lisp
 (use-package treesit-auto
-  :custom
+    :custom
   (treesit-auto-install 'prompt)
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
@@ -228,7 +230,7 @@ Magit is objectively the best Git interface.
 *** LSP-mode (TypeScript 7 & Polyglot Ready)
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
-  :init
+    :init
   (setq lsp-keymap-prefix "C-c l")
   :custom
   (lsp-enable-indentation nil)
@@ -269,77 +271,77 @@ Magit is objectively the best Git interface.
   :commands (lsp-mode lsp))
 
 (use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-enable t)
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-sideline-show-code-actions t))
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-enable t)
+    (lsp-ui-sideline-show-diagnostics t)
+    (lsp-ui-sideline-show-hover t)
+    (lsp-ui-sideline-show-code-actions t))
 #+END_SRC
 
 *** Languages & Frameworks
 #+BEGIN_SRC emacs-lisp
 (use-package go-mode
-  :mode "\\.go\\'"
-  :hook (go-mode . lsp-deferred))
+    :mode "\\.go\\'"
+    :hook (go-mode . lsp-deferred))
 
 (use-package typescript-mode
-  :mode (("\\.js\\'" . typescript-mode)
-         ("\\.jsx\\'" . typescript-mode)
-         ("\\.ts\\'" . typescript-mode)
-         ("\\.tsx\\'" . typescript-mode))
-  :custom
-  (typescript-indent-level indent-size)
-  :hook ((typescript-mode . emmet-mode)
-         (typescript-mode . lsp-deferred)))
+    :mode (("\\.js\\'" . typescript-mode)
+           ("\\.jsx\\'" . typescript-mode)
+           ("\\.ts\\'" . typescript-mode)
+           ("\\.tsx\\'" . typescript-mode))
+    :custom
+    (typescript-indent-level indent-size)
+    :hook ((typescript-mode . emmet-mode)
+           (typescript-mode . lsp-deferred)))
 
 (use-package json-mode
-  :mode "\\.json\\'"
-  :custom
-  (js-indent-level indent-size)
-  (json-ts-mode-indent-offset indent-size)
-  :hook (json-mode . lsp-deferred))
+    :mode "\\.json\\'"
+    :custom
+    (js-indent-level indent-size)
+    (json-ts-mode-indent-offset indent-size)
+    :hook (json-mode . lsp-deferred))
 
 (use-package mhtml-mode
-  :mode (("\\.htm\\'" . mhtml-mode)
-         ("\\.html\\'" . mhtml-mode))
-  :hook ((mhtml-mode . emmet-mode)
-         (mhtml-mode . lsp-deferred)))
+    :mode (("\\.htm\\'" . mhtml-mode)
+           ("\\.html\\'" . mhtml-mode))
+    :hook ((mhtml-mode . emmet-mode)
+           (mhtml-mode . lsp-deferred)))
 
 (use-package emmet-mode)
 
 (use-package css-mode
-  :mode (("\\.css\\'" . css-mode)
-         ("\\.scss\\'" . css-mode)
-         ("\\.sass\\'" . css-mode))
-  :custom
-  (css-indent-level indent-size)
-  :hook (css-mode . lsp-deferred))
+    :mode (("\\.css\\'" . css-mode)
+           ("\\.scss\\'" . css-mode)
+           ("\\.sass\\'" . css-mode))
+    :custom
+    (css-indent-level indent-size)
+    :hook (css-mode . lsp-deferred))
 
 (use-package vue-mode
-  :mode "\\.vue\\'"
-  :custom
-  (vue-indent-level indent-size)
-  :hook ((vue-mode . emmet-mode)
-         (vue-mode . lsp-deferred)))
+    :mode "\\.vue\\'"
+    :custom
+    (vue-indent-level indent-size)
+    :hook ((vue-mode . emmet-mode)
+           (vue-mode . lsp-deferred)))
 #+END_SRC
 
 *** Apheleia
 Great for prettier and other formatters.
 #+BEGIN_SRC emacs-lisp
 (use-package apheleia
-  :diminish ""
-  :config
-  (setf (alist-get 'prettier-json apheleia-formatters)
-        '("prettier" "--stdin-filepath" filepath))
-  (apheleia-global-mode 1))
+    :diminish ""
+    :config
+    (setf (alist-get 'prettier-json apheleia-formatters)
+          '("prettier" "--stdin-filepath" filepath))
+    (apheleia-global-mode 1))
 #+END_SRC
 
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
 (use-package ispell
-  :init
+    :init
   (defun ispell-line ()
     (interactive)
     (ispell-region (line-beginning-position) (line-end-position)))
@@ -357,7 +359,7 @@ Great for prettier and other formatters.
 Olivetti is a minor mode for a nice writing environment.
 #+BEGIN_SRC emacs-lisp
 (use-package olivetti
-  :custom
+    :custom
   (olivetti-body-width 100)
   :commands olivetti-mode)
 #+END_SRC

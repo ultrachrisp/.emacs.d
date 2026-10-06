@@ -1,5 +1,7 @@
 ;;; init.el --- Bootstrapper for config.org -*- lexical-binding: t; -*-
 
+;; -*- lexical-binding: nil; -*- 
+
 ;; Ensure Emacs loads the most recent byte-compiled files
 (setq load-prefer-newer t)
 
