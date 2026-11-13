@@ -35,6 +35,9 @@ Reloads ~/.emacs.d/config.org at runtime.
 #+END_SRC
 
 *** Encryption
+Needed for GPG-signed commits from Magit: with =allow-emacs-pinentry= in
+=gpg-agent.conf=, git's gpg asks for the passphrase in the minibuffer.
+The built-in =epg-pinentry-mode= only covers Emacs's own GPG calls.
 #+BEGIN_SRC emacs-lisp
 (use-package pinentry
     :config
@@ -118,13 +121,16 @@ Magit is objectively the best Git interface.
     :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
 #+END_SRC
 
-*** Projectile
+*** Project
+Built-in project.el, on its default =C-x p= prefix and on =C-c p= for
+Projectile muscle memory. Consult, Magit and LSP use it automatically.
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
-    :bind-keymap ("C-c p" . projectile-command-map)
-    :commands (projectile-find-file projectile-grep projectile-switch-project projectile-project-root)
-    :config
-    (projectile-mode 1))
+(use-package project
+    :straight (:type built-in)
+    :init
+    (keymap-global-set "C-c p" project-prefix-map)
+    :custom
+    (project-mode-line t))
 #+END_SRC
 
 *** Which-key
@@ -226,13 +232,21 @@ Built into Emacs 30+; also powers the lsp-mode keymap hints.
 
 ** Development
 *** Tree-Sitter
+Built into Emacs 31: remaps the classic modes to their tree-sitter modes,
+and offers to install a missing grammar from the source pinned for it.
 #+BEGIN_SRC emacs-lisp
-(use-package treesit-auto
+(use-package treesit
+    :straight (:type built-in)
     :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode 1))
+  (treesit-auto-install-grammar 'ask)
+  (treesit-enabled-modes '(typescript-ts-mode
+                           tsx-ts-mode
+                           js-ts-mode
+                           json-ts-mode
+                           css-ts-mode
+                           mhtml-ts-mode
+                           go-ts-mode
+                           go-mod-ts-mode)))
 #+END_SRC
 
 *** LSP-mode (TypeScript 7 & Polyglot Ready)
@@ -268,13 +282,14 @@ Built into Emacs 30+; also powers the lsp-mode keymap hints.
       js-mode
       js-ts-mode
       json-ts-mode
-      html-mode
-      mhtml-mode
+      mhtml-ts-mode
       css-mode
       css-ts-mode
-      go-mode
       go-ts-mode ) . lsp-deferred))
-  :commands (lsp-mode lsp))
+  :commands (lsp-mode lsp)
+  :config
+  ;; lsp-mode doesn't know Emacs 31's mhtml-ts-mode yet
+  (add-to-list 'lsp-language-id-configuration '(mhtml-ts-mode . "html")))
 
 (use-package lsp-ui
     :hook (lsp-mode . lsp-ui-mode)
@@ -287,11 +302,8 @@ Built into Emacs 30+; also powers the lsp-mode keymap hints.
 
 *** Languages & Frameworks
 #+BEGIN_SRC emacs-lisp
-(use-package go-mode
-    :mode "\\.go\\'")
-
-;; .ts/.tsx/.js/.jsx/.json are mapped to their tree-sitter modes by treesit-auto;
-;; lsp-deferred is hooked in the lsp-mode block above.
+;; Tree-sitter modes come from `treesit-enabled-modes' above;
+;; lsp-deferred is hooked in the lsp-mode block.
 (use-package typescript-ts-mode
     :straight (:type built-in)
     :custom
@@ -310,21 +322,21 @@ Built into Emacs 30+; also powers the lsp-mode keymap hints.
     :custom
     (json-ts-mode-indent-offset indent-size))
 
-(use-package mhtml-mode
-    :mode (("\\.htm\\'" . mhtml-mode)
-           ("\\.html\\'" . mhtml-mode))
-    :hook ((mhtml-mode . emmet-mode)
-           (mhtml-mode . lsp-deferred)))
+(use-package mhtml-ts-mode
+    :straight (:type built-in)
+    :hook (mhtml-ts-mode . emmet-mode))
 
 (use-package emmet-mode)
 
+;; .scss uses the built-in scss-mode (derived from css-mode), as the
+;; css tree-sitter grammar can't parse SCSS.
 (use-package css-mode
-    :mode (("\\.css\\'" . css-mode)
-           ("\\.scss\\'" . css-mode)
-           ("\\.sass\\'" . css-mode))
+    :straight (:type built-in)
     :custom
-    (css-indent-level indent-size)
-    :hook (css-mode . lsp-deferred))
+    (css-indent-offset indent-size))
+
+(use-package ssass-mode
+    :mode "\\.sass\\'")
 
 (use-package vue-mode
     :mode "\\.vue\\'"

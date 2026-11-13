@@ -13,8 +13,6 @@ transient/
 
 .cache
 .lsp-session-v1
-projectile.cache
-projectile-bookmarks.eld
 config.el
 tramp
 
@@ -22,5 +20,5 @@ tramp
 custom.el
 history
 recentf
-projectile-frecency.eld
+projects.eld
 tree-sitter/
