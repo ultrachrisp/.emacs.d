@@ -123,7 +123,7 @@ Magit is objectively the best Git interface.
 
 *** Project
 Built-in project.el, on its default =C-x p= prefix and on =C-c p= for
-Projectile muscle memory. Consult, Magit and LSP use it automatically.
+Projectile muscle memory. Consult, Magit and Eglot use it automatically.
 #+BEGIN_SRC emacs-lisp
 (use-package project
     :straight (:type built-in)
@@ -134,7 +134,7 @@ Projectile muscle memory. Consult, Magit and LSP use it automatically.
 #+END_SRC
 
 *** Which-key
-Built into Emacs 30+; also powers the lsp-mode keymap hints.
+Built into Emacs 30+; shows the keys that follow a prefix.
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
     :straight (:type built-in)
@@ -225,17 +225,26 @@ Built into Emacs 30+; also powers the lsp-mode keymap hints.
   (use-package yasnippet-snippets)
   (yas-reload-all))
 
-(use-package flycheck
-    :init
-  (global-flycheck-mode 1))
+;; Built-in diagnostics; Eglot turns it on in its buffers.
+(use-package flymake
+    :straight (:type built-in)
+    :hook (emacs-lisp-mode . flymake-mode)
+    :bind (:map flymake-mode-map
+                ("M-n"     . flymake-goto-next-error)
+                ("M-p"     . flymake-goto-prev-error)
+                ("C-c ! l" . flymake-show-buffer-diagnostics)
+                ("C-c ! p" . flymake-show-project-diagnostics))
+    :custom
+    (flymake-show-diagnostics-at-end-of-line 'short)
+    (flymake-indicator-type 'auto))
 #+END_SRC
 
 ** AI
 *** Claude Code
 The Claude Code CLI inside Emacs, via claude-code-ide.el. Claude connects to
-Emacs over MCP: it sees the current file, selection and Flycheck/Flymake
-diagnostics, and can use xref, tree-sitter, imenu and project.el. Proposed
-edits open in ediff, where you can tweak them before accepting.
+Emacs over MCP: it sees the current file, selection and Flymake diagnostics,
+and can use xref (backed by Eglot), tree-sitter, imenu and project.el.
+Proposed edits open in ediff, where you can tweak them before accepting.
 #+BEGIN_SRC emacs-lisp
 (use-package eat
     :straight (:type git :host codeberg :repo "akib/emacs-eat"
@@ -253,6 +262,7 @@ edits open in ediff, where you can tweak them before accepting.
     (claude-code-ide-terminal-backend 'eat)
     (claude-code-ide-show-backend-recommendation nil)
     (claude-code-ide-enable-execute-code nil)
+    (claude-code-ide-diagnostics-backend 'flymake)
     (claude-code-ide-window-side 'right)
     (claude-code-ide-window-width 100)
     :config
@@ -291,61 +301,108 @@ and offers to install a missing grammar from the source pinned for it.
                            go-mod-ts-mode)))
 #+END_SRC
 
-*** LSP-mode (TypeScript 7 & Polyglot Ready)
+*** Eglot
+Built-in LSP client. It reports through Flymake, navigates with xref, shows
+docs with eldoc and completes through completion-at-point (Corfu).
+
+For JS/TS, the servers are picked per project: TypeScript 7's own
+=tsc --lsp=, plus ESLint, oxlint and Tailwind when the project uses them.
+Several servers run behind one connection through Rassumfrassum (=rass=).
+Install: =uv tool install rassumfrassum= and
+=npm i -g vscode-langservers-extracted @tailwindcss/language-server=.
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-    :init
-  (setq lsp-keymap-prefix "C-c l")
-  :custom
-  (lsp-enable-indentation nil)
-  (lsp-enable-symbol-highlighting t)
-  (lsp-lens-enable t)
-  (lsp-headerline-breadcrumb-enable t)
-  (lsp-modeline-code-actions-enable t)
-  
-  ;; TypeScript 7 Inlay Hints & Modern Completion Features
-  (lsp-inlay-hint-enable t)
-  (lsp-javascript-display-parameter-name-hints 'all)
-  (lsp-javascript-display-variable-type-hints t)
-  (lsp-javascript-display-property-declaration-type-hints t)
-  (lsp-javascript-display-function-like-return-type-hints t)
-  (lsp-javascript-display-enum-member-value-hints t)
-  (lsp-typescript-suggest-complete-function-calls t)
-  (lsp-typescript-surround-auto-string-template-literals t)
-  (lsp-typescript-update-imports-on-file-move-enabled "always")
+(defun my/eglot-node-bin (root name)
+  "Return NAME from ROOT's node_modules/.bin if it exists."
+  (let ((bin (expand-file-name (concat "node_modules/.bin/" name) root)))
+    (and (file-executable-p bin) bin)))
 
-  ;; Formatting is handled by Apheleia; LSP only organizes imports on save
-  :hook
-  ((lsp-mode . lsp-enable-which-key-integration)
-   (lsp-mode . (lambda ()
-                 (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
-   (( typescript-ts-mode
-      tsx-ts-mode
-      js-mode
-      js-ts-mode
-      json-ts-mode
-      mhtml-ts-mode
-      css-mode
-      css-ts-mode
-      go-ts-mode ) . lsp-deferred))
-  :commands (lsp-mode lsp)
-  :config
-  ;; lsp-mode doesn't know Emacs 31's mhtml-ts-mode yet
-  (add-to-list 'lsp-language-id-configuration '(mhtml-ts-mode . "html")))
+(defun my/eglot-typescript-major (root)
+  "Return the major version of the TypeScript installed in ROOT, or 0."
+  (let ((pkg (expand-file-name "node_modules/typescript/package.json" root)))
+    (if (file-readable-p pkg)
+        (with-temp-buffer
+          (insert-file-contents pkg)
+          (truncate (string-to-number (gethash "version" (json-parse-buffer) "0"))))
+      0)))
 
-(use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode)
+(defun my/eglot-js-servers (root)
+  "Return the language server commands for the JS/TS project at ROOT.
+TypeScript 7+ ships its server as `tsc --lsp'; older projects use the
+global TypeScript 7."
+  (delq nil
+        (list (list (or (and (>= (my/eglot-typescript-major root) 7)
+                             (my/eglot-node-bin root "tsc"))
+                        "tsc")
+                    "--lsp" "--stdio")
+              (when (directory-files root nil "\\`\\(eslint\\.config\\.[cm]?[jt]s\\|\\.eslintrc.*\\)\\'")
+                '("vscode-eslint-language-server" "--stdio"))
+              (when-let* ((oxlint (my/eglot-node-bin root "oxlint")))
+                (list oxlint "--lsp"))
+              (when (file-directory-p (expand-file-name "node_modules/tailwindcss" root))
+                '("tailwindcss-language-server" "--stdio")))))
+
+(defconst my/rass-logic-dir (expand-file-name "rass" user-emacs-directory)
+  "Directory holding emacs_rass.py, the logic class rass runs with.
+It answers ESLint's settings request and works around a rass bug that
+hides TypeScript 7's diagnostics; see the file for details.")
+
+(defun my/eglot-js-contact (_interactive project)
+  "Eglot contact for JS/TS: a single server directly, several through rass."
+  (let ((servers (my/eglot-js-servers
+                  (expand-file-name (if project (project-root project) default-directory)))))
+    (if (cdr servers)
+        (append (list "env" (concat "PYTHONPATH=" my/rass-logic-dir)
+                      "rass" "--logic-class" "emacs_rass.EmacsTypeScriptLogic")
+                (mapcan (lambda (server) (cons "--" (copy-sequence server))) servers))
+      (car servers))))
+
+(defun my/eglot-organize-imports-on-save ()
+  "Organize imports before saving, when the server offers it."
+  (add-hook 'before-save-hook
+            (lambda ()
+              (ignore-errors
+                (eglot-code-action-organize-imports (point-min) (point-max))))
+            nil t))
+
+(use-package eglot
+    :straight (:type built-in)
+    :hook (((typescript-ts-mode tsx-ts-mode js-ts-mode
+             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode) . eglot-ensure)
+           ((typescript-ts-mode tsx-ts-mode js-ts-mode) . my/eglot-organize-imports-on-save))
+    :bind (:map eglot-mode-map
+                ("C-c l a" . eglot-code-actions)
+                ("C-c l r" . eglot-rename)
+                ("C-c l o" . eglot-code-action-organize-imports)
+                ("C-c l f" . eglot-format)
+                ("C-c l d" . eldoc-doc-buffer))
     :custom
-    (lsp-ui-doc-enable t)
-    (lsp-ui-sideline-show-diagnostics t)
-    (lsp-ui-sideline-show-hover t)
-    (lsp-ui-sideline-show-code-actions t))
+    (eglot-autoshutdown t)
+    (eglot-extend-to-xref t)
+    (eglot-events-buffer-config '(:size 0 :format full))
+    :config
+    (add-to-list 'eglot-server-programs
+                 '(((js-ts-mode :language-id "javascript")
+                    (tsx-ts-mode :language-id "typescriptreact")
+                    (typescript-ts-mode :language-id "typescript"))
+                   . my/eglot-js-contact))
+    (setq-default eglot-workspace-configuration
+                  (let ((hints '(:parameterNames (:enabled "all")
+                                 :variableTypes (:enabled t)
+                                 :propertyDeclarationTypes (:enabled t)
+                                 :functionLikeReturnTypes (:enabled t)
+                                 :enumMemberValues (:enabled t))))
+                    `(:typescript (:inlayHints ,hints)
+                      :javascript (:inlayHints ,hints)))))
+
+;; Header-line breadcrumb of the current symbol, from imenu and project.el
+(use-package breadcrumb
+    :hook (eglot-managed-mode . breadcrumb-local-mode))
 #+END_SRC
 
 *** Languages & Frameworks
 #+BEGIN_SRC emacs-lisp
 ;; Tree-sitter modes come from `treesit-enabled-modes' above;
-;; lsp-deferred is hooked in the lsp-mode block.
+;; eglot-ensure is hooked in the Eglot block.
 (use-package typescript-ts-mode
     :straight (:type built-in)
     :custom
@@ -384,8 +441,7 @@ and offers to install a missing grammar from the source pinned for it.
     :mode "\\.vue\\'"
     :custom
     (vue-indent-level indent-size)
-    :hook ((vue-mode . emmet-mode)
-           (vue-mode . lsp-deferred)))
+    :hook (vue-mode . emmet-mode))
 #+END_SRC
 
 *** Apheleia
