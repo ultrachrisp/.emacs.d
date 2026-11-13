@@ -230,6 +230,48 @@ Built into Emacs 30+; also powers the lsp-mode keymap hints.
   (global-flycheck-mode 1))
 #+END_SRC
 
+** AI
+*** Claude Code
+The Claude Code CLI inside Emacs, via claude-code-ide.el. Claude connects to
+Emacs over MCP: it sees the current file, selection and Flycheck/Flymake
+diagnostics, and can use xref, tree-sitter, imenu and project.el. Proposed
+edits open in ediff, where you can tweak them before accepting.
+#+BEGIN_SRC emacs-lisp
+(use-package eat
+    :straight (:type git :host codeberg :repo "akib/emacs-eat"
+               :files ("*.el" ("term" "term/*.el") "*.texi" "*.ti"
+                       ("terminfo/e" "terminfo/e/*")
+                       ("terminfo/65" "terminfo/65/*")
+                       ("integration" "integration/*")
+                       (:exclude ".dir-locals.el" "*-tests.el")))
+    :commands (eat eat-project))
+
+(use-package claude-code-ide
+    :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
+    :bind ("C-c C-'" . claude-code-ide-menu)
+    :custom
+    (claude-code-ide-terminal-backend 'eat)
+    (claude-code-ide-show-backend-recommendation nil)
+    (claude-code-ide-enable-execute-code nil)
+    (claude-code-ide-window-side 'right)
+    (claude-code-ide-window-width 100)
+    :config
+    (claude-code-ide-emacs-tools-setup))
+#+END_SRC
+
+*** Emacs Server
+Lets Claude's =Ctrl+G= (edit the prompt in =$EDITOR=) open the prompt in this
+Emacs; finish with =C-x #=.
+#+BEGIN_SRC emacs-lisp
+(use-package server
+    :straight (:type built-in)
+    :config
+    (unless (server-running-p)
+      (server-start)))
+
+(setenv "EDITOR" "emacsclient")
+#+END_SRC
+
 ** Development
 *** Tree-Sitter
 Built into Emacs 31: remaps the classic modes to their tree-sitter modes,
