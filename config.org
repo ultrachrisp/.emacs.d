@@ -1,6 +1,7 @@
 #+TITLE: Chrisp Emacs Config
 #+AUTHOR: Chrisp
 #+LANGUAGE: en
+#+PROPERTY: header-args:emacs-lisp :shebang ";;; config.el --- Tangled from config.org -*- lexical-binding: t; -*-" :tangle-mode o644
 
 * Setup
 ** General
@@ -13,8 +14,6 @@ Load environment variables on macOS and Linux GUI frames.
     (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
           exec-path-from-shell-check-startup-files nil)
     (exec-path-from-shell-initialize))
-
-(add-to-list 'warning-suppress-types '(files missing-lexbind-cookie))  
 #+END_SRC
 
 *** Backups and Autosaves
@@ -126,6 +125,15 @@ Magit is objectively the best Git interface.
     :commands (projectile-find-file projectile-grep projectile-switch-project projectile-project-root)
     :config
     (projectile-mode 1))
+#+END_SRC
+
+*** Which-key
+Built into Emacs 30+; also powers the lsp-mode keymap hints.
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+    :straight (:type built-in)
+    :init
+  (which-key-mode 1))
 #+END_SRC
 
 *** Minibuffer Completion Stack
@@ -250,17 +258,15 @@ Magit is objectively the best Git interface.
   (lsp-typescript-surround-auto-string-template-literals t)
   (lsp-typescript-update-imports-on-file-move-enabled "always")
 
+  ;; Formatting is handled by Apheleia; LSP only organizes imports on save
   :hook
   ((lsp-mode . lsp-enable-which-key-integration)
    (lsp-mode . (lambda ()
-                 (add-hook 'before-save-hook #'lsp-format-buffer nil t)
                  (add-hook 'before-save-hook #'lsp-organize-imports nil t)))
-   (( typescript-mode
-      typescript-ts-mode
+   (( typescript-ts-mode
       tsx-ts-mode
       js-mode
       js-ts-mode
-      json-mode
       json-ts-mode
       html-mode
       mhtml-mode
@@ -282,25 +288,27 @@ Magit is objectively the best Git interface.
 *** Languages & Frameworks
 #+BEGIN_SRC emacs-lisp
 (use-package go-mode
-    :mode "\\.go\\'"
-    :hook (go-mode . lsp-deferred))
+    :mode "\\.go\\'")
 
-(use-package typescript-mode
-    :mode (("\\.js\\'" . typescript-mode)
-           ("\\.jsx\\'" . typescript-mode)
-           ("\\.ts\\'" . typescript-mode)
-           ("\\.tsx\\'" . typescript-mode))
+;; .ts/.tsx/.js/.jsx/.json are mapped to their tree-sitter modes by treesit-auto;
+;; lsp-deferred is hooked in the lsp-mode block above.
+(use-package typescript-ts-mode
+    :straight (:type built-in)
     :custom
-    (typescript-indent-level indent-size)
-    :hook ((typescript-mode . emmet-mode)
-           (typescript-mode . lsp-deferred)))
+    (typescript-ts-mode-indent-offset indent-size)
+    :hook (tsx-ts-mode . emmet-mode))
 
-(use-package json-mode
-    :mode "\\.json\\'"
+(use-package js
+    :straight (:type built-in)
+    :mode ("\\.jsx\\'" . js-ts-mode)
     :custom
     (js-indent-level indent-size)
-    (json-ts-mode-indent-offset indent-size)
-    :hook (json-mode . lsp-deferred))
+    :hook (js-ts-mode . emmet-mode))
+
+(use-package json-ts-mode
+    :straight (:type built-in)
+    :custom
+    (json-ts-mode-indent-offset indent-size))
 
 (use-package mhtml-mode
     :mode (("\\.htm\\'" . mhtml-mode)
@@ -330,7 +338,6 @@ Magit is objectively the best Git interface.
 Great for prettier and other formatters.
 #+BEGIN_SRC emacs-lisp
 (use-package apheleia
-    :diminish ""
     :config
     (setf (alist-get 'prettier-json apheleia-formatters)
           '("prettier" "--stdin-filepath" filepath))
@@ -350,7 +357,7 @@ Great for prettier and other formatters.
          ("C-c sw" . ispell-word)
          ("C-c sl" . ispell-line))
   :config
-  (when-let ((aspell-bin (or (executable-find "aspell")
+  (when-let* ((aspell-bin (or (executable-find "aspell")
                              (executable-find "hunspell"))))
     (setq ispell-program-name aspell-bin)))
 #+END_SRC

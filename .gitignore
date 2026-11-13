@@ -16,3 +16,10 @@ projectile.cache
 projectile-bookmarks.eld
 config.el
 tramp
+
+# Runtime state
+custom.el
+history
+recentf
+projectile-frecency.eld
+tree-sitter/
