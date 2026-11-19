@@ -255,7 +255,10 @@ and offers to install a missing grammar from the source pinned for it.
                            css-ts-mode
                            mhtml-ts-mode
                            go-ts-mode
-                           go-mod-ts-mode)))
+                           go-mod-ts-mode
+                           rust-ts-mode
+                           python-ts-mode
+                           toml-ts-mode)))
 #+END_SRC
 
 *** Eglot
@@ -267,6 +270,11 @@ For JS/TS, the servers are picked per project: TypeScript 7's own
 Several servers run behind one connection through Rassumfrassum (=rass=).
 Install: =uv tool install rassumfrassum= and
 =npm i -g vscode-langservers-extracted @tailwindcss/language-server=.
+
+Rust uses =rust-analyzer=, checking with clippy. Python uses Eglot's
+built-in =rass python=, which runs ty (types) and ruff (lint) together.
+Install: =rustup component add rust-analyzer clippy rustfmt= and
+=uv tool install ty ruff=.
 #+BEGIN_SRC emacs-lisp
 (defun my/eglot-node-bin (root name)
   "Return NAME from ROOT's node_modules/.bin if it exists."
@@ -324,7 +332,8 @@ hides TypeScript 7's diagnostics; see the file for details.")
 (use-package eglot
     :straight (:type built-in)
     :hook (((typescript-ts-mode tsx-ts-mode js-ts-mode
-             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode) . eglot-ensure)
+             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode
+             rust-ts-mode python-ts-mode) . eglot-ensure)
            ((typescript-ts-mode tsx-ts-mode js-ts-mode) . my/eglot-organize-imports-on-save))
     :bind (:map eglot-mode-map
                 ("C-c l a" . eglot-code-actions)
@@ -349,7 +358,8 @@ hides TypeScript 7's diagnostics; see the file for details.")
                                  :functionLikeReturnTypes (:enabled t)
                                  :enumMemberValues (:enabled t))))
                     `(:typescript (:inlayHints ,hints)
-                      :javascript (:inlayHints ,hints)))))
+                      :javascript (:inlayHints ,hints)
+                      :rust-analyzer (:check (:command "clippy"))))))
 
 ;; Header-line breadcrumb of the current symbol, from imenu and project.el
 (use-package breadcrumb
@@ -399,15 +409,31 @@ hides TypeScript 7's diagnostics; see the file for details.")
     :custom
     (vue-indent-level indent-size)
     :hook (vue-mode . emmet-mode))
+
+;; Rust and Python keep their own 4-space defaults; rust-ts-mode is built in.
+;; Run cargo, pytest and friends with `project-compile' (C-x p c).
+(defun my/python-use-project-venv ()
+  "Point `run-python' at the project's .venv (as created by uv), if any."
+  (when-let* ((project (project-current))
+              (venv (expand-file-name ".venv" (project-root project)))
+              ((file-directory-p venv)))
+    (setq-local python-shell-virtualenv-root venv)))
+
+(use-package python
+    :straight (:type built-in)
+    :hook (python-ts-mode . my/python-use-project-venv))
 #+END_SRC
 
 *** Apheleia
-Great for prettier and other formatters.
+Great for prettier and other formatters. Rust uses its default, rustfmt;
+Python uses ruff to sort imports and then format (Apheleia's default is black).
 #+BEGIN_SRC emacs-lisp
 (use-package apheleia
     :config
     (setf (alist-get 'prettier-json apheleia-formatters)
           '("prettier" "--stdin-filepath" filepath))
+    (setf (alist-get 'python-ts-mode apheleia-mode-alist)
+          '(ruff-isort ruff))
     (apheleia-global-mode 1))
 #+END_SRC
 
