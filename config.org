@@ -11,8 +11,7 @@ Load environment variables on macOS and Linux GUI frames.
 (use-package exec-path-from-shell
     :if (memq window-system '(mac ns x))
     :config
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-          exec-path-from-shell-check-startup-files nil)
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL"))
     (exec-path-from-shell-initialize))
 #+END_SRC
 
@@ -56,7 +55,6 @@ The built-in =epg-pinentry-mode= only covers Emacs's own GPG calls.
 *** Line & Column Numbers
 #+BEGIN_SRC emacs-lisp
 (column-number-mode 1)
-(line-number-mode 1)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'org-mode-hook #'display-line-numbers-mode)
@@ -73,8 +71,6 @@ Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
     :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
   (load-theme 'doom-city-lights t))
 #+END_SRC
 
@@ -117,8 +113,7 @@ Quick way to move between windows.
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-    :bind ("C-x g" . magit-status)
-    :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
+    :bind ("C-x g" . magit-status))
 #+END_SRC
 
 *** Project
@@ -192,17 +187,13 @@ Built into Emacs 30+; shows the keys that follow a prefix.
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0)
   (corfu-popupinfo-delay '(0.5 . 0.2))
-  (corfu-preview-current 'insert)
   (corfu-preselect 'prompt)
-  (corfu-on-exact-match nil)
   :bind (:map corfu-map
-              ("M-SPC"      . corfu-insert-separator)
               ("TAB"        . corfu-next)
               ([tab]        . corfu-next)
               ("S-TAB"      . corfu-previous)
               ([backtab]    . corfu-previous)
-              ("S-<return>" . corfu-insert)
-              ("RET"        . corfu-insert))
+              ("S-<return>" . corfu-insert))
   :init
   (global-corfu-mode)
   (corfu-history-mode)
@@ -235,8 +226,7 @@ Built into Emacs 30+; shows the keys that follow a prefix.
                 ("C-c ! l" . flymake-show-buffer-diagnostics)
                 ("C-c ! p" . flymake-show-project-diagnostics))
     :custom
-    (flymake-show-diagnostics-at-end-of-line 'short)
-    (flymake-indicator-type 'auto))
+    (flymake-show-diagnostics-at-end-of-line 'short))
 #+END_SRC
 
 ** AI
@@ -290,7 +280,6 @@ and offers to install a missing grammar from the source pinned for it.
 (use-package treesit
     :straight (:type built-in)
     :custom
-  (treesit-auto-install-grammar 'ask)
   (treesit-enabled-modes '(typescript-ts-mode
                            tsx-ts-mode
                            js-ts-mode
@@ -298,7 +287,10 @@ and offers to install a missing grammar from the source pinned for it.
                            css-ts-mode
                            mhtml-ts-mode
                            go-ts-mode
-                           go-mod-ts-mode)))
+                           go-mod-ts-mode
+                           rust-ts-mode
+                           python-ts-mode
+                           toml-ts-mode)))
 #+END_SRC
 
 *** Eglot
@@ -310,6 +302,11 @@ For JS/TS, the servers are picked per project: TypeScript 7's own
 Several servers run behind one connection through Rassumfrassum (=rass=).
 Install: =uv tool install rassumfrassum= and
 =npm i -g vscode-langservers-extracted @tailwindcss/language-server=.
+
+Rust uses =rust-analyzer=, checking with clippy. Python uses Eglot's
+built-in =rass python=, which runs ty (types) and ruff (lint) together.
+Install: =rustup component add rust-analyzer clippy rustfmt= and
+=uv tool install ty ruff=.
 #+BEGIN_SRC emacs-lisp
 (defun my/eglot-node-bin (root name)
   "Return NAME from ROOT's node_modules/.bin if it exists."
@@ -367,7 +364,8 @@ hides TypeScript 7's diagnostics; see the file for details.")
 (use-package eglot
     :straight (:type built-in)
     :hook (((typescript-ts-mode tsx-ts-mode js-ts-mode
-             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode) . eglot-ensure)
+             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode
+             rust-ts-mode python-ts-mode) . eglot-ensure)
            ((typescript-ts-mode tsx-ts-mode js-ts-mode) . my/eglot-organize-imports-on-save))
     :bind (:map eglot-mode-map
                 ("C-c l a" . eglot-code-actions)
@@ -392,7 +390,8 @@ hides TypeScript 7's diagnostics; see the file for details.")
                                  :functionLikeReturnTypes (:enabled t)
                                  :enumMemberValues (:enabled t))))
                     `(:typescript (:inlayHints ,hints)
-                      :javascript (:inlayHints ,hints)))))
+                      :javascript (:inlayHints ,hints)
+                      :rust-analyzer (:check (:command "clippy"))))))
 
 ;; Header-line breadcrumb of the current symbol, from imenu and project.el
 (use-package breadcrumb
@@ -411,7 +410,6 @@ hides TypeScript 7's diagnostics; see the file for details.")
 
 (use-package js
     :straight (:type built-in)
-    :mode ("\\.jsx\\'" . js-ts-mode)
     :custom
     (js-indent-level indent-size)
     :hook (js-ts-mode . emmet-mode))
@@ -442,15 +440,29 @@ hides TypeScript 7's diagnostics; see the file for details.")
     :custom
     (vue-indent-level indent-size)
     :hook (vue-mode . emmet-mode))
+
+;; Rust and Python keep their own 4-space defaults; rust-ts-mode is built in.
+;; Run cargo, pytest and friends with `project-compile' (C-x p c).
+(defun my/python-use-project-venv ()
+  "Point `run-python' at the project's .venv (as created by uv), if any."
+  (when-let* ((project (project-current))
+              (venv (expand-file-name ".venv" (project-root project)))
+              ((file-directory-p venv)))
+    (setq-local python-shell-virtualenv-root venv)))
+
+(use-package python
+    :straight (:type built-in)
+    :hook (python-ts-mode . my/python-use-project-venv))
 #+END_SRC
 
 *** Apheleia
-Great for prettier and other formatters.
+Great for prettier and other formatters. Rust uses its default, rustfmt;
+Python uses ruff to sort imports and then format (Apheleia's default is black).
 #+BEGIN_SRC emacs-lisp
 (use-package apheleia
     :config
-    (setf (alist-get 'prettier-json apheleia-formatters)
-          '("prettier" "--stdin-filepath" filepath))
+    (setf (alist-get 'python-ts-mode apheleia-mode-alist)
+          '(ruff-isort ruff))
     (apheleia-global-mode 1))
 #+END_SRC
 
@@ -480,3 +492,93 @@ Olivetti is a minor mode for a nice writing environment.
   (olivetti-body-width 100)
   :commands olivetti-mode)
 #+END_SRC
+
+* External Dependencies
+Programs this config relies on outside Emacs, for a fresh macOS machine with
+[[https://brew.sh][Homebrew]]. These blocks are reference only: Emacs loads just the Emacs Lisp
+blocks above, never these.
+
+** Base tools
+Xcode's command-line tools provide git and the C compiler Emacs uses to build
+tree-sitter grammars.
+#+BEGIN_SRC sh
+xcode-select --install
+#+END_SRC
+
+** Emacs
+Emacs 31 from the emacs-plus tap.
+#+BEGIN_SRC sh
+brew tap d12frosted/emacs-plus
+brew install --cask emacs-plus-app
+#+END_SRC
+
+** Shell PATH
+GUI Emacs takes its =PATH= from the login shell (=exec-path-from-shell=), so the
+tools below must be on it. Add these lines to =~/.zprofile=:
+#+BEGIN_SRC sh
+eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+
+# uv tools (rass, ruff, ty)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Rust: Homebrew's rustup is keg-only; cargo-installed tools go in ~/.cargo/bin
+export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
+#+END_SRC
+
+** GPG signing from Magit
+=pinentry.el= (see Encryption) lets git ask for the GPG passphrase in the
+minibuffer when Magit signs a commit.
+#+BEGIN_SRC sh
+brew install gnupg pinentry
+cat >> ~/.gnupg/gpg-agent.conf <<'CONF'
+allow-emacs-pinentry
+pinentry-program /opt/homebrew/bin/pinentry
+CONF
+gpgconf --kill gpg-agent
+#+END_SRC
+
+** Spelling
+#+BEGIN_SRC sh
+brew install aspell
+#+END_SRC
+
+** JavaScript & TypeScript
+Node comes from [[https://github.com/nvm-sh/nvm#installing-and-updating][nvm]]; install it first, then:
+#+BEGIN_SRC sh
+nvm install node
+npm install -g typescript@7 vscode-langservers-extracted @tailwindcss/language-server
+#+END_SRC
+- =typescript@7= provides =tsc --lsp=, the TypeScript server for projects
+  whose own TypeScript is older than 7.
+- =vscode-langservers-extracted= provides the ESLint, JSON, CSS and HTML servers.
+- Prettier and oxlint come from each project's own =node_modules=.
+
+** Multiple language servers: rass
+#+BEGIN_SRC sh
+brew install uv
+uv tool install rassumfrassum
+#+END_SRC
+
+** Python
+ty checks types and ruff lints and formats. Projects use =uv= for their
+=.venv=; Homebrew's Python is the default for =run-python= outside one.
+#+BEGIN_SRC sh
+brew install python
+uv tool install ty
+uv tool install ruff
+#+END_SRC
+
+** Rust
+#+BEGIN_SRC sh
+brew install rustup
+rustup default stable
+rustup component add rust-analyzer clippy rustfmt
+#+END_SRC
+
+** First start
+- straight.el installs the Emacs packages on first start. Run
+  =M-x straight-thaw-versions= afterwards to check out the versions pinned in
+  =straight/versions/default.el=.
+- Emacs asks to install each tree-sitter grammar the first time you open a
+  file in that language.
+- Check that Emacs sees a tool with =M-: (executable-find "rust-analyzer")=.

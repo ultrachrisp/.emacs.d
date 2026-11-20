@@ -6,13 +6,11 @@ backups/
 elpa/
 eln-cache/  
 eshell/
-lsp-cache/  
 straight/*
 !straight/versions/
 transient/
 
 .cache
-.lsp-session-v1
 config.el
 tramp
 
