@@ -22,6 +22,19 @@ Turning both off
       auto-save-default nil)
 #+END_SRC
 
+*** Auto-Revert
+Reload buffers automatically when files change on disk (e.g. from Git or
+agent edits), using the OS file-notification backend rather than polling.
+#+BEGIN_SRC emacs-lisp
+(use-package autorevert
+    :straight (:type built-in)
+    :custom
+    (global-auto-revert-non-file-buffers t)
+    (auto-revert-avoid-polling t)
+    :init
+    (global-auto-revert-mode 1))
+#+END_SRC
+
 *** Configuration Reload
 Reloads ~/.emacs.d/config.org at runtime.
 #+BEGIN_SRC emacs-lisp
@@ -114,6 +127,16 @@ Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
     :bind ("C-x g" . magit-status))
+#+END_SRC
+
+*** Ediff
+Keep the Ediff control panel inside the current frame with side-by-side diffs.
+#+BEGIN_SRC emacs-lisp
+(use-package ediff
+    :straight (:type built-in)
+    :custom
+    (ediff-window-setup-function #'ediff-setup-windows-plain)
+    (ediff-split-window-function #'split-window-horizontally))
 #+END_SRC
 
 *** Project
@@ -423,6 +446,87 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
     (apheleia-global-mode 1))
 #+END_SRC
 
+*** Agent Shell (Antigravity)
+Native Emacs interface to Google Antigravity (=agy acp=) over the Agent Client
+Protocol, built on =comint-mode=, =project.el=, and =completion-at-point=.
+Docks in a right-hand side window (jump with =C-x o=), integrates with
+=project.el= (=C-x p a= / =C-c p a=), and disables automatic Corfu popups for
+prose while keeping =@file= and =/command= completion active.
+#+BEGIN_SRC emacs-lisp
+(defun my/agent-shell-setup ()
+  "Keep Corfu from auto-popping on prose while preserving `@' and `/' completion."
+  (setq-local corfu-auto nil
+              corfu-quit-at-boundary t
+              corfu-quit-no-match t))
+
+(defun my/agent-shell-send-flymake-diagnostics ()
+  "Insert all Flymake diagnostics for the current buffer into `agent-shell'."
+  (interactive)
+  (require 'flymake)
+  (let ((diags (and (bound-and-true-p flymake-mode)
+                    (flymake-diagnostics))))
+    (unless diags
+      (user-error "No Flymake diagnostics in current buffer"))
+    (let* ((project (project-current))
+           (root (and project (project-root project)))
+           (file (cond
+                  ((and buffer-file-name root)
+                   (file-relative-name buffer-file-name root))
+                  (buffer-file-name)
+                  (t (buffer-name))))
+           (lines (mapconcat
+                   (lambda (d)
+                     (format "- %s:%d [%s] %s"
+                             file
+                             (line-number-at-pos (flymake-diagnostic-beg d) t)
+                             (flymake-diagnostic-type d)
+                             (flymake-diagnostic-text d)))
+                   diags "\n")))
+      (require 'agent-shell)
+      (agent-shell-insert
+       :text (format "Fix these Flymake diagnostics in %s:\n%s\n" file lines)))))
+
+(use-package agent-shell
+    :commands (agent-shell
+               agent-shell-toggle
+               agent-shell-new-shell
+               agent-shell-send-dwim
+               agent-shell-send-region
+               agent-shell-send-current-file
+               agent-shell-send-file
+               agent-shell-prompt-compose
+               agent-shell-insert-shell-command-output)
+    :bind (("C-c a a" . agent-shell)
+           ("C-c a t" . agent-shell-toggle)
+           ("C-c a n" . agent-shell-new-shell)
+           ("C-c a s" . agent-shell-send-dwim)
+           ("C-c a r" . agent-shell-send-region)
+           ("C-c a f" . agent-shell-send-current-file)
+           ("C-c a F" . agent-shell-send-file)
+           ("C-c a c" . agent-shell-prompt-compose)
+           ("C-c a !" . agent-shell-insert-shell-command-output)
+           ("C-c a d" . my/agent-shell-send-flymake-diagnostics))
+    :hook (agent-shell-mode . my/agent-shell-setup)
+    :custom
+    (agent-shell-file-completion-enabled t)
+    (agent-shell-display-action
+     '(display-buffer-in-side-window
+       (side . right)
+       (slot . 0)
+       (dedicated . t)
+       (window-width . 0.4)))
+    :init
+    (with-eval-after-load 'project
+      (keymap-set project-prefix-map "a" #'agent-shell)
+      (add-to-list 'project-switch-commands '(agent-shell "Agent shell" ?a) t))
+    (with-eval-after-load 'which-key
+      (which-key-add-key-based-replacements "C-c a" "agent"))
+    :config
+    (require 'agent-shell-antigravity)
+    (setq agent-shell-preferred-agent-config
+          (agent-shell-antigravity-make-agent-config)))
+#+END_SRC
+
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
@@ -530,6 +634,14 @@ uv tool install ruff
 brew install rustup
 rustup default stable
 rustup component add rust-analyzer clippy rustfmt
+#+END_SRC
+
+** Antigravity CLI
+=agent-shell= talks to =agy acp= over stdio. Make sure =agy= is on =PATH=
+(installed under =~/.local/bin=, already added in [[*Shell PATH][Shell PATH]]) and signed in:
+#+BEGIN_SRC sh
+agy --help
+agy acp --login
 #+END_SRC
 
 ** First start
