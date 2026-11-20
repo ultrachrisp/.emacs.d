@@ -1,12 +1,23 @@
 ;;; early-init.el --- Early initialization settings -*- lexical-binding: t; -*-
 
+;; Temporarily raise GC threshold during startup for faster boot
+(defvar default-gc-cons-threshold (* 32 1024 1024))
+(setq gc-cons-threshold most-positive-fixnum)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold default-gc-cons-threshold)))
+
 ;; Disable built-in package.el early so straight.el takes full control
 (setq package-enable-at-startup nil)
 
-;; Prevent UI elements from rendering during boot to avoid window flashing
+;; Avoid unnecessary frame resizing when setting the initial font
+(setq frame-inhibit-implied-resize t)
+
+;; Prevent UI elements and font swaps from flashing during boot
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars . nil) default-frame-alist)
+(push '(font . "Monaco-15") default-frame-alist)
 
 (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))

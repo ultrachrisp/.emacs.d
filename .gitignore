@@ -4,7 +4,7 @@ auto-save-list/
 autosaves/
 backups/
 elpa/
-eln-cache/  
+eln-cache/
 eshell/
 straight/*
 !straight/versions/
@@ -18,6 +18,9 @@ tramp
 custom.el
 history
 recentf
+recentf.eld
 projects.eld
 tree-sitter/
 __pycache__/
+.agent-shell/
+agent/

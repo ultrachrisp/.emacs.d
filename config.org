@@ -6,12 +6,14 @@
 * Setup
 ** General
 *** Environment & Path
-Load environment variables on macOS and Linux GUI frames.
+Load environment variables on macOS and Linux GUI frames from a login shell.
 #+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
-    :if (memq window-system '(mac ns x))
+    :if (memq window-system '(mac ns x pgtk))
+    :custom
+    (exec-path-from-shell-arguments '("-l"))
+    (exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL"))
     :config
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL"))
     (exec-path-from-shell-initialize))
 #+END_SRC
 
@@ -77,7 +79,6 @@ Quick way to move between windows.
 *** UI General Settings
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
-(add-to-list 'default-frame-alist '(font . "Monaco-15"))
 
 (defconst indent-size 2)
 (setq-default tab-width indent-size
@@ -88,8 +89,9 @@ Quick way to move between windows.
 *** Todo States, Tags & Display
 #+BEGIN_SRC emacs-lisp
 (use-package org
+    :straight (:type built-in)
     :custom
-  (org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)" "|" "WAITING(w)")
+  (org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "|" "DONE(d)")
                        (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
                        (sequence "|" "CANCELED(c)")))
   (org-tag-alist '(("@orientation" . ?a)
@@ -134,16 +136,24 @@ Built into Emacs 30+; shows the keys that follow a prefix.
 (use-package which-key
     :straight (:type built-in)
     :init
-  (which-key-mode 1))
+  (which-key-mode 1)
+  :config
+  (which-key-add-key-based-replacements
+    "C-c p" "project"
+    "C-c l" "lsp"
+    "C-c !" "diagnostics"
+    "C-c s" "spell"))
 #+END_SRC
 
 *** Minibuffer Completion Stack
 #+BEGIN_SRC emacs-lisp
 (use-package savehist
+    :straight (:type built-in)
     :init
   (savehist-mode 1))
 
 (use-package recentf
+    :straight (:type built-in)
     :init
   (recentf-mode 1))
 
@@ -156,13 +166,21 @@ Built into Emacs 30+; shows the keys that follow a prefix.
 
 (use-package orderless
     :custom
-  (completion-styles '(orderless basic)))
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides
+   '((file (styles basic partial-completion))
+     (eglot (styles orderless))
+     (eglot-capf (styles orderless)))))
 
 (use-package consult
-    :bind (("M-s M-g" . consult-grep)
-           ("M-s M-f" . consult-find)
+    :bind (("C-x b"   . consult-buffer)
+           ("M-s M-g" . consult-ripgrep)
+           ("M-s M-f" . consult-fd)
            ("M-s M-o" . consult-outline)
+           ("M-s M-i" . consult-imenu)
            ("M-s M-l" . consult-line)
+           ("M-s M-e" . consult-flymake)
            ("M-s M-b" . consult-buffer)))
 
 (use-package marginalia
@@ -170,7 +188,8 @@ Built into Emacs 30+; shows the keys that follow a prefix.
   (marginalia-mode 1))
 
 (use-package embark
-    :bind (("C-." . embark-act)
+    :bind (("C-."   . embark-act)
+           ("C-h B" . embark-bindings)
            :map minibuffer-local-map
            ("C-c C-c" . embark-collect)
            ("C-c C-e" . embark-export)))
@@ -199,6 +218,8 @@ Built into Emacs 30+; shows the keys that follow a prefix.
   (corfu-history-mode)
   (corfu-popupinfo-mode)
   :config
+  (with-eval-after-load 'savehist
+    (add-to-list 'savehist-additional-variables 'corfu-history))
   (add-hook 'eshell-mode-hook
             (lambda ()
               (setq-local corfu-quit-at-boundary t
@@ -286,8 +307,6 @@ and offers to install a missing grammar from the source pinned for it.
                            json-ts-mode
                            css-ts-mode
                            mhtml-ts-mode
-                           go-ts-mode
-                           go-mod-ts-mode
                            rust-ts-mode
                            python-ts-mode
                            toml-ts-mode)))
@@ -300,8 +319,10 @@ docs with eldoc and completes through completion-at-point (Corfu).
 For JS/TS, the servers are picked per project: TypeScript 7's own
 =tsc --lsp=, plus ESLint, oxlint and Tailwind when the project uses them.
 Several servers run behind one connection through Rassumfrassum (=rass=).
+Vue SFCs (=my/vue-mode=) use =rass vue= (=vue-language-server= + =vtsls= in
+hybrid mode), layering Tailwind when the project installs it.
 Install: =uv tool install rassumfrassum= and
-=npm i -g vscode-langservers-extracted @tailwindcss/language-server=.
+=npm i -g vscode-langservers-extracted @tailwindcss/language-server @vue/language-server @vtsls/language-server=.
 
 Rust uses =rust-analyzer=, checking with clippy. Python uses Eglot's
 built-in =rass python=, which runs ty (types) and ruff (lint) together.
@@ -353,6 +374,13 @@ hides TypeScript 7's diagnostics; see the file for details.")
                 (mapcan (lambda (server) (cons "--" (copy-sequence server))) servers))
       (car servers))))
 
+(defun my/eglot-vue-contact (_interactive project)
+  "Eglot contact for Vue SFCs via `rass vue', layering Tailwind if installed."
+  (let ((root (expand-file-name (if project (project-root project) default-directory))))
+    (if (file-directory-p (expand-file-name "node_modules/tailwindcss" root))
+        '("rass" "vue" "--" "tailwindcss-language-server" "--stdio")
+      '("rass" "vue"))))
+
 (defun my/eglot-organize-imports-on-save ()
   "Organize imports before saving, when the server offers it."
   (add-hook 'before-save-hook
@@ -364,7 +392,7 @@ hides TypeScript 7's diagnostics; see the file for details.")
 (use-package eglot
     :straight (:type built-in)
     :hook (((typescript-ts-mode tsx-ts-mode js-ts-mode
-             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode
+             json-ts-mode css-ts-mode scss-mode mhtml-ts-mode my/vue-mode
              rust-ts-mode python-ts-mode) . eglot-ensure)
            ((typescript-ts-mode tsx-ts-mode js-ts-mode) . my/eglot-organize-imports-on-save))
     :bind (:map eglot-mode-map
@@ -378,6 +406,14 @@ hides TypeScript 7's diagnostics; see the file for details.")
     (eglot-extend-to-xref t)
     (eglot-events-buffer-config '(:size 0 :format full))
     :config
+    ;; Override mhtml-ts-mode explicitly: its derived parent chain includes
+    ;; js-mode, which otherwise matches Eglot's built-in JS entry first.
+    (add-to-list 'eglot-server-programs
+                 '((mhtml-ts-mode :language-id "html")
+                   . ("vscode-html-language-server" "--stdio")))
+    (add-to-list 'eglot-server-programs
+                 '((my/vue-mode :language-id "vue")
+                   . my/eglot-vue-contact))
     (add-to-list 'eglot-server-programs
                  '(((js-ts-mode :language-id "javascript")
                     (tsx-ts-mode :language-id "typescriptreact")
@@ -432,14 +468,20 @@ hides TypeScript 7's diagnostics; see the file for details.")
     :custom
     (css-indent-offset indent-size))
 
-(use-package ssass-mode
-    :mode "\\.sass\\'")
-
-(use-package vue-mode
-    :mode "\\.vue\\'"
+;; Vue SFCs use a dedicated web-mode derivative so Eglot can target .vue
+;; without hijacking web-mode, while Apheleia inherits `(web-mode . prettier)'.
+(use-package web-mode
     :custom
-    (vue-indent-level indent-size)
-    :hook (vue-mode . emmet-mode))
+    (web-mode-markup-indent-offset indent-size)
+    (web-mode-css-indent-offset indent-size)
+    (web-mode-code-indent-offset indent-size)
+    (web-mode-script-padding 0)
+    (web-mode-style-padding 0)
+    :init
+    (define-derived-mode my/vue-mode web-mode "Vue"
+      "Major mode for editing Vue single-file components.")
+    (add-to-list 'auto-mode-alist '("\\.vue\\'" . my/vue-mode))
+    :hook (my/vue-mode . emmet-mode))
 
 ;; Rust and Python keep their own 4-space defaults; rust-ts-mode is built in.
 ;; Run cargo, pytest and friends with `project-compile' (C-x p c).
@@ -470,14 +512,17 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
 *** Spelling
 #+BEGIN_SRC emacs-lisp
 (use-package ispell
-    :init
+    :straight (:type built-in)
+    :custom
+  (ispell-dictionary "en_GB")
+  :init
   (defun ispell-line ()
     (interactive)
     (ispell-region (line-beginning-position) (line-end-position)))
-  :bind (("C-c sr" . ispell-region)
-         ("C-c sb" . ispell-buffer)
-         ("C-c sw" . ispell-word)
-         ("C-c sl" . ispell-line))
+  :bind (("C-c s r" . ispell-region)
+         ("C-c s b" . ispell-buffer)
+         ("C-c s w" . ispell-word)
+         ("C-c s l" . ispell-line))
   :config
   (when-let* ((aspell-bin (or (executable-find "aspell")
                              (executable-find "hunspell"))))
@@ -494,31 +539,43 @@ Olivetti is a minor mode for a nice writing environment.
 #+END_SRC
 
 * External Dependencies
-Programs this config relies on outside Emacs, for a fresh macOS machine with
-[[https://brew.sh][Homebrew]]. These blocks are reference only: Emacs loads just the Emacs Lisp
-blocks above, never these.
+Programs this config relies on outside Emacs, for macOS with
+[[https://brew.sh][Homebrew]] and Linux/WSL (Debian/Ubuntu). These blocks are reference only:
+Emacs loads just the Emacs Lisp blocks above, never these.
 
 ** Base tools
-Xcode's command-line tools provide git and the C compiler Emacs uses to build
-tree-sitter grammars.
+C compiler & git (for building tree-sitter grammars), plus =ripgrep= and =fd=
+for =consult-ripgrep= and =consult-fd=.
 #+BEGIN_SRC sh
+# macOS
 xcode-select --install
+brew install ripgrep fd
+
+# Linux (Debian/Ubuntu)
+sudo apt install build-essential git ripgrep fd-find
+ln -s "$(which fdfind)" ~/.local/bin/fd
 #+END_SRC
 
 ** Emacs
-Emacs 31 from the emacs-plus tap.
+Emacs 31 (via emacs-plus on macOS or snap on Linux).
 #+BEGIN_SRC sh
+# macOS
 brew tap d12frosted/emacs-plus
 brew install --cask emacs-plus-app
+
+# Linux
+sudo snap install emacs --classic --edge
 #+END_SRC
 
 ** Shell PATH
-GUI Emacs takes its =PATH= from the login shell (=exec-path-from-shell=), so the
-tools below must be on it. Add these lines to =~/.zprofile=:
+GUI Emacs takes its =PATH= from a login shell (=exec-path-from-shell= with
+=-l=), so the tools below must be exported in =~/.zprofile= (macOS/zsh) or
+=~/.profile= (Linux/bash):
 #+BEGIN_SRC sh
+# macOS Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 
-# uv tools (rass, ruff, ty)
+# uv tools (rass, ruff, ty) and user shims
 export PATH="$HOME/.local/bin:$PATH"
 
 # Rust: Homebrew's rustup is keg-only; cargo-installed tools go in ~/.cargo/bin
@@ -529,6 +586,7 @@ export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
 =pinentry.el= (see Encryption) lets git ask for the GPG passphrase in the
 minibuffer when Magit signs a commit.
 #+BEGIN_SRC sh
+# macOS (on Linux: sudo apt install gnupg pinentry-curses, path /usr/bin/pinentry)
 brew install gnupg pinentry
 cat >> ~/.gnupg/gpg-agent.conf <<'CONF'
 allow-emacs-pinentry
@@ -539,38 +597,40 @@ gpgconf --kill gpg-agent
 
 ** Spelling
 #+BEGIN_SRC sh
+# macOS (Linux: sudo apt install aspell aspell-en)
 brew install aspell
 #+END_SRC
 
-** JavaScript & TypeScript
-Node comes from [[https://github.com/nvm-sh/nvm#installing-and-updating][nvm]]; install it first, then:
+** JavaScript, TypeScript & Vue
+Install Node (e.g. via [[https://github.com/nvm-sh/nvm][nvm]] or [[https://volta.sh][Volta]]), then the global language servers:
 #+BEGIN_SRC sh
-nvm install node
-npm install -g typescript@7 vscode-langservers-extracted @tailwindcss/language-server
+npm install -g typescript@7 vscode-langservers-extracted @tailwindcss/language-server @vue/language-server @vtsls/language-server
 #+END_SRC
 - =typescript@7= provides =tsc --lsp=, the TypeScript server for projects
   whose own TypeScript is older than 7.
 - =vscode-langservers-extracted= provides the ESLint, JSON, CSS and HTML servers.
+- =@vue/language-server= + =@vtsls/language-server= power =rass vue= for =.vue= files.
 - Prettier and oxlint come from each project's own =node_modules=.
 
 ** Multiple language servers: rass
 #+BEGIN_SRC sh
+# macOS (Linux: curl -LsSf https://astral.sh/uv/install.sh | sh)
 brew install uv
 uv tool install rassumfrassum
 #+END_SRC
 
 ** Python
 ty checks types and ruff lints and formats. Projects use =uv= for their
-=.venv=; Homebrew's Python is the default for =run-python= outside one.
+=.venv=; system/Homebrew Python is the default for =run-python= outside one.
 #+BEGIN_SRC sh
-brew install python
+brew install python   # Linux: sudo apt install python3
 uv tool install ty
 uv tool install ruff
 #+END_SRC
 
 ** Rust
 #+BEGIN_SRC sh
-brew install rustup
+brew install rustup   # Linux: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup default stable
 rustup component add rust-analyzer clippy rustfmt
 #+END_SRC
