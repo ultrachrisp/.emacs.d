@@ -233,16 +233,19 @@ Built into Emacs 30+; shows the keys that follow a prefix.
 *** Snippets & Diagnostics
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-    :init
-  (yas-global-mode 1)
-  :config
+    :config
   (use-package yasnippet-snippets)
-  (yas-reload-all))
+  (yas-global-mode 1))
 
 ;; Built-in diagnostics; Eglot turns it on in its buffers.
+(defun my/elisp-flymake-mode ()
+  "Enable `flymake-mode' in file-backed Emacs Lisp buffers (skipping *scratch*)."
+  (when buffer-file-name
+    (flymake-mode 1)))
+
 (use-package flymake
     :straight (:type built-in)
-    :hook (emacs-lisp-mode . flymake-mode)
+    :hook (emacs-lisp-mode . my/elisp-flymake-mode)
     :bind (:map flymake-mode-map
                 ("M-n"     . flymake-goto-next-error)
                 ("M-p"     . flymake-goto-prev-error)

@@ -3,6 +3,9 @@
 ;; Disable built-in package.el early so straight.el takes full control
 (setq package-enable-at-startup nil)
 
+;; Log native-compilation warnings silently instead of popping up *Warnings*
+(setq native-comp-async-report-warnings-errors 'silent)
+
 ;; Prevent UI elements from rendering during boot to avoid window flashing
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
