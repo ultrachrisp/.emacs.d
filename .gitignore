@@ -20,3 +20,4 @@ history
 recentf
 projects.eld
 tree-sitter/
+__pycache__/
