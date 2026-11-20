@@ -11,8 +11,7 @@ Load environment variables on macOS and Linux GUI frames.
 (use-package exec-path-from-shell
     :if (memq window-system '(mac ns x))
     :config
-    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL")
-          exec-path-from-shell-check-startup-files nil)
+    (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL"))
     (exec-path-from-shell-initialize))
 #+END_SRC
 
@@ -56,7 +55,6 @@ The built-in =epg-pinentry-mode= only covers Emacs's own GPG calls.
 *** Line & Column Numbers
 #+BEGIN_SRC emacs-lisp
 (column-number-mode 1)
-(line-number-mode 1)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'org-mode-hook #'display-line-numbers-mode)
@@ -73,8 +71,6 @@ Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
     :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
   (load-theme 'doom-city-lights t))
 #+END_SRC
 
@@ -117,8 +113,7 @@ Quick way to move between windows.
 Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-    :bind ("C-x g" . magit-status)
-    :commands (magit-status magit-blame magit-find-file magit-name-local-branch))
+    :bind ("C-x g" . magit-status))
 #+END_SRC
 
 *** Project
@@ -192,17 +187,13 @@ Built into Emacs 30+; shows the keys that follow a prefix.
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0)
   (corfu-popupinfo-delay '(0.5 . 0.2))
-  (corfu-preview-current 'insert)
   (corfu-preselect 'prompt)
-  (corfu-on-exact-match nil)
   :bind (:map corfu-map
-              ("M-SPC"      . corfu-insert-separator)
               ("TAB"        . corfu-next)
               ([tab]        . corfu-next)
               ("S-TAB"      . corfu-previous)
               ([backtab]    . corfu-previous)
-              ("S-<return>" . corfu-insert)
-              ("RET"        . corfu-insert))
+              ("S-<return>" . corfu-insert))
   :init
   (global-corfu-mode)
   (corfu-history-mode)
@@ -235,8 +226,7 @@ Built into Emacs 30+; shows the keys that follow a prefix.
                 ("C-c ! l" . flymake-show-buffer-diagnostics)
                 ("C-c ! p" . flymake-show-project-diagnostics))
     :custom
-    (flymake-show-diagnostics-at-end-of-line 'short)
-    (flymake-indicator-type 'auto))
+    (flymake-show-diagnostics-at-end-of-line 'short))
 #+END_SRC
 
 ** Development
@@ -247,7 +237,6 @@ and offers to install a missing grammar from the source pinned for it.
 (use-package treesit
     :straight (:type built-in)
     :custom
-  (treesit-auto-install-grammar 'ask)
   (treesit-enabled-modes '(typescript-ts-mode
                            tsx-ts-mode
                            js-ts-mode
@@ -378,7 +367,6 @@ hides TypeScript 7's diagnostics; see the file for details.")
 
 (use-package js
     :straight (:type built-in)
-    :mode ("\\.jsx\\'" . js-ts-mode)
     :custom
     (js-indent-level indent-size)
     :hook (js-ts-mode . emmet-mode))
@@ -430,8 +418,6 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
 #+BEGIN_SRC emacs-lisp
 (use-package apheleia
     :config
-    (setf (alist-get 'prettier-json apheleia-formatters)
-          '("prettier" "--stdin-filepath" filepath))
     (setf (alist-get 'python-ts-mode apheleia-mode-alist)
           '(ruff-isort ruff))
     (apheleia-global-mode 1))
