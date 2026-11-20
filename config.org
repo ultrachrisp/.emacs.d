@@ -463,3 +463,93 @@ Olivetti is a minor mode for a nice writing environment.
   (olivetti-body-width 100)
   :commands olivetti-mode)
 #+END_SRC
+
+* External Dependencies
+Programs this config relies on outside Emacs, for a fresh macOS machine with
+[[https://brew.sh][Homebrew]]. These blocks are reference only: Emacs loads just the Emacs Lisp
+blocks above, never these.
+
+** Base tools
+Xcode's command-line tools provide git and the C compiler Emacs uses to build
+tree-sitter grammars.
+#+BEGIN_SRC sh
+xcode-select --install
+#+END_SRC
+
+** Emacs
+Emacs 31 from the emacs-plus tap.
+#+BEGIN_SRC sh
+brew tap d12frosted/emacs-plus
+brew install --cask emacs-plus-app
+#+END_SRC
+
+** Shell PATH
+GUI Emacs takes its =PATH= from the login shell (=exec-path-from-shell=), so the
+tools below must be on it. Add these lines to =~/.zprofile=:
+#+BEGIN_SRC sh
+eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+
+# uv tools (rass, ruff, ty)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Rust: Homebrew's rustup is keg-only; cargo-installed tools go in ~/.cargo/bin
+export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
+#+END_SRC
+
+** GPG signing from Magit
+=pinentry.el= (see Encryption) lets git ask for the GPG passphrase in the
+minibuffer when Magit signs a commit.
+#+BEGIN_SRC sh
+brew install gnupg pinentry
+cat >> ~/.gnupg/gpg-agent.conf <<'CONF'
+allow-emacs-pinentry
+pinentry-program /opt/homebrew/bin/pinentry
+CONF
+gpgconf --kill gpg-agent
+#+END_SRC
+
+** Spelling
+#+BEGIN_SRC sh
+brew install aspell
+#+END_SRC
+
+** JavaScript & TypeScript
+Node comes from [[https://github.com/nvm-sh/nvm#installing-and-updating][nvm]]; install it first, then:
+#+BEGIN_SRC sh
+nvm install node
+npm install -g typescript@7 vscode-langservers-extracted @tailwindcss/language-server
+#+END_SRC
+- =typescript@7= provides =tsc --lsp=, the TypeScript server for projects
+  whose own TypeScript is older than 7.
+- =vscode-langservers-extracted= provides the ESLint, JSON, CSS and HTML servers.
+- Prettier and oxlint come from each project's own =node_modules=.
+
+** Multiple language servers: rass
+#+BEGIN_SRC sh
+brew install uv
+uv tool install rassumfrassum
+#+END_SRC
+
+** Python
+ty checks types and ruff lints and formats. Projects use =uv= for their
+=.venv=; Homebrew's Python is the default for =run-python= outside one.
+#+BEGIN_SRC sh
+brew install python
+uv tool install ty
+uv tool install ruff
+#+END_SRC
+
+** Rust
+#+BEGIN_SRC sh
+brew install rustup
+rustup default stable
+rustup component add rust-analyzer clippy rustfmt
+#+END_SRC
+
+** First start
+- straight.el installs the Emacs packages on first start. Run
+  =M-x straight-thaw-versions= afterwards to check out the versions pinned in
+  =straight/versions/default.el=.
+- Emacs asks to install each tree-sitter grammar the first time you open a
+  file in that language.
+- Check that Emacs sees a tool with =M-: (executable-find "rust-analyzer")=.
