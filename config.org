@@ -530,12 +530,19 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
     (apheleia-global-mode 1))
 #+END_SRC
 
-*** Agent Shell (Claude Code)
-Native Emacs interface to Claude Code (=claude-agent-acp=) over the Agent Client
-Protocol, built on =comint-mode=, =project.el=, and =completion-at-point=.
-Docks in a right-hand side window (jump with =C-x o=), integrates with
-=project.el= (=C-x p a= / =C-c p a=), and disables automatic Corfu popups for
-prose while keeping =@file= and =/command= completion active.
+*** Agent Shell (Antigravity & Claude Code)
+Native Emacs interface to Google Antigravity (=agy acp=) and Claude Code
+(=claude-agent-acp=) over the Agent Client Protocol, built on =comint-mode=,
+=project.el=, and =completion-at-point=. Docks in a right-hand side window
+(jump with =C-x o=), integrates with =project.el= (=C-x p a= / =C-c p a=),
+and disables automatic Corfu popups for prose while keeping =@file= and
+=/command= completion active.
+
+Use =C-c a a= / =C-c a n= to pick between installed agents (Antigravity
+preselected), =C-c a g= or =C-c a C= to launch Antigravity or Claude Code
+directly, and =C-c a b= to switch between running agent sessions in the side
+window. With multiple agents open in a project, =C-u C-u C-c a s= or
+=C-u C-c a d= prompts for which agent should receive the context.
 #+BEGIN_SRC emacs-lisp
 (defun my/agent-shell-setup ()
   "Keep Corfu from auto-popping on prose while preserving `@' and `/' completion."
@@ -543,9 +550,33 @@ prose while keeping =@file= and =/command= completion active.
               corfu-quit-at-boundary t
               corfu-quit-no-match t))
 
-(defun my/agent-shell-send-flymake-diagnostics ()
-  "Insert all Flymake diagnostics for the current buffer into `agent-shell'."
+(defun my/agent-shell-configs ()
+  "Return Antigravity and Claude Code makers, filtered to installed CLIs."
+  (let* ((makers (list #'agent-shell-antigravity-make-agent-config
+                       #'agent-shell-anthropic-make-claude-code-config))
+         (available (seq-filter
+                     (lambda (maker)
+                       (when-let* ((cfg (funcall maker))
+                                   (client-maker (map-elt cfg :client-maker))
+                                   (client (ignore-errors
+                                             (funcall client-maker (current-buffer))))
+                                   (command (map-elt client :command)))
+                         (executable-find command)))
+                     makers)))
+    (or available makers)))
+
+(defun my/agent-shell-switch-buffer ()
+  "Switch to an `agent-shell' buffer in the configured side window."
   (interactive)
+  (require 'agent-shell)
+  (let ((shell-buffer (agent-shell--read-shell-buffer
+                       :prompt "Switch to agent-shell buffer: ")))
+    (agent-shell--display-buffer shell-buffer)))
+
+(defun my/agent-shell-send-flymake-diagnostics (&optional pick-shell)
+  "Insert all Flymake diagnostics for the current buffer into `agent-shell'.
+With prefix argument PICK-SHELL, prompt for which agent buffer to send to."
+  (interactive "P")
   (require 'flymake)
   (let ((diags (and (bound-and-true-p flymake-mode)
                     (flymake-diagnostics))))
@@ -567,13 +598,20 @@ prose while keeping =@file= and =/command= completion active.
                              (flymake-diagnostic-text d)))
                    diags "\n")))
       (require 'agent-shell)
-      (agent-shell-insert
-       :text (format "Fix these Flymake diagnostics in %s:\n%s\n" file lines)))))
+      (let ((shell-buffer (when pick-shell
+                            (agent-shell--read-shell-buffer
+                             :prompt "Send Flymake diagnostics to: "))))
+        (agent-shell-insert
+         :text (format "Fix these Flymake diagnostics in %s:\n%s\n" file lines)
+         :shell-buffer shell-buffer)))))
 
 (use-package agent-shell
     :bind (("C-c a a" . agent-shell)
            ("C-c a t" . agent-shell-toggle)
            ("C-c a n" . agent-shell-new-shell)
+           ("C-c a g" . agent-shell-antigravity-start-agent)
+           ("C-c a C" . agent-shell-anthropic-start-claude-code)
+           ("C-c a b" . my/agent-shell-switch-buffer)
            ("C-c a s" . agent-shell-send-dwim)
            ("C-c a r" . agent-shell-send-region)
            ("C-c a f" . agent-shell-send-current-file)
@@ -583,13 +621,19 @@ prose while keeping =@file= and =/command= completion active.
            ("C-c a d" . my/agent-shell-send-flymake-diagnostics))
     :hook (agent-shell-mode . my/agent-shell-setup)
     :custom
-    (agent-shell-preferred-agent-config 'claude-code)
+    (agent-shell-agent-configs #'my/agent-shell-configs)
+    (agent-shell-preferred-agent-config '(preselect . antigravity))
+    ;; Avoid `(dedicated . t)' so Antigravity and Claude Code share the side window.
     (agent-shell-display-action
      '(display-buffer-in-side-window
        (side . right)
        (slot . 0)
-       (dedicated . t)
-       (window-width . 0.4)))
+       (window-width . 0.4)
+       (window-parameters . ((no-delete-other-windows . t)))))
+    ;; Open clicked file links in a main window instead of replacing the agent pane.
+    (agent-shell-file-display-action
+     '(display-buffer-use-some-window
+       (inhibit-same-window . t)))
     :init
     (with-eval-after-load 'project
       (keymap-set project-prefix-map "a" #'agent-shell)
@@ -724,6 +768,14 @@ uv tool install ruff
 brew install rustup   # Linux: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup default stable
 rustup component add rust-analyzer clippy rustfmt
+#+END_SRC
+
+** Antigravity CLI
+=agent-shell= talks to =agy acp= over stdio. Make sure =agy= is on =PATH=
+(installed under =~/.local/bin=, already added in [[*Shell PATH][Shell PATH]]) and signed in:
+#+BEGIN_SRC sh
+agy --help
+agy acp --login
 #+END_SRC
 
 ** Claude Code (ACP)
