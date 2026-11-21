@@ -24,6 +24,19 @@ Turning both off
       auto-save-default nil)
 #+END_SRC
 
+*** Auto-Revert
+Reload buffers automatically when files change on disk (e.g. from Git or
+agent edits), using the OS file-notification backend rather than polling.
+#+BEGIN_SRC emacs-lisp
+(use-package autorevert
+    :straight (:type built-in)
+    :custom
+    (global-auto-revert-non-file-buffers t)
+    (auto-revert-avoid-polling t)
+    :init
+    (global-auto-revert-mode 1))
+#+END_SRC
+
 *** Configuration Reload
 Reloads ~/.emacs.d/config.org at runtime.
 #+BEGIN_SRC emacs-lisp
@@ -116,6 +129,16 @@ Magit is objectively the best Git interface.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
     :bind ("C-x g" . magit-status))
+#+END_SRC
+
+*** Ediff
+Keep the Ediff control panel inside the current frame with side-by-side diffs.
+#+BEGIN_SRC emacs-lisp
+(use-package ediff
+    :straight (:type built-in)
+    :custom
+    (ediff-window-setup-function #'ediff-setup-windows-plain)
+    (ediff-split-window-function #'split-window-horizontally))
 #+END_SRC
 
 *** Project
@@ -231,16 +254,19 @@ Built into Emacs 30+; shows the keys that follow a prefix.
 *** Snippets & Diagnostics
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-    :init
-  (yas-global-mode 1)
-  :config
+    :config
   (use-package yasnippet-snippets)
-  (yas-reload-all))
+  (yas-global-mode 1))
 
 ;; Built-in diagnostics; Eglot turns it on in its buffers.
+(defun my/elisp-flymake-mode ()
+  "Enable `flymake-mode' in file-backed Emacs Lisp buffers (skipping *scratch*)."
+  (when buffer-file-name
+    (flymake-mode 1)))
+
 (use-package flymake
     :straight (:type built-in)
-    :hook (emacs-lisp-mode . flymake-mode)
+    :hook (emacs-lisp-mode . my/elisp-flymake-mode)
     :bind (:map flymake-mode-map
                 ("M-n"     . flymake-goto-next-error)
                 ("M-p"     . flymake-goto-prev-error)
@@ -465,6 +491,74 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
     (apheleia-global-mode 1))
 #+END_SRC
 
+*** Agent Shell (Claude Code)
+Native Emacs interface to Claude Code (=claude-agent-acp=) over the Agent Client
+Protocol, built on =comint-mode=, =project.el=, and =completion-at-point=.
+Docks in a right-hand side window (jump with =C-x o=), integrates with
+=project.el= (=C-x p a= / =C-c p a=), and disables automatic Corfu popups for
+prose while keeping =@file= and =/command= completion active.
+#+BEGIN_SRC emacs-lisp
+(defun my/agent-shell-setup ()
+  "Keep Corfu from auto-popping on prose while preserving `@' and `/' completion."
+  (setq-local corfu-auto nil
+              corfu-quit-at-boundary t
+              corfu-quit-no-match t))
+
+(defun my/agent-shell-send-flymake-diagnostics ()
+  "Insert all Flymake diagnostics for the current buffer into `agent-shell'."
+  (interactive)
+  (require 'flymake)
+  (let ((diags (and (bound-and-true-p flymake-mode)
+                    (flymake-diagnostics))))
+    (unless diags
+      (user-error "No Flymake diagnostics in current buffer"))
+    (let* ((project (project-current))
+           (root (and project (project-root project)))
+           (file (cond
+                  ((and buffer-file-name root)
+                   (file-relative-name buffer-file-name root))
+                  (buffer-file-name)
+                  (t (buffer-name))))
+           (lines (mapconcat
+                   (lambda (d)
+                     (format "- %s:%d [%s] %s"
+                             file
+                             (line-number-at-pos (flymake-diagnostic-beg d) t)
+                             (flymake-diagnostic-type d)
+                             (flymake-diagnostic-text d)))
+                   diags "\n")))
+      (require 'agent-shell)
+      (agent-shell-insert
+       :text (format "Fix these Flymake diagnostics in %s:\n%s\n" file lines)))))
+
+(use-package agent-shell
+    :bind (("C-c a a" . agent-shell)
+           ("C-c a t" . agent-shell-toggle)
+           ("C-c a n" . agent-shell-new-shell)
+           ("C-c a s" . agent-shell-send-dwim)
+           ("C-c a r" . agent-shell-send-region)
+           ("C-c a f" . agent-shell-send-current-file)
+           ("C-c a F" . agent-shell-send-file)
+           ("C-c a c" . agent-shell-prompt-compose)
+           ("C-c a !" . agent-shell-insert-shell-command-output)
+           ("C-c a d" . my/agent-shell-send-flymake-diagnostics))
+    :hook (agent-shell-mode . my/agent-shell-setup)
+    :custom
+    (agent-shell-preferred-agent-config 'claude-code)
+    (agent-shell-display-action
+     '(display-buffer-in-side-window
+       (side . right)
+       (slot . 0)
+       (dedicated . t)
+       (window-width . 0.4)))
+    :init
+    (with-eval-after-load 'project
+      (keymap-set project-prefix-map "a" #'agent-shell)
+      (add-to-list 'project-switch-commands '(agent-shell "Agent shell" ?a) t))
+    (with-eval-after-load 'which-key
+      (which-key-add-key-based-replacements "C-c a" "agent")))
+#+END_SRC
+
 ** Writing
 *** Spelling
 #+BEGIN_SRC emacs-lisp
@@ -590,6 +684,15 @@ uv tool install ruff
 brew install rustup   # Linux: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup default stable
 rustup component add rust-analyzer clippy rustfmt
+#+END_SRC
+
+** Claude Code (ACP)
+=agent-shell= talks to Claude Code via =claude-agent-acp= over stdio (requires
+Node 22+). By default it uses Claude subscription login (sign in once with
+=claude=); set =agent-shell-anthropic-authentication= to use an API key instead.
+#+BEGIN_SRC sh
+npm install -g @anthropic-ai/claude-code @agentclientprotocol/claude-agent-acp
+claude login
 #+END_SRC
 
 ** First start

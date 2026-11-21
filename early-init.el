@@ -10,6 +10,9 @@
 ;; Disable built-in package.el early so straight.el takes full control
 (setq package-enable-at-startup nil)
 
+;; Log native-compilation warnings silently instead of popping up *Warnings*
+(setq native-comp-async-report-warnings-errors 'silent)
+
 ;; Avoid unnecessary frame resizing when setting the initial font
 (setq frame-inhibit-implied-resize t)
 
