@@ -24,6 +24,7 @@
  ("pinentry" . "99480adc192f657d7d9f2eb3ed4e568df3de8613")
  ("seq" . "da86da9bf111f68fb81efd466d76d53af5aebc00")
  ("shell-maker" . "cba42efd503bbdf19a7244b9119efd8764e99ecb")
+ ("ssass-mode" . "96f557887ad97a0066a60c54f92b7234b8407016")
  ("straight.el" . "111ad8a552671ffee87292d75adfe7ea368a62d5")
  ("themes" . "a59202912ad55014e53a685eee6cd94130bdd4fd")
  ("transient" . "d424c0d980a37413e193b8e615d1af624ef96b17")
