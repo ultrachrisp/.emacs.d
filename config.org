@@ -180,8 +180,7 @@ Built into Emacs 30+; shows the keys that follow a prefix.
            ("M-s M-o" . consult-outline)
            ("M-s M-i" . consult-imenu)
            ("M-s M-l" . consult-line)
-           ("M-s M-e" . consult-flymake)
-           ("M-s M-b" . consult-buffer)))
+           ("M-s M-e" . consult-flymake)))
 
 (use-package marginalia
     :init
@@ -276,8 +275,9 @@ docs with eldoc and completes through completion-at-point (Corfu).
 For JS/TS, the servers are picked per project: TypeScript 7's own
 =tsc --lsp=, plus ESLint, oxlint and Tailwind when the project uses them.
 Several servers run behind one connection through Rassumfrassum (=rass=).
-Vue SFCs (=my/vue-mode=) use =rass vue= (=vue-language-server= + =vtsls= in
-hybrid mode), layering Tailwind when the project installs it.
+Vue SFCs (=my/vue-mode=) run =vue-language-server= and =vtsls= (with
+=@vue/typescript-plugin=) through rass, plus Tailwind when the project installs
+it; =rass/emacs_rass.py= relays the Vue server's TypeScript requests to vtsls.
 Install: =uv tool install rassumfrassum= and
 =npm i -g vscode-langservers-extracted @tailwindcss/language-server @vue/language-server @vtsls/language-server=.
 
@@ -331,12 +331,36 @@ hides TypeScript 7's diagnostics; see the file for details.")
                 (mapcan (lambda (server) (cons "--" (copy-sequence server))) servers))
       (car servers))))
 
+(defun my/vue-global-module (name)
+  "Return the directory of NAME bundled with the global vue-language-server."
+  (when-let* ((bin (executable-find "vue-language-server"))
+              (pkg (locate-dominating-file (file-truename bin) "package.json"))
+              (dir (expand-file-name (concat "node_modules/" name) pkg))
+              ((file-directory-p dir)))
+    dir))
+
+(defun my/vue-tsdk (root)
+  "Return a TypeScript lib directory for Vue: the project's, else vtsls's."
+  (seq-find #'file-directory-p
+            (list (expand-file-name "node_modules/typescript/lib" root)
+                  (when-let* ((bin (executable-find "vtsls")))
+                    (expand-file-name "node_modules/typescript/lib"
+                                      (locate-dominating-file (file-truename bin) "package.json"))))))
+
 (defun my/eglot-vue-contact (_interactive project)
-  "Eglot contact for Vue SFCs via `rass vue', layering Tailwind if installed."
-  (let ((root (expand-file-name (if project (project-root project) default-directory))))
-    (if (file-directory-p (expand-file-name "node_modules/tailwindcss" root))
-        '("rass" "vue" "--" "tailwindcss-language-server" "--stdio")
-      '("rass" "vue"))))
+  "Eglot contact for Vue SFCs: vue-language-server and vtsls through rass.
+vtsls loads @vue/typescript-plugin (see `eglot-workspace-configuration'),
+and emacs_rass.py forwards the Vue server's TypeScript requests to it.
+Tailwind joins when the project installs it."
+  (let* ((root (expand-file-name (if project (project-root project) default-directory)))
+         (tsdk (my/vue-tsdk root)))
+    `("env" ,(concat "PYTHONPATH=" my/rass-logic-dir)
+      "rass" "--logic-class" "emacs_rass.EmacsVueLogic"
+      "--" "vue-language-server" "--stdio"
+      "--" "vtsls" "--stdio"
+      ,@(when (file-directory-p (expand-file-name "node_modules/tailwindcss" root))
+          '("--" "tailwindcss-language-server" "--stdio"))
+      ,@(when tsdk `(:initializationOptions (:typescript (:tsdk ,tsdk)))))))
 
 (defun my/eglot-organize-imports-on-save ()
   "Organize imports before saving, when the server offers it."
@@ -384,7 +408,16 @@ hides TypeScript 7's diagnostics; see the file for details.")
                                  :enumMemberValues (:enabled t))))
                     `(:typescript (:inlayHints ,hints)
                       :javascript (:inlayHints ,hints)
-                      :rust-analyzer (:check (:command "clippy"))))))
+                      :rust-analyzer (:check (:command "clippy"))
+                      ;; vtsls, for Vue: load the TypeScript plugin that
+                      ;; makes tsserver understand .vue files.
+                      :vtsls (:tsserver
+                              (:globalPlugins
+                               [(:name "@vue/typescript-plugin"
+                                 :location ,(or (my/vue-global-module "@vue/typescript-plugin") "")
+                                 :languages ["vue"]
+                                 :configNamespace "typescript"
+                                 :enableForWorkspaceTypeScriptVersions t)]))))))
 
 ;; Header-line breadcrumb of the current symbol, from imenu and project.el
 (use-package breadcrumb
@@ -425,6 +458,10 @@ hides TypeScript 7's diagnostics; see the file for details.")
     :custom
     (css-indent-offset indent-size))
 
+;; Indented Sass (.sass) has no built-in mode.
+(use-package ssass-mode
+    :mode "\\.sass\\'")
+
 ;; Vue SFCs use a dedicated web-mode derivative so Eglot can target .vue
 ;; without hijacking web-mode, while Apheleia inherits `(web-mode . prettier)'.
 (use-package web-mode
@@ -462,6 +499,8 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
     :config
     (setf (alist-get 'python-ts-mode apheleia-mode-alist)
           '(ruff-isort ruff))
+    ;; mhtml-ts-mode also derives from css-mode, which Apheleia matches first.
+    (setf (alist-get 'mhtml-ts-mode apheleia-mode-alist) 'prettier-html)
     (apheleia-global-mode 1))
 #+END_SRC
 
@@ -566,7 +605,8 @@ npm install -g typescript@7 vscode-langservers-extracted @tailwindcss/language-s
 - =typescript@7= provides =tsc --lsp=, the TypeScript server for projects
   whose own TypeScript is older than 7.
 - =vscode-langservers-extracted= provides the ESLint, JSON, CSS and HTML servers.
-- =@vue/language-server= + =@vtsls/language-server= power =rass vue= for =.vue= files.
+- =@vue/language-server= + =@vtsls/language-server= serve =.vue= files.
+- =consult-ripgrep= and =consult-fd= need =ripgrep= and =fd= (see Base tools).
 - Prettier and oxlint come from each project's own =node_modules=.
 
 ** Multiple language servers: rass
