@@ -82,11 +82,36 @@ Quick way to move between windows.
     :bind ("C-x o" . ace-window))
 #+END_SRC
 
-*** Doom Themes
+*** Themes
+The built-in Modus themes, following the OS light/dark setting. On macOS,
+emacs-plus reports appearance changes through
+=ns-system-appearance-change-functions=, instantly and without polling. On
+Linux, =auto-dark= follows the desktop setting over D-Bus; switch by hand with
+=M-x auto-dark-toggle-appearance=.
 #+BEGIN_SRC emacs-lisp
-(use-package doom-themes
+(defconst my/themes '((dark . modus-vivendi) (light . modus-operandi-tinted))
+  "Theme to use for each OS appearance.")
+
+(defun my/apply-appearance (appearance)
+  "Load the theme in `my/themes' for APPEARANCE (`light' or `dark').
+APPEARANCE is nil without a GUI frame (e.g. `emacs -nw'); use dark then."
+  (mapc #'disable-theme custom-enabled-themes)
+  (load-theme (alist-get (or appearance 'dark) my/themes) t))
+
+(when (boundp 'ns-system-appearance-change-functions)
+  (add-hook 'ns-system-appearance-change-functions #'my/apply-appearance)
+  (my/apply-appearance ns-system-appearance))
+
+;; Installed everywhere (so the lockfile pins it), enabled only without the
+;; emacs-plus hook.
+(use-package auto-dark
+    :custom
+    ;; ((dark themes) (light themes))
+    (auto-dark-themes `((,(alist-get 'dark my/themes))
+                        (,(alist-get 'light my/themes))))
     :config
-  (load-theme 'doom-city-lights t))
+    (unless (boundp 'ns-system-appearance-change-functions)
+      (auto-dark-mode 1)))
 #+END_SRC
 
 *** UI General Settings
