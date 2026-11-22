@@ -714,6 +714,10 @@ With prefix argument PICK-SHELL, prompt for which agent buffer to send to."
     :custom
     (agent-shell-agent-configs #'my/agent-shell-configs)
     (agent-shell-preferred-agent-config '(preselect . antigravity))
+    (agent-shell-antigravity-default-config-options
+     '(("mode" . "auto")
+       ("thought_level" . "medium")))
+    (agent-shell-anthropic-default-session-mode-id "acceptEdits")
     ;; Avoid `(dedicated . t)' so Antigravity and Claude Code share the side window.
     (agent-shell-display-action
      '(display-buffer-in-side-window
