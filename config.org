@@ -73,7 +73,8 @@ Quick way to move between windows.
 The built-in Modus themes, following the OS light/dark setting. On macOS,
 emacs-plus reports appearance changes through
 =ns-system-appearance-change-functions=, instantly and without polling. On
-Linux, =auto-dark= follows the desktop setting over D-Bus; switch by hand with
+Linux/WSL, =auto-dark= follows the desktop setting (D-Bus on Linux, Windows
+theme via PowerShell on WSL); switch by hand with
 =M-x auto-dark-toggle-appearance=.
 #+BEGIN_SRC emacs-lisp
 (defconst my/themes '((dark . modus-vivendi) (light . modus-operandi-tinted))
@@ -96,9 +97,12 @@ APPEARANCE is nil without a GUI frame (e.g. `emacs -nw'); use dark then."
     ;; ((dark themes) (light themes))
     (auto-dark-themes `((,(alist-get 'dark my/themes))
                         (,(alist-get 'light my/themes))))
+    (auto-dark-allow-powershell t)
     :config
     (unless (boundp 'ns-system-appearance-change-functions)
-      (auto-dark-mode 1)))
+      (if (display-graphic-p)
+          (auto-dark-mode 1)
+        (my/apply-appearance 'dark))))
 #+END_SRC
 
 *** UI General Settings
@@ -349,21 +353,25 @@ Install: =rustup component add rust-analyzer clippy rustfmt= and
           (truncate (string-to-number (gethash "version" (json-parse-buffer) "0"))))
       0)))
 
-(defun my/eglot-js-servers (root)
-  "Return the language server commands for the JS/TS project at ROOT.
-TypeScript 7+ ships its server as `tsc --lsp'; older projects use the
-global TypeScript 7."
+(defun my/eglot-web-extras (root)
+  "Return optional web language servers used by the project at ROOT."
   (delq nil
-        (list (list (or (and (>= (my/eglot-typescript-major root) 7)
-                             (my/eglot-node-bin root "tsc"))
-                        "tsc")
-                    "--lsp" "--stdio")
-              (when (directory-files root nil "\\`\\(eslint\\.config\\.[cm]?[jt]s\\|\\.eslintrc.*\\)\\'")
+        (list (when (directory-files root nil "\\`\\(eslint\\.config\\.[cm]?[jt]s\\|\\.eslintrc.*\\)\\'")
                 '("vscode-eslint-language-server" "--stdio"))
               (when-let* ((oxlint (my/eglot-node-bin root "oxlint")))
                 (list oxlint "--lsp"))
               (when (file-directory-p (expand-file-name "node_modules/tailwindcss" root))
                 '("tailwindcss-language-server" "--stdio")))))
+
+(defun my/eglot-js-servers (root)
+  "Return the language server commands for the JS/TS project at ROOT.
+TypeScript 7+ ships its server as `tsc --lsp'; older projects use the
+global TypeScript 7."
+  (cons (list (or (and (>= (my/eglot-typescript-major root) 7)
+                       (my/eglot-node-bin root "tsc"))
+                  "tsc")
+              "--lsp" "--stdio")
+        (my/eglot-web-extras root)))
 
 (defconst my/rass-logic-dir (expand-file-name "rass" user-emacs-directory)
   "Directory holding emacs_rass.py, the logic class rass runs with.
@@ -389,18 +397,20 @@ Asks mise first; otherwise follows BIN back to its package (npm -g layout)."
                   ((file-directory-p dir)))
         (file-truename dir))
       (when-let* ((path (executable-find bin))
-                  ((not (string-match-p "/mise/shims/" path))))
-        (locate-dominating-file (file-truename path) "package.json"))))
+                  ((not (string-match-p "/mise/shims/" path)))
+                  (dir (locate-dominating-file (file-truename path) "package.json")))
+        (expand-file-name dir))))
 
 (defun my/node-module-dir (from module)
-  "Return the directory of MODULE as Node resolves it from directory FROM."
+  "Return the absolute directory of MODULE as Node resolves it from FROM."
   (when-let* ((from from)
               (node (executable-find "node"))
               (main (car (process-lines-ignore-status
                           node "-e" (format "console.log(require.resolve(%S, {paths: [%S]}))"
                                             module (expand-file-name from)))))
-              ((file-exists-p main)))
-    (locate-dominating-file main "package.json")))
+              ((file-exists-p main))
+              (dir (locate-dominating-file main "package.json")))
+    (expand-file-name dir)))
 
 (defun my/vue-global-module (name)
   "Return the directory of NAME as used by the global vue-language-server."
@@ -416,19 +426,48 @@ Asks mise first; otherwise follows BIN back to its package (npm -g layout)."
                                    "typescript")))
                     (expand-file-name "lib" ts)))))
 
+(defvar my/vue-ts-plugin-dir nil
+  "Cached absolute path to `@vue/typescript-plugin', resolved lazily.")
+
+(defun my/eglot-workspace-config (server)
+  "Return Eglot workspace configuration for SERVER.
+Resolves `@vue/typescript-plugin' lazily so non-Vue servers don't spawn
+`mise' and `node' on Eglot load."
+  (let* ((hints '(:parameterNames (:enabled "all")
+                  :variableTypes (:enabled t)
+                  :propertyDeclarationTypes (:enabled t)
+                  :functionLikeReturnTypes (:enabled t)
+                  :enumMemberValues (:enabled t)))
+         (base `(:typescript (:inlayHints ,hints)
+                 :javascript (:inlayHints ,hints)
+                 :rust-analyzer (:check (:command "clippy")))))
+    (if (and server (memq 'my/vue-mode (eglot--major-modes server)))
+        (let ((plugin (or my/vue-ts-plugin-dir
+                          (setq my/vue-ts-plugin-dir
+                                (my/vue-global-module "@vue/typescript-plugin")))))
+          (append base
+                  `(:vtsls (:tsserver
+                            (:globalPlugins
+                             [(:name "@vue/typescript-plugin"
+                               :location ,(or plugin "")
+                               :languages ["vue"]
+                               :configNamespace "typescript"
+                               :enableForWorkspaceTypeScriptVersions t)])))))
+      base)))
+
 (defun my/eglot-vue-contact (_interactive project)
   "Eglot contact for Vue SFCs: vue-language-server and vtsls through rass.
-vtsls loads @vue/typescript-plugin (see `eglot-workspace-configuration'),
+vtsls loads @vue/typescript-plugin (see `my/eglot-workspace-config'),
 and emacs_rass.py forwards the Vue server's TypeScript requests to it.
-Tailwind joins when the project installs it."
+ESLint, oxlint, and Tailwind join when the project uses them."
   (let* ((root (expand-file-name (if project (project-root project) default-directory)))
          (tsdk (my/vue-tsdk root)))
     `("env" ,(concat "PYTHONPATH=" my/rass-logic-dir)
       "rass" "--logic-class" "emacs_rass.EmacsVueLogic"
       "--" "vue-language-server" "--stdio"
       "--" "vtsls" "--stdio"
-      ,@(when (file-directory-p (expand-file-name "node_modules/tailwindcss" root))
-          '("--" "tailwindcss-language-server" "--stdio"))
+      ,@(mapcan (lambda (server) (cons "--" (copy-sequence server)))
+                (my/eglot-web-extras root))
       ,@(when tsdk `(:initializationOptions (:typescript (:tsdk ,tsdk)))))))
 
 (defun my/eglot-organize-imports-on-save ()
@@ -469,24 +508,7 @@ Tailwind joins when the project installs it."
                     (tsx-ts-mode :language-id "typescriptreact")
                     (typescript-ts-mode :language-id "typescript"))
                    . my/eglot-js-contact))
-    (setq-default eglot-workspace-configuration
-                  (let ((hints '(:parameterNames (:enabled "all")
-                                 :variableTypes (:enabled t)
-                                 :propertyDeclarationTypes (:enabled t)
-                                 :functionLikeReturnTypes (:enabled t)
-                                 :enumMemberValues (:enabled t))))
-                    `(:typescript (:inlayHints ,hints)
-                      :javascript (:inlayHints ,hints)
-                      :rust-analyzer (:check (:command "clippy"))
-                      ;; vtsls, for Vue: load the TypeScript plugin that
-                      ;; makes tsserver understand .vue files.
-                      :vtsls (:tsserver
-                              (:globalPlugins
-                               [(:name "@vue/typescript-plugin"
-                                 :location ,(or (my/vue-global-module "@vue/typescript-plugin") "")
-                                 :languages ["vue"]
-                                 :configNamespace "typescript"
-                                 :enableForWorkspaceTypeScriptVersions t)]))))))
+    (setq-default eglot-workspace-configuration #'my/eglot-workspace-config))
 
 ;; Header-line breadcrumb of the current symbol, from imenu and project.el
 (use-package breadcrumb
