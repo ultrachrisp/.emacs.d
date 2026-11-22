@@ -17,7 +17,10 @@
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars . nil) default-frame-alist)
-(push '(font . "Monaco-15") default-frame-alist)
+;; JetBrains Mono on both macOS and Linux; Linux needs a smaller point size
+;; for the same look. Emacs falls back to its default font if it's missing.
+(push `(font . ,(if (eq system-type 'darwin) "JetBrains Mono-15" "JetBrains Mono-12"))
+      default-frame-alist)
 
 (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))

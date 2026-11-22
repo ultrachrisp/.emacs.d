@@ -80,9 +80,33 @@ Quick way to move between windows.
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
 
+;; Fallback indentation for web files; tab characters keep their usual
+;; 8-column width (Makefiles, Go).
 (defconst indent-size 2)
-(setq-default tab-width indent-size
-              indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil)
+#+END_SRC
+
+*** EditorConfig
+Built in since Emacs 30. Projects with an =.editorconfig= file override the
+indentation and whitespace settings above for their files.
+#+BEGIN_SRC emacs-lisp
+(use-package editorconfig
+    :straight (:type built-in)
+    :init
+    (editorconfig-mode 1)
+    :config
+    ;; Emacs 31's mapping lacks json-ts-mode. For Vue, set only the indent
+    ;; offsets: the default web-mode mapping also sets <script>/<style>
+    ;; padding (overriding our 0) and variables not marked safe.
+    (add-to-list 'editorconfig-indentation-alist
+                 '(json-ts-mode json-ts-mode-indent-offset))
+    (add-to-list 'editorconfig-indentation-alist
+                 '(my/vue-mode web-mode-markup-indent-offset
+                               web-mode-css-indent-offset
+                               web-mode-code-indent-offset))
+    ;; EditorConfig applies its values like directory-local variables; mark
+    ;; this one safe so JSON files don't prompt.
+    (put 'json-ts-mode-indent-offset 'safe-local-variable #'integerp))
 #+END_SRC
 
 ** Org Mode
@@ -278,8 +302,8 @@ Several servers run behind one connection through Rassumfrassum (=rass=).
 Vue SFCs (=my/vue-mode=) run =vue-language-server= and =vtsls= (with
 =@vue/typescript-plugin=) through rass, plus Tailwind when the project installs
 it; =rass/emacs_rass.py= relays the Vue server's TypeScript requests to vtsls.
-Install: =uv tool install rassumfrassum= and
-=npm i -g vscode-langservers-extracted @tailwindcss/language-server @vue/language-server @vtsls/language-server=.
+Install: =uv tool install rassumfrassum=, and the language servers through
+mise (see External Dependencies).
 
 Rust uses =rust-analyzer=, checking with clippy. Python uses Eglot's
 built-in =rass python=, which runs ty (types) and ruff (lint) together.
@@ -331,21 +355,41 @@ hides TypeScript 7's diagnostics; see the file for details.")
                 (mapcan (lambda (server) (cons "--" (copy-sequence server))) servers))
       (car servers))))
 
+(defun my/global-npm-package-dir (package bin)
+  "Return the install directory of the global npm PACKAGE, which provides BIN.
+Asks mise first; otherwise follows BIN back to its package (npm -g layout)."
+  (or (when-let* ((mise (executable-find "mise"))
+                  (where (car (process-lines-ignore-status mise "where" (concat "npm:" package))))
+                  (dir (expand-file-name (concat "node_modules/" package) where))
+                  ((file-directory-p dir)))
+        (file-truename dir))
+      (when-let* ((path (executable-find bin))
+                  ((not (string-match-p "/mise/shims/" path))))
+        (locate-dominating-file (file-truename path) "package.json"))))
+
+(defun my/node-module-dir (from module)
+  "Return the directory of MODULE as Node resolves it from directory FROM."
+  (when-let* ((from from)
+              (node (executable-find "node"))
+              (main (car (process-lines-ignore-status
+                          node "-e" (format "console.log(require.resolve(%S, {paths: [%S]}))"
+                                            module (expand-file-name from)))))
+              ((file-exists-p main)))
+    (locate-dominating-file main "package.json")))
+
 (defun my/vue-global-module (name)
-  "Return the directory of NAME bundled with the global vue-language-server."
-  (when-let* ((bin (executable-find "vue-language-server"))
-              (pkg (locate-dominating-file (file-truename bin) "package.json"))
-              (dir (expand-file-name (concat "node_modules/" name) pkg))
-              ((file-directory-p dir)))
-    dir))
+  "Return the directory of NAME as used by the global vue-language-server."
+  (my/node-module-dir (my/global-npm-package-dir "@vue/language-server" "vue-language-server")
+                      name))
 
 (defun my/vue-tsdk (root)
   "Return a TypeScript lib directory for Vue: the project's, else vtsls's."
   (seq-find #'file-directory-p
             (list (expand-file-name "node_modules/typescript/lib" root)
-                  (when-let* ((bin (executable-find "vtsls")))
-                    (expand-file-name "node_modules/typescript/lib"
-                                      (locate-dominating-file (file-truename bin) "package.json"))))))
+                  (when-let* ((ts (my/node-module-dir
+                                   (my/global-npm-package-dir "@vtsls/language-server" "vtsls")
+                                   "typescript")))
+                    (expand-file-name "lib" ts)))))
 
 (defun my/eglot-vue-contact (_interactive project)
   "Eglot contact for Vue SFCs: vue-language-server and vtsls through rass.
@@ -563,6 +607,12 @@ brew install --cask emacs-plus-app
 sudo snap install emacs --classic --edge
 #+END_SRC
 
+** Font
+JetBrains Mono, set in =early-init.el=.
+#+BEGIN_SRC sh
+brew install --cask font-jetbrains-mono   # Linux: sudo apt install fonts-jetbrains-mono
+#+END_SRC
+
 ** Shell PATH
 GUI Emacs takes its =PATH= from a login shell (=exec-path-from-shell= with
 =-l=), so the tools below must be exported in =~/.zprofile= (macOS/zsh) or
@@ -573,6 +623,9 @@ eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 
 # uv tools (rass, ruff, ty) and user shims
 export PATH="$HOME/.local/bin:$PATH"
+
+# mise: Node and the global language servers, through a fixed shims folder
+eval "$(mise activate zsh --shims)"   # Linux/bash: mise activate bash --shims
 
 # Rust: Homebrew's rustup is keg-only; cargo-installed tools go in ~/.cargo/bin
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
@@ -598,9 +651,22 @@ brew install aspell
 #+END_SRC
 
 ** JavaScript, TypeScript & Vue
-Install Node (e.g. via [[https://github.com/nvm-sh/nvm][nvm]] or [[https://volta.sh][Volta]]), then the global language servers:
+[[https://mise.jdx.dev][mise]] manages Node and the global language servers. Each tool is installed
+on its own, so it survives Node upgrades, and projects still get their own
+Node version from =.nvmrc= / =.node-version=.
 #+BEGIN_SRC sh
-npm install -g typescript@7 vscode-langservers-extracted @tailwindcss/language-server @vue/language-server @vtsls/language-server
+brew install mise   # Linux: curl https://mise.run | sh
+mkdir -p ~/.config/mise
+cat > ~/.config/mise/config.toml <<'TOML'
+[tools]
+node = "26"
+"npm:typescript" = "7"
+"npm:vscode-langservers-extracted" = "latest"
+"npm:@tailwindcss/language-server" = "latest"
+"npm:@vue/language-server" = "latest"
+"npm:@vtsls/language-server" = "latest"
+TOML
+mise install
 #+END_SRC
 - =typescript@7= provides =tsc --lsp=, the TypeScript server for projects
   whose own TypeScript is older than 7.
