@@ -897,16 +897,15 @@ agy acp --login
 
 ** Claude Code (ACP)
 =agent-shell= talks to Claude Code via =claude-agent-acp= over stdio (requires
-Node 22+). Add both packages to =~/.config/mise/config.toml= alongside the
-language servers so they survive Node upgrades, then sign in once with =claude=
-(or set =agent-shell-anthropic-authentication= to use an API key):
-#+BEGIN_SRC toml
-"npm:@anthropic-ai/claude-code" = "latest"
-"npm:@agentclientprotocol/claude-agent-acp" = "latest"
-#+END_SRC
+Node 22+). Install Claude Code itself with the native installer (it updates
+itself, under =~/.local/bin=), and the ACP adapter through mise alongside the
+language servers so it survives Node upgrades. =mise use -g= adds it to
+=~/.config/mise/config.toml=. Then sign in once by running =claude= and
+=/login= (or set =agent-shell-anthropic-authentication= to use an API key):
 #+BEGIN_SRC sh
-mise install
-claude login
+curl -fsSL https://claude.ai/install.sh | bash
+mise use -g npm:@agentclientprotocol/claude-agent-acp@latest
+claude   # then /login
 #+END_SRC
 
 ** First start
