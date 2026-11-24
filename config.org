@@ -720,7 +720,9 @@ With prefix argument PICK-SHELL, prompt for which agent buffer to send to."
     (agent-shell-antigravity-default-config-options
      '(("mode" . "auto")
        ("thought_level" . "medium")))
-    (agent-shell-anthropic-default-session-mode-id "acceptEdits")
+    (agent-shell-anthropic-default-session-mode-id "auto")
+    ;; Drop the default `line' source so new shells don't get the line at point as context.
+    (agent-shell-context-sources '(files region error))
     ;; Avoid `(dedicated . t)' so Antigravity and Claude Code share the side window.
     (agent-shell-display-action
      '(display-buffer-in-side-window
