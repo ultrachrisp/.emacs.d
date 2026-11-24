@@ -98,6 +98,9 @@ APPEARANCE is nil without a GUI frame (e.g. `emacs -nw'); use dark then."
     (auto-dark-themes `((,(alist-get 'dark my/themes))
                         (,(alist-get 'light my/themes))))
     (auto-dark-allow-powershell t)
+    ;; WSL polls by running powershell.exe synchronously; poll rarely so
+    ;; Emacs doesn't stall. Unused with D-Bus or emacs-plus.
+    (auto-dark-polling-interval-seconds 60)
     :config
     (unless (boundp 'ns-system-appearance-change-functions)
       (if (display-graphic-p)
@@ -329,8 +332,8 @@ For JS/TS, the servers are picked per project: TypeScript 7's own
 =tsc --lsp=, plus ESLint, oxlint and Tailwind when the project uses them.
 Several servers run behind one connection through Rassumfrassum (=rass=).
 Vue SFCs (=my/vue-mode=) run =vue-language-server= and =vtsls= (with
-=@vue/typescript-plugin=) through rass, plus Tailwind when the project installs
-it; =rass/emacs_rass.py= relays the Vue server's TypeScript requests to vtsls.
+=@vue/typescript-plugin=) through rass, plus ESLint, oxlint and Tailwind when
+the project uses them; =rass/emacs_rass.py= relays the Vue server's TypeScript requests to vtsls.
 Install: =uv tool install rassumfrassum=, and the language servers through
 mise (see External Dependencies).
 

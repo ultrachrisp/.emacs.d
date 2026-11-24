@@ -39,7 +39,7 @@ class EmacsTypeScriptLogic(TypeScriptLogic):
 
 
 class EmacsVueLogic(EmacsTypeScriptLogic):
-    """Vue SFCs: vue-language-server first, vtsls second (plus Tailwind).
+    """Vue SFCs: vue-language-server first, vtsls second (plus ESLint, oxlint, Tailwind).
 
     vue-language-server 3.x (hybrid mode) asks the editor to run TypeScript
     requests for it with `tsserver/request` notifications, shaped
