@@ -628,7 +628,7 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
 Native Emacs interface to Google Antigravity (=agy acp=) and Claude Code
 (=claude-agent-acp=) over the Agent Client Protocol, built on =comint-mode=,
 =project.el=, and =completion-at-point=. Docks in a right-hand side window
-(jump with =C-x o=), integrates with =project.el= (=C-x p a= / =C-c p a=),
+(jump with =C-x o=), integrates with =project.el= (=C-x p a=),
 and disables automatic Corfu popups for prose while keeping =@file= and
 =/command= completion active.
 
@@ -707,12 +707,12 @@ With prefix argument PICK-SHELL, prompt for which agent buffer to send to."
            ("C-c a C" . agent-shell-anthropic-start-claude-code)
            ("C-c a b" . my/agent-shell-switch-buffer)
            ("C-c a s" . agent-shell-send-dwim)
-           ("C-c a r" . agent-shell-send-region)
            ("C-c a f" . agent-shell-send-current-file)
            ("C-c a F" . agent-shell-send-file)
            ("C-c a c" . agent-shell-prompt-compose)
            ("C-c a !" . agent-shell-insert-shell-command-output)
-           ("C-c a d" . my/agent-shell-send-flymake-diagnostics))
+           ("C-c a d" . my/agent-shell-send-flymake-diagnostics)
+           ("C-c a u" . agent-shell-copy-link-url-at-point))
     :hook (agent-shell-mode . my/agent-shell-setup)
     :custom
     (agent-shell-agent-configs #'my/agent-shell-configs)
