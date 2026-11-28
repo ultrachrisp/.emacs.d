@@ -111,16 +111,11 @@ APPEARANCE is nil without a GUI frame (e.g. `emacs -nw'); use dark then."
 *** UI General Settings
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
-
-;; Fallback indentation for web files; tab characters keep their usual
-;; 8-column width (Makefiles, Go).
-(defconst indent-size 2)
-(setq-default indent-tabs-mode nil)
 #+END_SRC
 
 *** EditorConfig
-Built in since Emacs 30. Projects with an =.editorconfig= file override the
-indentation and whitespace settings above for their files.
+Built in since Emacs 30. Applies each project's =.editorconfig= indentation
+and whitespace settings automatically.
 #+BEGIN_SRC emacs-lisp
 (use-package editorconfig
     :straight (:type built-in)
@@ -128,8 +123,7 @@ indentation and whitespace settings above for their files.
     (editorconfig-mode 1)
     :config
     ;; Emacs 31's mapping lacks json-ts-mode. For Vue, set only the indent
-    ;; offsets: the default web-mode mapping also sets <script>/<style>
-    ;; padding (overriding our 0) and variables not marked safe.
+    ;; offsets: the default web-mode mapping also sets variables not marked safe.
     (add-to-list 'editorconfig-indentation-alist
                  '(json-ts-mode json-ts-mode-indent-offset))
     (add-to-list 'editorconfig-indentation-alist
@@ -175,13 +169,11 @@ Magit is objectively the best Git interface.
 #+END_SRC
 
 *** Project
-Built-in project.el, on its default =C-x p= prefix and on =C-c p= for
-Projectile muscle memory. Consult, Magit and Eglot use it automatically.
+Built-in project.el, on its default =C-x p= prefix. Consult, Magit and Eglot
+use it automatically.
 #+BEGIN_SRC emacs-lisp
 (use-package project
     :straight (:type built-in)
-    :init
-    (keymap-global-set "C-c p" project-prefix-map)
     :custom
     (project-mode-line t))
 #+END_SRC
@@ -195,9 +187,7 @@ Built into Emacs 30+; shows the keys that follow a prefix.
   (which-key-mode 1)
   :config
   (which-key-add-key-based-replacements
-    "C-c p" "project"
     "C-c l" "lsp"
-    "C-c !" "diagnostics"
     "C-c s" "spell"))
 #+END_SRC
 
@@ -263,11 +253,10 @@ Built into Emacs 30+; shows the keys that follow a prefix.
   (corfu-popupinfo-delay '(0.5 . 0.2))
   (corfu-preselect 'prompt)
   :bind (:map corfu-map
-              ("TAB"        . corfu-next)
-              ([tab]        . corfu-next)
-              ("S-TAB"      . corfu-previous)
-              ([backtab]    . corfu-previous)
-              ("S-<return>" . corfu-insert))
+              ("TAB"     . corfu-next)
+              ([tab]     . corfu-next)
+              ("S-TAB"   . corfu-previous)
+              ([backtab] . corfu-previous))
   :init
   (global-corfu-mode)
   (corfu-history-mode)
@@ -279,28 +268,21 @@ Built into Emacs 30+; shows the keys that follow a prefix.
             (lambda ()
               (setq-local corfu-quit-at-boundary t
                           corfu-quit-no-match t
-                          corfu-auto nil)
-              (corfu-mode 1))))
+                          corfu-auto nil))))
 #+END_SRC
 
 *** Snippets & Diagnostics
 #+BEGIN_SRC emacs-lisp
+;; Needed by Eglot to expand LSP completion snippets.
 (use-package yasnippet
     :init
-  (yas-global-mode 1)
-  :config
-  (use-package yasnippet-snippets)
-  (yas-reload-all))
+  (yas-global-mode 1))
 
 ;; Built-in diagnostics; Eglot turns it on in its buffers.
+;; Navigate with M-g n / M-g p; list with M-s M-e (C-u M-s M-e for project).
 (use-package flymake
     :straight (:type built-in)
     :hook (emacs-lisp-mode . flymake-mode)
-    :bind (:map flymake-mode-map
-                ("M-n"     . flymake-goto-next-error)
-                ("M-p"     . flymake-goto-prev-error)
-                ("C-c ! l" . flymake-show-buffer-diagnostics)
-                ("C-c ! p" . flymake-show-project-diagnostics))
     :custom
     (flymake-show-diagnostics-at-end-of-line 'short))
 #+END_SRC
@@ -522,35 +504,9 @@ ESLint, oxlint, and Tailwind join when the project uses them."
 #+BEGIN_SRC emacs-lisp
 ;; Tree-sitter modes come from `treesit-enabled-modes' above;
 ;; eglot-ensure is hooked in the Eglot block.
-(use-package typescript-ts-mode
-    :straight (:type built-in)
-    :custom
-    (typescript-ts-mode-indent-offset indent-size)
-    :hook (tsx-ts-mode . emmet-mode))
-
-(use-package js
-    :straight (:type built-in)
-    :custom
-    (js-indent-level indent-size)
-    :hook (js-ts-mode . emmet-mode))
-
-(use-package json-ts-mode
-    :straight (:type built-in)
-    :custom
-    (json-ts-mode-indent-offset indent-size))
-
-(use-package mhtml-ts-mode
-    :straight (:type built-in)
-    :hook (mhtml-ts-mode . emmet-mode))
-
-(use-package emmet-mode)
-
-;; .scss uses the built-in scss-mode (derived from css-mode), as the
-;; css tree-sitter grammar can't parse SCSS.
-(use-package css-mode
-    :straight (:type built-in)
-    :custom
-    (css-indent-offset indent-size))
+;; .scss uses the built-in scss-mode, as the css tree-sitter grammar can't parse SCSS.
+(use-package emmet-mode
+    :hook ((tsx-ts-mode js-ts-mode mhtml-ts-mode my/vue-mode) . emmet-mode))
 
 ;; Indented Sass (.sass) has no built-in mode.
 (use-package ssass-mode
@@ -559,20 +515,12 @@ ESLint, oxlint, and Tailwind join when the project uses them."
 ;; Vue SFCs use a dedicated web-mode derivative so Eglot can target .vue
 ;; without hijacking web-mode, while Apheleia inherits `(web-mode . prettier)'.
 (use-package web-mode
-    :custom
-    (web-mode-markup-indent-offset indent-size)
-    (web-mode-css-indent-offset indent-size)
-    (web-mode-code-indent-offset indent-size)
-    (web-mode-script-padding 0)
-    (web-mode-style-padding 0)
     :init
     (define-derived-mode my/vue-mode web-mode "Vue"
       "Major mode for editing Vue single-file components.")
-    (add-to-list 'auto-mode-alist '("\\.vue\\'" . my/vue-mode))
-    :hook (my/vue-mode . emmet-mode))
+    (add-to-list 'auto-mode-alist '("\\.vue\\'" . my/vue-mode)))
 
-;; Rust and Python keep their own 4-space defaults; rust-ts-mode is built in.
-;; Run cargo, pytest and friends with `project-compile' (C-x p c).
+;; rust-ts-mode is built in; run cargo, pytest and friends with `project-compile' (C-x p c).
 (defun my/python-use-project-venv ()
   "Point `run-python' at the project's .venv (as created by uv), if any."
   (when-let* ((project (project-current))
@@ -611,12 +559,7 @@ Python uses ruff to sort imports and then format (Apheleia's default is black).
     (ispell-region (line-beginning-position) (line-end-position)))
   :bind (("C-c s r" . ispell-region)
          ("C-c s b" . ispell-buffer)
-         ("C-c s w" . ispell-word)
-         ("C-c s l" . ispell-line))
-  :config
-  (when-let* ((aspell-bin (or (executable-find "aspell")
-                             (executable-find "hunspell"))))
-    (setq ispell-program-name aspell-bin)))
+         ("C-c s l" . ispell-line)))
 #+END_SRC
 
 *** Olivetti Mode
